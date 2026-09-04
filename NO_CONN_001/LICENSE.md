@@ -26,6 +26,14 @@ version `0.002` - this reconstruction goes further (a working 0-1 scale
 and regional map do not exist in NINA's original at all), but is not
 itself official/finished methodology either.
 
+This indicator is developed under the documentation standard and
+publication workflow of NINA's
+[ecRxiv](https://github.com/NINAnor/ecRxiv), a publishing platform for
+Ecosystem Condition indicators ([ecRxiv.com](https://ecrxiv.com), GPL-3.0,
+DOI [10.5281/zenodo.21802603](https://doi.org/10.5281/zenodo.21802603)).
+This reconstruction has not gone through that publication workflow, and
+the ecRxiv name and branding remain reserved for indicators that have.
+
 ## Scope note
 
 This license applies to the contents of this folder (code,

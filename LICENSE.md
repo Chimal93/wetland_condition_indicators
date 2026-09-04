@@ -20,7 +20,22 @@ restrictions may be applied on top of these terms.
 This repository independently reconstructs the methodology of NINA's
 wetland ecosystem condition indicators from public data sources. Each
 indicator's README documents its methodology and its known deviations
-from the original. These are **not official NINA products**.
+from the original.
+
+Credit is due to two NINA works this builds on:
+
+- **[ecosystemCondition](https://github.com/NINAnor/ecosystemCondition)** —
+  the indicator methodologies reconstructed here (CC BY 4.0).
+- **[ecRxiv](https://github.com/NINAnor/ecRxiv)** — NINA's publishing
+  platform for Ecosystem Condition indicators
+  ([ecRxiv.com](https://ecrxiv.com)), which defines the documentation
+  standard and publication workflow these indicators are developed under.
+  Released under GPL-3.0; DOI
+  [10.5281/zenodo.21802603](https://doi.org/10.5281/zenodo.21802603).
+
+These are **not official NINA products**. This work has not gone through
+ecRxiv's publication workflow, and the ecRxiv name and branding remain
+reserved for indicators that have completed it.
 
 ## Scope
 

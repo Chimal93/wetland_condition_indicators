@@ -9,6 +9,12 @@ own metadata marks this indicator `status: incomplete`, version
 `0.002`, *"Working pipeline, but not operationalised."* This is a
 genuine from-scratch reconstruction, not a port of a finished product.
 
+Developed under the documentation standard of NINA's
+[ecRxiv](https://github.com/NINAnor/ecRxiv) publishing platform for
+Ecosystem Condition indicators. This is an independent reconstruction and
+not an official NINA product; it has not gone through ecRxiv's
+publication workflow.
+
 This is one indicator's subfolder within a larger multi-indicator repo
 (5 indicators planned in total). Everything below is self-contained to
 this folder - all scripts resolve paths relative to their own location,

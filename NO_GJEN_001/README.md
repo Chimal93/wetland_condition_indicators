@@ -7,6 +7,12 @@ required to run this, though the preferred data source for two of the
 core computations (see below) does require access your collaborators
 already have.
 
+Developed under the documentation standard of NINA's
+[ecRxiv](https://github.com/NINAnor/ecRxiv) publishing platform for
+Ecosystem Condition indicators. This is an independent reconstruction and
+not an official NINA product; it has not gone through ecRxiv's
+publication workflow.
+
 This is one indicator's subfolder within a larger multi-indicator repo
 (5 indicators planned in total). Everything below is self-contained to
 this folder - all scripts resolve paths relative to their own location,

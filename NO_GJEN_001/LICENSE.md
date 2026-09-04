@@ -23,6 +23,14 @@ public data sources - see `README.md` for the full methodology summary
 and known deviations from NINA's original. It is not an official NINA
 product.
 
+This indicator is developed under the documentation standard and
+publication workflow of NINA's
+[ecRxiv](https://github.com/NINAnor/ecRxiv), a publishing platform for
+Ecosystem Condition indicators ([ecRxiv.com](https://ecrxiv.com), GPL-3.0,
+DOI [10.5281/zenodo.21802603](https://doi.org/10.5281/zenodo.21802603)).
+This reconstruction has not gone through that publication workflow, and
+the ecRxiv name and branding remain reserved for indicators that have.
+
 ## Scope note
 
 This license applies to the contents of this folder (code,

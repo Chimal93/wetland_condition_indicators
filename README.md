@@ -6,9 +6,18 @@ no access to internal institutional file shares is required.
 
 These reconstruct the methodology of NINA's
 [ecosystemCondition](https://github.com/NINAnor/ecosystemCondition)
-indicators. They are independent work and not official NINA products.
-Where an original could not be reproduced exactly, the deviation is
-documented in that indicator's README rather than silently absorbed.
+indicators, developed and published through NINA's
+[**ecRxiv**](https://github.com/NINAnor/ecRxiv) — a publishing platform
+for Ecosystem Condition indicators ([ecRxiv.com](https://ecrxiv.com),
+DOI [10.5281/zenodo.21802603](https://doi.org/10.5281/zenodo.21802603)),
+which defines the documentation standard and workflow these indicators
+follow.
+
+This work is an independent reconstruction and **not an official NINA
+product**; it has not gone through ecRxiv's publication workflow, and the
+ecRxiv name and branding remain reserved for indicators that have. Where
+an original could not be reproduced exactly, the deviation is documented
+in that indicator's README rather than silently absorbed.
 
 ## Indicators
 
