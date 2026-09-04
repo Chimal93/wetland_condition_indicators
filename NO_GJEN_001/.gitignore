@@ -1,0 +1,39 @@
+# R session / working-state artifacts - never intentional output
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+*.Rout
+Rplots.pdf
+
+# Large, fully re-fetchable/regenerable data - regenerate with the
+# scripts in Fetch/ instead of committing. AR5 additionally requires
+# personal/organizational access (see README) - AR50 is the fully
+# public fallback either way.
+Data/OpenS_data/ar5_skog_national.gpkg
+Data/OpenS_data/ar5_myr_national.gpkg
+Data/OpenS_data/ar50_skog_national.gpkg
+Data/OpenS_data/ar50_myr_national.gpkg
+Data/OpenS_data/osm_buildings_national.gpkg
+Data/OpenS_data/nin_data/
+Data/OpenS_data/disturbance/
+Data/OpenS_data/bioclim/
+Data/OpenS_data/dtm1_coverage_union.gpkg
+
+# Intermediate caches derived from the above - small themselves, but
+# only meaningful alongside whichever source (AR5/AR50) built them
+# (see the population_source column/tag). Not real deliverables; the
+# actual results are the final index/map exports in Results/.
+Data/OpenS_data/vegHeights_skog_climZoneRegion_openS.csv
+Data/OpenS_data/vaatmark_pop_openS.gpkg
+Data/OpenS_data/refvaatmark_NINA_median/
+
+# Quick-test artifacts - not real results, and *.real_backup files are
+# only ever transient (created and removed within a single run of
+# quick_test_small_aoi.R; only survive if that script crashed mid-swap).
+Results_TEST_AOI/
+*.real_backup
+
+# OS junk
+.DS_Store
+Thumbs.db

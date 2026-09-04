@@ -1,0 +1,30 @@
+# R session / working-state artifacts - never intentional output
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+*.Rout
+Rplots.pdf
+
+# Large, fully re-fetchable public data - regenerate with the scripts in
+# Fetch/ instead of committing (fetch_ano_data.R / fetch_b12_data.R).
+# A committed copy would also go stale, since fetch_ano_data.R always
+# pulls the current national export.
+Data/OpenS_data/ano_data/
+Data/OpenS_data/B12_planter_og_lav_pa_myr.xlsx
+
+# Tyler et al. (2021) supplementary material. Not redistributed here -
+# it is the publisher's supplementary file, obtained from the article
+# and cited, not shipped with this code. Fetch/get_tyler_data.R prints
+# the download instructions and verifies the file once you have it.
+Data/OpenS_data/Tyler_data_raw.xlsx
+
+# Disposable output from Fetch/quick_test_small_aoi.R - regenerated
+# every run, not a real result.
+Results/NO_FUNC_003_wetland_map_2019to2021_TEST_AOI.png
+Data/OpenS_data/ano_data/*.real_backup
+Results/*.real_backup
+
+# OS junk
+.DS_Store
+Thumbs.db

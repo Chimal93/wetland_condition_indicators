@@ -1,0 +1,48 @@
+# Normalise line endings. Without this, files committed from Windows
+# carry CRLF into the repository and every cross-platform edit shows as
+# a whole-file diff.
+* text=auto
+
+# Explicitly text, so diffs stay readable regardless of local settings.
+*.R      text
+*.Rmd    text
+*.qmd    text
+*.py     text
+*.md     text
+*.txt    text
+*.csv    text
+*.json   text
+*.yml    text
+*.yaml   text
+
+# Windows-only scripts keep CRLF - some Windows tooling requires it.
+*.ps1    text eol=crlf
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# Binary: never line-ending-converted, never diffed as text.
+*.gpkg   binary
+*.tif    binary
+*.tiff   binary
+*.shp    binary
+*.shx    binary
+*.dbf    binary
+*.prj    binary
+*.sbn    binary
+*.sbx    binary
+*.cpg    binary
+*.gdb    binary
+*.xlsx   binary
+*.xls    binary
+*.docx   binary
+*.pdf    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.zip    binary
+*.gz     binary
+*.7z     binary
+*.pth    binary
+*.ckpt   binary
+*.rds    binary
+*.RData  binary

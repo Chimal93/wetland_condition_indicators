@@ -1,0 +1,32 @@
+# R session / working-state artifacts - never intentional output
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+*.Rout
+Rplots.pdf
+
+# Large, fully re-fetchable raw source data - regenerate with the
+# scripts in Fetch/ instead of committing. NOT needed at all if you
+# never delete the committed derived caches below (see README).
+Data/infra_index_source/
+Data/wetland_map_source/
+Data/nin_data/
+
+# Quick-test artifacts - not real results.
+Results_TEST_AOI/
+*.real_backup
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# The ~2GB of derived caches. These are NOT committed: several exceed
+# GitHub's 100MB per-file hard limit, and keeping 2GB out of git history
+# keeps the repo quick to clone. They are published as GitHub Release
+# assets instead and retrieved by Fetch/download_caches.R - see README's
+# "Cache vs. real compute" section. Regenerating them from scratch is
+# 20+ hours of compute, so do not delete them casually.
+Data/LUI_output/
+Data/wetland_map_simplified/
+Data/connectivity_output_simplified/
