@@ -36,6 +36,18 @@ per-file limit, and keeping them out of git history keeps the repo
 small enough to clone quickly. Run **`Fetch/download_caches.R` once**
 to retrieve them into `Data/`.
 
+> **While this repository is private, that script needs a GitHub token.**
+> Release assets on a private repo are not served without authentication,
+> even to collaborators who can clone. Easiest fix — install the
+> [GitHub CLI](https://cli.github.com/), run `gh auth login`, then in R:
+>
+> ```r
+> Sys.setenv(GITHUB_TOKEN = system("gh auth token", intern = TRUE))
+> ```
+>
+> Or set `GITHUB_TOKEN` to a fine-grained personal access token with read
+> access to this repository. No token is needed once the repo is public.
+
 **With the caches in place, `Main/NO_CONN_001_wetland_pipeline.R`
 finishes in a few minutes**, not hours - because almost every stage
 finds its cache and prints `"already present on disk - SKIPPING
