@@ -20,15 +20,15 @@
 # Once the repository is public no token is needed.
 # ============================================================
 
-# ---- configure once the repository exists -------------------
-REPO        <- Sys.getenv("CONN001_REPO", "")   # e.g. "owner/repo-name"
+# ---- where the caches live ----------------------------------
+# Override either via environment variable if you fork the repository or
+# publish a newer cache release.
+REPO        <- Sys.getenv("CONN001_REPO", "Chimal93/wetland_condition_indicators")
 RELEASE_TAG <- Sys.getenv("CONN001_RELEASE_TAG", "conn001-caches-v1")
 
 if (!nzchar(REPO)) {
-  stop("REPO is not set.\n",
-       "Set it to the GitHub repository holding the release, e.g.\n",
-       "  Sys.setenv(CONN001_REPO = \"owner/repo-name\")\n",
-       "or edit the REPO default at the top of this script.")
+  stop("CONN001_REPO is empty. Set it to the GitHub repository holding the\n",
+       "release, e.g. Sys.setenv(CONN001_REPO = \"owner/repo-name\").")
 }
 
 if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
@@ -50,13 +50,43 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 data_dir <- file.path("..", "Data")
 
 # Asset filename -> destination folder. Release assets are a flat
-# namespace, so the folder each belongs in is recorded here.
+# namespace, so the folder each belongs in is reconstructed here.
+#
+# Note the LUI_output rule keys on the .tif extension, NOT a "LUI_"
+# prefix: that folder also holds ALI_count_*, BI_count_* and LCI_count_*
+# (the three component indices the LUI is built from). A prefix rule
+# silently dropped 9 of the 30 assets, which would only have surfaced as
+# a mid-run failure much later.
 dest_of <- function(asset) {
-  if (grepl("^LUI_", asset))                 return(file.path(data_dir, "LUI_output"))
-  if (grepl("^wetland_simplified_", asset))  return(file.path(data_dir, "wetland_map_simplified"))
+  if (grepl("\\.tif$", asset, ignore.case = TRUE))
+    return(file.path(data_dir, "LUI_output"))
+  if (grepl("^wetland_simplified_", asset))
+    return(file.path(data_dir, "wetland_map_simplified"))
   if (grepl("_min_myr_distance_certified|_connectivity_full_", asset))
-                                             return(file.path(data_dir, "connectivity_output_simplified"))
+    return(file.path(data_dir, "connectivity_output_simplified"))
   NA_character_
+}
+
+# GitHub strips non-ASCII characters from Release asset names, so
+# "wetland_simplified_Østlandet.gpkg" is stored as "..._Ostlandet.gpkg".
+# The pipeline builds these paths from the Norwegian region names
+# (regionlvl in Main), so the original filename has to be restored on
+# download or Stage 6a/7a will not find its cache.
+#
+# Only these two files are affected: everything under
+# connectivity_output_simplified/ is already written with ASCII region
+# names (ostlandet/sorlandet) by the pipeline itself.
+#
+# Written with \u escapes rather than literal characters so this script
+# behaves identically regardless of the encoding R reads it under.
+restore_name <- function(asset) {
+  O_slash <- "\u00D8"   # capital O-slash
+  o_slash <- "\u00F8"   # lowercase o-slash
+  if (identical(asset, "wetland_simplified_Ostlandet.gpkg"))
+    return(paste0("wetland_simplified_", O_slash, "stlandet.gpkg"))
+  if (identical(asset, "wetland_simplified_Sorlandet.gpkg"))
+    return(paste0("wetland_simplified_S", o_slash, "rlandet.gpkg"))
+  asset
 }
 
 token <- Sys.getenv("GITHUB_TOKEN")
@@ -85,7 +115,7 @@ for (a in assets) {
     cat("  ? unrecognised asset, skipping:", name, "\n"); next
   }
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  dest <- file.path(dest_dir, name)
+  dest <- file.path(dest_dir, restore_name(name))
 
   # Size match is the completeness check - a truncated download from an
   # interrupted run would otherwise look "present" and silently poison
