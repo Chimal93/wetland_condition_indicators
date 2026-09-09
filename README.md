@@ -62,28 +62,7 @@ as GitHub Release assets and retrieved with
 
 ## Getting started
 
-```
-git clone https://github.com/Chimal93/wetland_condition_indicators.git
-```
-
-**While this repository is private, downloading the release assets needs a
-token.** Cloning uses your normal GitHub login, but the GitHub API requires
-explicit authentication to serve release assets from a private repo — so
-`download_caches.R` will fail without one. The simplest route:
-
-1. Install the [GitHub CLI](https://cli.github.com/) and run `gh auth login`
-2. In R, before running the download script:
-
-   ```r
-   Sys.setenv(GITHUB_TOKEN = system("gh auth token", intern = TRUE))
-   ```
-
-Alternatively create a [fine-grained personal access token](https://github.com/settings/tokens)
-with read access to this repository and set `GITHUB_TOKEN` to it.
-
-Once the repository is public, no token is needed and this step disappears.
-
-Then pick an indicator and follow its README — each is self-contained and
+Pick an indicator and follow its README — each is self-contained and
 can be run without the others.
 
 ## Reference data included here
