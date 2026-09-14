@@ -19,6 +19,24 @@ ecRxiv name and branding remain reserved for indicators that have. Where
 an original could not be reproduced exactly, the deviation is documented
 in that indicator's README rather than silently absorbed.
 
+## TL;DR: reproduce all results
+
+On a machine with Docker (Linux, or Windows via WSL, or macOS), from a
+terminal:
+
+```bash
+git clone <this repository> && cd wetland_condition_indicators
+bash docker/build_image.sh        # once, a few minutes
+bash docker/check_setup.sh        # tells you which inputs you must obtain by hand
+bash docker/run_indicators.sh     # hours; run it inside screen or tmux
+```
+
+Two inputs cannot be downloaded automatically and the check will ask for
+them: the Tyler et al. (2021) spreadsheet for `NO_FUNC_003`, and the
+AR5 forest and mire layers for `NO_GJEN_001` (or set `GJEN_SOURCE=AR50`
+to use the public map instead). Logs, software versions and the results
+before and after the run land in `runs/`. Details: [`docker/README.md`](docker/README.md).
+
 ## Indicators
 
 | Indicator | Measures | Status |
