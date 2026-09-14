@@ -45,6 +45,14 @@ follows the same layout:
 | `Data/` | Inputs and intermediates (large files are fetched, not committed) |
 | `Results/` | Final maps, indices and diagnostics |
 
+At the repository level:
+
+| File / folder | Contents |
+|---|---|
+| `renv.lock` | The exact versions of R and every R package the scripts were run with |
+| `wetland_condition_indicators.Rproj` | Opens the repository as an RStudio project |
+| `docker/` | Runs the pipelines in a ready-made, frozen software environment. The preferred way to run them (see `docker/README.md`) |
+
 **Start with the README inside the indicator you want to run.** Each
 documents its own inputs, runtime, external dependencies and known
 limitations.
@@ -62,8 +70,65 @@ as GitHub Release assets and retrieved with
 
 ## Getting started
 
-Pick an indicator and follow its README — each is self-contained and
-can be run without the others.
+1. Set up the software as described under "Setting up the software" below.
+2. Pick an indicator and follow its README — each is self-contained and
+   can be run without the others.
+
+## Setting up the software
+
+All indicators are written in R. To get the same results as everyone
+else, you need the same versions of R, of the R packages the scripts use,
+and of the map libraries underneath them. There are two ways to set this
+up. Docker is the preferred one; RStudio without Docker is a fallback.
+
+### Preferred: with Docker (Windows, macOS or Linux)
+
+The `docker/` folder provides a complete, frozen environment with R 4.6.1,
+all packages in the versions recorded in `renv.lock`, and the map
+libraries (GDAL, GEOS, PROJ) they depend on, plus a runner that executes
+the pipelines and records logs, versions and results for each run. It is
+the only setup that fixes all three layers, which is what makes results
+from different machines comparable. On Windows the commands are run from
+a WSL (Ubuntu) terminal with Docker Desktop; on macOS from the Terminal
+app with Docker Desktop. See [`docker/README.md`](docker/README.md).
+
+### Fallback: in RStudio without Docker
+
+Use this if you cannot install Docker. The file `renv.lock` records the
+exact R package versions, and the steps below install precisely those.
+Note that this does not fix the versions of R itself or of the map
+libraries (GDAL, GEOS, PROJ) that come with your `sf` and `terra`
+installation, so results may differ slightly from the published ones.
+
+1. Install [R](https://cran.r-project.org/) version 4.6 and
+   [RStudio](https://posit.co/download/rstudio-desktop/).
+2. Open the file `wetland_condition_indicators.Rproj` in RStudio. On the
+   first start, RStudio installs a small helper package called `renv` and
+   prints a message about it; this is expected.
+3. In the RStudio console, run:
+
+   ```r
+   renv::restore()
+   ```
+
+   and confirm with `y`. This downloads and installs all packages in the
+   recorded versions into a library that belongs to this project only.
+   It does not touch your other R projects. Expect 5 to 15 minutes and
+   about 1 GB of disk space. An internet connection is required.
+4. Follow the README of the indicator you want to run. Run the scripts
+   from within RStudio (open the script and use *Source*), so that they
+   pick up the project's package library.
+
+Good to know:
+
+- One package, `ecTools`, is downloaded from GitHub. If the install stops
+  with a message about a "rate limit", GitHub is refusing anonymous
+  downloads for a while. Wait an hour and try again, or create a free
+  GitHub token and run `Sys.setenv(GITHUB_PAT = "<token>")` before
+  `renv::restore()`.
+- A few rebuild-from-scratch steps in `NO_CONN_001` need extra software on
+  Windows (QGIS, PowerShell). You only hit them if you delete that
+  indicator's published caches; its README explains when.
 
 ## Reference data included here
 
@@ -83,12 +148,6 @@ indicator depends on them and they are only a few MB:
 
 - **`outlineOfNorway_EPSG25833.shp`** — detailed coastline, used only as a
   basemap for rendering. It never enters a computed value.
-
-## Requirements
-
-- **R** (developed against 4.6) with `sf`, `terra`, `dplyr`, `ggplot2`
-- **QGIS** — only for `NO_CONN_001` stage 2 (SOSI format conversion)
-- Some steps are Windows-specific; each README flags these where they apply
 
 ## License
 
