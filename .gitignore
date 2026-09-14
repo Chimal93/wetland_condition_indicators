@@ -1,0 +1,23 @@
+# R session files
+.Rhistory
+.RData
+.Rproj.user/
+
+# renv: keep only renv.lock, renv/activate.R and renv/settings.json under
+# version control. The package library and its scratch dirs are rebuilt
+# from renv.lock with renv::restore(). (renv/.gitignore says the same;
+# this repeats it so the rule is visible at the top level.)
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/sandbox/
+renv/staging/
+
+# R output artifacts from interactive sessions - never intentional output.
+# Intermediate data and caches inside the indicator folders are ignored by
+# NO_CONN_001/.gitignore, NO_FUNC_003/.gitignore and NO_GJEN_001/.gitignore.
+Rplots.pdf
+*.Rout
+
