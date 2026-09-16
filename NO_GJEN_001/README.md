@@ -36,6 +36,7 @@ bioclimatic-zone strata, a 50km grid, and national/regional levels.
 | `Fetch/` | Scripts that download or build each input. Run these first. |
 | `Data/OpenS_data/` | Everything the pipeline reads/writes, flat (no NINA/OpenS split - none of this data is actually gated). |
 | `Results/` | Final maps, tables, and exported shapefiles/CSVs. |
+| `Deliverables/` | The indicator in the ecosystemCondition platform format - region, 50 km grid and polygon maps (`.rds`, EPSG:25833), values table (csv/xlsx with a metadata sheet), figure. Produced by `Main/export_deliverables.R`. |
 | `Results_TEST_AOI/` | Created by `Fetch/quick_test_small_aoi.R` - small-region smoke-test output, not a real result (gitignored). |
 
 ## How to run it (in order)
@@ -50,6 +51,7 @@ bioclimatic-zone strata, a 50km grid, and national/regional levels.
 8. `Fetch/build_refvaatmark_30m.R` - the wetland "good condition" reference heights (Stage 5 input). Needs steps 4 and 6. Evaluates the LiDAR canopy height at 30 m inside every good-condition NiN wetland polygon, as the original reference is defined - see "Reference heights" below for why the scale matters. ~40 min, network-bound, checkpointed (safe to interrupt and re-run). Prints a per-stratum comparison against the published reference table at the end.
 9. **If you have AR5 access** (your collaborators do): place `AR5-skog-myr.gpkg` at the repo's `Indikatorer`-equivalent root (one level above this indicator's folder tree, matching the original project layout - adjust the path in `extract_ar5_skog_myr.R` if your repo root is laid out differently), then run `Fetch/extract_ar5_skog_myr.R`. If you skip this, the pipeline automatically falls back to the AR50 data from steps 6-7 - see "AR5 vs. AR50" below.
 10. `Main/NO_GJEN_001_wetland_pipeline_OpenSource.R` - the actual indicator computation. First run computes Stage 4/6's forest-reference and population heights from scratch (national stratified sampling + CHM extraction against Kartverket's live LiDAR service) and caches the results; later runs read the cache instantly. In practice this is quick, not the hours-long worst case you might expect from "national stratified sampling" - a full cold-cache run (both stages, ~25,000 points each, 8 parallel workers) took under 5 minutes end to end on a normal laptop. Stage 5 reads step 8's table.
+11. `Main/export_deliverables.R` - writes the finished indicator in the ecosystemCondition platform format to `Deliverables/` (see "Deliverables" below). Seconds; reads `Results/` only.
 
 Each script has a 3-tier working-directory fallback and runs the same
 way from RStudio, `Rscript script.R`, or `source("script.R")`.
@@ -187,6 +189,25 @@ NiN download were mapped in 2023-2025 and postdate the polygon set the
 published table was built from. The current download is the correct
 input for a current reconstruction; the published table is used for
 comparison, not as ground truth.
+
+## Deliverables (platform format)
+
+`Main/export_deliverables.R` maps the pipeline's results onto the
+ecosystemCondition platform schema (`area, areaId, v_YYYY, sd_YYYY,
+i_YYYY, reference_high, reference_low, thr`; see the repository README):
+
+- `v` = mean vegetation height of the wetland population (m), `i` = the
+  sigmoid-scaled index, `reference_high` = the good-condition wetland
+  reference (X100), `reference_low` = the forest reference (X0), `thr` =
+  0.6 on the indicator scale (platform default - no X60 is defined on the
+  variable scale in the original work), `sd` = the bootstrap standard error
+  of the area-weighted mean index (the quantity `ea_spread()` computes).
+- Three unit sets: landsdel (primary), SSB 50 km cells with data, and every
+  valued wetland polygon; plus a national row in the values table.
+- Year label `2024` (`GJEN001_DATA_YEAR`): the elevation models are
+  Kartverket's national products flown 2010-2024, stated in the metadata.
+- Grid membership is re-derived spatially in the export (the pipeline's
+  polygon-level `ssbid` is only a row number).
 
 ## Known limitations
 

@@ -44,10 +44,37 @@ follows the same layout:
 | `Fetch/` | Scripts that download or build each input; run these first |
 | `Data/` | Inputs and intermediates (large files are fetched, not committed) |
 | `Results/` | Final maps, indices and diagnostics |
+| `Deliverables/` | The indicator in the ecosystemCondition platform format (see below) |
 
 **Start with the README inside the indicator you want to run.** Each
 documents its own inputs, runtime, external dependencies and known
 limitations.
+
+## Delivery format (`Tools/` and each `Deliverables/`)
+
+Every finished indicator ends with `Main/export_deliverables.R`, which
+writes the indicator in the data structure used by the
+[ecosystemCondition platform](https://ninanor.github.io/ecosystemCondition/)
+so it can be used in a condition assessment without conversion:
+
+- `<ID>_indicatorMap_region.rds` — an `sf` object in EPSG:25833, one row
+  per landsdel, columns `area, areaId, v_YYYY, sd_YYYY, i_YYYY,
+  reference_high, reference_low, thr` (variable value, its uncertainty,
+  the 0-1 indicator value, the X100/X0 reference levels on the variable
+  scale, and the good-condition threshold on the indicator scale). Finer
+  unit sets (grid cells, polygons, plots) are written alongside with the
+  same columns.
+- `<ID>_values.csv` / `.xlsx` — the same table without geometry plus a
+  national row and supplementary columns; the workbook carries a
+  `metadata` sheet (ID and version, names, ecosystem, data years,
+  variable and scaling definitions, reference-level justification,
+  uncertainty definition, sources, documentation links).
+- `<ID>_map.png` — a figure of the primary map.
+
+`Tools/export_platform_format.R` is the one shared writer; each
+indicator's export script only maps its own results onto the schema.
+Column names follow the platform's own example file (`reference_high`;
+the platform documentation spells it `referance_high`).
 
 ## Data is not committed
 
