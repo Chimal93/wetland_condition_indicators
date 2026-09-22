@@ -1,0 +1,311 @@
+ÿþRscript.exe : Linking to GEOS 3.14.1, GDAL 3.12.1, PROJ 9.7.1; sf_use_s2() is TRUE
+At C:\Users\adria\Documents\Indikatorer\NO_CONN_001\run_connectivity_ar5.ps1:45 char:5
++     & $Rscript "run_region_certified.R" *> (Join-Path $logDir ("certi ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Linking to GEOS...se_s2() is TRUE:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Attaching package: 'dplyr'
+The following objects are masked from 'package:stats':
+    filter, lag
+The following objects are masked from 'package:base':
+    intersect, setdiff, setequal, union
+Loaded 130557 simplified Nord-Norge mire polygons.
+Running certified nearest-neighbour distance (k=75 + giants, exact) on FULL region...
+  Computing per-polygon reach bounds...
+  Giant polygons (reach > 500 m): 2922 of 130557 ( 2.238 % ) - always checked directly.
+  R_max_typical (excl. giants): 500 m (vs. global max 9450 m)
+  batch 1 / 17 - [timing] 431.3 sec elapsed, ETA 115 min, mem 364 MB
+  batch 2 / 17 - [timing] 891.4 sec elapsed, ETA 111.4 min, mem 364 MB
+  batch 3 / 17 - [timing] 1347.7 sec elapsed, ETA 104.8 min, mem 364 MB
+  batch 4 / 17 - [timing] 1803.5 sec elapsed, ETA 97.7 min, mem 364 MB
+  batch 5 / 17 - [timing] 2263.1 sec elapsed, ETA 90.5 min, mem 364 MB
+  batch 6 / 17 - [timing] 2739.7 sec elapsed, ETA 83.7 min, mem 364 MB
+  batch 7 / 17 - [timing] 3240.9 sec elapsed, ETA 77.2 min, mem 364 MB
+  batch 8 / 17 - [timing] 3735.7 sec elapsed, ETA 70 min, mem 364 MB
+  batch 9 / 17 - [timing] 4271.3 sec elapsed, ETA 63.3 min, mem 364 MB
+  batch 10 / 17 - [timing] 4750.3 sec elapsed, ETA 55.4 min, mem 364 MB
+  batch 11 / 17 - [timing] 5288.8 sec elapsed, ETA 48.1 min, mem 364 MB
+  batch 12 / 17 - [timing] 5858.4 sec elapsed, ETA 40.7 min, mem 364 MB
+  batch 13 / 17 - [timing] 6367.2 sec elapsed, ETA 32.7 min, mem 364 MB
+  batch 14 / 17 - [timing] 6858.4 sec elapsed, ETA 24.5 min, mem 364 MB
+  batch 15 / 17 - [timing] 7388.1 sec elapsed, ETA 16.4 min, mem 364 MB
+  batch 16 / 17 - [timing] 7947.4 sec elapsed, ETA 8.3 min, mem 364 MB
+  batch 17 / 17 - [timing] 8112 sec elapsed, ETA 0 min, mem 364 MB
+  Pre-filter (k=75 + 2922 giants): 130286 of 130557 rows certified correct (99.79% ), 271 flagged for exact fallback.
+    fallback row 1 / 271 - [timing] 0.9 sec elapsed, ETA 4.1 min
+    fallback row 2 / 271 - [timing] 1.8 sec elapsed, ETA 4.1 min
+    fallback row 3 / 271 - [timing] 2.7 sec elapsed, ETA 4.1 min
+    fallback row 4 / 271 - [timing] 3.6 sec elapsed, ETA 4 min
+    fallback row 5 / 271 - [timing] 4.5 sec elapsed, ETA 4 min
+    fallback row 6 / 271 - [timing] 5.5 sec elapsed, ETA 4 min
+    fallback row 7 / 271 - [timing] 6.7 sec elapsed, ETA 4.2 min
+    fallback row 8 / 271 - [timing] 7.6 sec elapsed, ETA 4.2 min
+    fallback row 9 / 271 - [timing] 8.5 sec elapsed, ETA 4.1 min
+    fallback row 10 / 271 - [timing] 9.4 sec elapsed, ETA 4.1 min
+    fallback row 11 / 271 - [timing] 10.3 sec elapsed, ETA 4 min
+    fallback row 12 / 271 - [timing] 11.3 sec elapsed, ETA 4.1 min
+    fallback row 13 / 271 - [timing] 12.2 sec elapsed, ETA 4 min
+    fallback row 14 / 271 - [timing] 13.1 sec elapsed, ETA 4 min
+    fallback row 15 / 271 - [timing] 14.1 sec elapsed, ETA 4 min
+    fallback row 16 / 271 - [timing] 15 sec elapsed, ETA 4 min
+    fallback row 17 / 271 - [timing] 15.9 sec elapsed, ETA 4 min
+    fallback row 18 / 271 - [timing] 16.8 sec elapsed, ETA 3.9 min
+    fallback row 19 / 271 - [timing] 17.7 sec elapsed, ETA 3.9 min
+    fallback row 20 / 271 - [timing] 18.8 sec elapsed, ETA 3.9 min
+    fallback row 21 / 271 - [timing] 19.7 sec elapsed, ETA 3.9 min
+    fallback row 22 / 271 - [timing] 20.6 sec elapsed, ETA 3.9 min
+    fallback row 23 / 271 - [timing] 21.5 sec elapsed, ETA 3.9 min
+    fallback row 24 / 271 - [timing] 22.5 sec elapsed, ETA 3.9 min
+    fallback row 25 / 271 - [timing] 23.4 sec elapsed, ETA 3.8 min
+    fallback row 26 / 271 - [timing] 24.6 sec elapsed, ETA 3.9 min
+    fallback row 27 / 271 - [timing] 25.5 sec elapsed, ETA 3.8 min
+    fallback row 28 / 271 - [timing] 26.4 sec elapsed, ETA 3.8 min
+    fallback row 29 / 271 - [timing] 27.3 sec elapsed, ETA 3.8 min
+    fallback row 30 / 271 - [timing] 28.2 sec elapsed, ETA 3.8 min
+    fallback row 31 / 271 - [timing] 29.2 sec elapsed, ETA 3.8 min
+    fallback row 32 / 271 - [timing] 30.1 sec elapsed, ETA 3.8 min
+    fallback row 33 / 271 - [timing] 31 sec elapsed, ETA 3.7 min
+    fallback row 34 / 271 - [timing] 32 sec elapsed, ETA 3.7 min
+    fallback row 35 / 271 - [timing] 33 sec elapsed, ETA 3.7 min
+    fallback row 36 / 271 - [timing] 33.8 sec elapsed, ETA 3.7 min
+    fallback row 37 / 271 - [timing] 34.8 sec elapsed, ETA 3.7 min
+    fallback row 38 / 271 - [timing] 35.8 sec elapsed, ETA 3.7 min
+    fallback row 39 / 271 - [timing] 36.7 sec elapsed, ETA 3.6 min
+    fallback row 40 / 271 - [timing] 37.7 sec elapsed, ETA 3.6 min
+    fallback row 41 / 271 - [timing] 38.6 sec elapsed, ETA 3.6 min
+    fallback row 42 / 271 - [timing] 39.5 sec elapsed, ETA 3.6 min
+    fallback row 43 / 271 - [timing] 40.5 sec elapsed, ETA 3.6 min
+    fallback row 44 / 271 - [timing] 41.4 sec elapsed, ETA 3.6 min
+    fallback row 45 / 271 - [timing] 42.6 sec elapsed, ETA 3.6 min
+    fallback row 46 / 271 - [timing] 43.5 sec elapsed, ETA 3.5 min
+    fallback row 47 / 271 - [timing] 44.4 sec elapsed, ETA 3.5 min
+    fallback row 48 / 271 - [timing] 45.3 sec elapsed, ETA 3.5 min
+    fallback row 49 / 271 - [timing] 46.3 sec elapsed, ETA 3.5 min
+    fallback row 50 / 271 - [timing] 47.2 sec elapsed, ETA 3.5 min
+    fallback row 51 / 271 - [timing] 48.1 sec elapsed, ETA 3.5 min
+    fallback row 52 / 271 - [timing] 49.1 sec elapsed, ETA 3.4 min
+    fallback row 53 / 271 - [timing] 50.1 sec elapsed, ETA 3.4 min
+    fallback row 54 / 271 - [timing] 51 sec elapsed, ETA 3.4 min
+    fallback row 55 / 271 - [timing] 52 sec elapsed, ETA 3.4 min
+    fallback row 56 / 271 - [timing] 52.9 sec elapsed, ETA 3.4 min
+    fallback row 57 / 271 - [timing] 53.9 sec elapsed, ETA 3.4 min
+    fallback row 58 / 271 - [timing] 54.9 sec elapsed, ETA 3.4 min
+    fallback row 59 / 271 - [timing] 55.8 sec elapsed, ETA 3.3 min
+    fallback row 60 / 271 - [timing] 56.7 sec elapsed, ETA 3.3 min
+    fallback row 61 / 271 - [timing] 57.7 sec elapsed, ETA 3.3 min
+    fallback row 62 / 271 - [timing] 58.6 sec elapsed, ETA 3.3 min
+    fallback row 63 / 271 - [timing] 59.5 sec elapsed, ETA 3.3 min
+    fallback row 64 / 271 - [timing] 60.7 sec elapsed, ETA 3.3 min
+    fallback row 65 / 271 - [timing] 61.7 sec elapsed, ETA 3.3 min
+    fallback row 66 / 271 - [timing] 62.5 sec elapsed, ETA 3.2 min
+    fallback row 67 / 271 - [timing] 63.4 sec elapsed, ETA 3.2 min
+    fallback row 68 / 271 - [timing] 64.3 sec elapsed, ETA 3.2 min
+    fallback row 69 / 271 - [timing] 65.4 sec elapsed, ETA 3.2 min
+    fallback row 70 / 271 - [timing] 66.4 sec elapsed, ETA 3.2 min
+    fallback row 71 / 271 - [timing] 67.3 sec elapsed, ETA 3.2 min
+    fallback row 72 / 271 - [timing] 68.3 sec elapsed, ETA 3.1 min
+    fallback row 73 / 271 - [timing] 69.3 sec elapsed, ETA 3.1 min
+    fallback row 74 / 271 - [timing] 70.2 sec elapsed, ETA 3.1 min
+    fallback row 75 / 271 - [timing] 71.4 sec elapsed, ETA 3.1 min
+    fallback row 76 / 271 - [timing] 72.3 sec elapsed, ETA 3.1 min
+    fallback row 77 / 271 - [timing] 74 sec elapsed, ETA 3.1 min
+    fallback row 78 / 271 - [timing] 75.1 sec elapsed, ETA 3.1 min
+    fallback row 79 / 271 - [timing] 76 sec elapsed, ETA 3.1 min
+    fallback row 80 / 271 - [timing] 76.9 sec elapsed, ETA 3.1 min
+    fallback row 81 / 271 - [timing] 77.9 sec elapsed, ETA 3 min
+    fallback row 82 / 271 - [timing] 78.8 sec elapsed, ETA 3 min
+    fallback row 83 / 271 - [timing] 79.7 sec elapsed, ETA 3 min
+    fallback row 84 / 271 - [timing] 81 sec elapsed, ETA 3 min
+    fallback row 85 / 271 - [timing] 81.9 sec elapsed, ETA 3 min
+    fallback row 86 / 271 - [timing] 82.7 sec elapsed, ETA 3 min
+    fallback row 87 / 271 - [timing] 83.6 sec elapsed, ETA 2.9 min
+    fallback row 88 / 271 - [timing] 84.5 sec elapsed, ETA 2.9 min
+    fallback row 89 / 271 - [timing] 85.5 sec elapsed, ETA 2.9 min
+    fallback row 90 / 271 - [timing] 86.4 sec elapsed, ETA 2.9 min
+    fallback row 91 / 271 - [timing] 87.3 sec elapsed, ETA 2.9 min
+    fallback row 92 / 271 - [timing] 88.3 sec elapsed, ETA 2.9 min
+    fallback row 93 / 271 - [timing] 89.2 sec elapsed, ETA 2.8 min
+    fallback row 94 / 271 - [timing] 90.1 sec elapsed, ETA 2.8 min
+    fallback row 95 / 271 - [timing] 91.1 sec elapsed, ETA 2.8 min
+    fallback row 96 / 271 - [timing] 92 sec elapsed, ETA 2.8 min
+    fallback row 97 / 271 - [timing] 92.9 sec elapsed, ETA 2.8 min
+    fallback row 98 / 271 - [timing] 93.8 sec elapsed, ETA 2.8 min
+    fallback row 99 / 271 - [timing] 94.8 sec elapsed, ETA 2.7 min
+    fallback row 100 / 271 - [timing] 95.6 sec elapsed, ETA 2.7 min
+    fallback row 101 / 271 - [timing] 96.6 sec elapsed, ETA 2.7 min
+    fallback row 102 / 271 - [timing] 97.5 sec elapsed, ETA 2.7 min
+    fallback row 103 / 271 - [timing] 98.7 sec elapsed, ETA 2.7 min
+    fallback row 104 / 271 - [timing] 99.6 sec elapsed, ETA 2.7 min
+    fallback row 105 / 271 - [timing] 100.5 sec elapsed, ETA 2.6 min
+    fallback row 106 / 271 - [timing] 101.4 sec elapsed, ETA 2.6 min
+    fallback row 107 / 271 - [timing] 102.3 sec elapsed, ETA 2.6 min
+    fallback row 108 / 271 - [timing] 103.3 sec elapsed, ETA 2.6 min
+    fallback row 109 / 271 - [timing] 104.3 sec elapsed, ETA 2.6 min
+    fallback row 110 / 271 - [timing] 105.2 sec elapsed, ETA 2.6 min
+    fallback row 111 / 271 - [timing] 106.2 sec elapsed, ETA 2.6 min
+    fallback row 112 / 271 - [timing] 107.1 sec elapsed, ETA 2.5 min
+    fallback row 113 / 271 - [timing] 108 sec elapsed, ETA 2.5 min
+    fallback row 114 / 271 - [timing] 109 sec elapsed, ETA 2.5 min
+    fallback row 115 / 271 - [timing] 109.9 sec elapsed, ETA 2.5 min
+    fallback row 116 / 271 - [timing] 110.8 sec elapsed, ETA 2.5 min
+    fallback row 117 / 271 - [timing] 111.8 sec elapsed, ETA 2.5 min
+    fallback row 118 / 271 - [timing] 112.7 sec elapsed, ETA 2.4 min
+    fallback row 119 / 271 - [timing] 113.6 sec elapsed, ETA 2.4 min
+    fallback row 120 / 271 - [timing] 114.6 sec elapsed, ETA 2.4 min
+    fallback row 121 / 271 - [timing] 115.5 sec elapsed, ETA 2.4 min
+    fallback row 122 / 271 - [timing] 116.4 sec elapsed, ETA 2.4 min
+    fallback row 123 / 271 - [timing] 117.6 sec elapsed, ETA 2.4 min
+    fallback row 124 / 271 - [timing] 118.5 sec elapsed, ETA 2.3 min
+    fallback row 125 / 271 - [timing] 119.5 sec elapsed, ETA 2.3 min
+    fallback row 126 / 271 - [timing] 120.4 sec elapsed, ETA 2.3 min
+    fallback row 127 / 271 - [timing] 121.3 sec elapsed, ETA 2.3 min
+    fallback row 128 / 271 - [timing] 122.4 sec elapsed, ETA 2.3 min
+    fallback row 129 / 271 - [timing] 123.4 sec elapsed, ETA 2.3 min
+    fallback row 130 / 271 - [timing] 124.4 sec elapsed, ETA 2.2 min
+    fallback row 131 / 271 - [timing] 125.5 sec elapsed, ETA 2.2 min
+    fallback row 132 / 271 - [timing] 126.4 sec elapsed, ETA 2.2 min
+    fallback row 133 / 271 - [timing] 127.5 sec elapsed, ETA 2.2 min
+    fallback row 134 / 271 - [timing] 128.4 sec elapsed, ETA 2.2 min
+    fallback row 135 / 271 - [timing] 129.3 sec elapsed, ETA 2.2 min
+    fallback row 136 / 271 - [timing] 130.2 sec elapsed, ETA 2.2 min
+    fallback row 137 / 271 - [timing] 131.3 sec elapsed, ETA 2.1 min
+    fallback row 138 / 271 - [timing] 132.2 sec elapsed, ETA 2.1 min
+    fallback row 139 / 271 - [timing] 133.1 sec elapsed, ETA 2.1 min
+    fallback row 140 / 271 - [timing] 134.1 sec elapsed, ETA 2.1 min
+    fallback row 141 / 271 - [timing] 135 sec elapsed, ETA 2.1 min
+    fallback row 142 / 271 - [timing] 136 sec elapsed, ETA 2.1 min
+    fallback row 143 / 271 - [timing] 137.2 sec elapsed, ETA 2 min
+    fallback row 144 / 271 - [timing] 138.1 sec elapsed, ETA 2 min
+    fallback row 145 / 271 - [timing] 139 sec elapsed, ETA 2 min
+    fallback row 146 / 271 - [timing] 139.9 sec elapsed, ETA 2 min
+    fallback row 147 / 271 - [timing] 140.8 sec elapsed, ETA 2 min
+    fallback row 148 / 271 - [timing] 141.8 sec elapsed, ETA 2 min
+    fallback row 149 / 271 - [timing] 142.7 sec elapsed, ETA 1.9 min
+    fallback row 150 / 271 - [timing] 143.6 sec elapsed, ETA 1.9 min
+    fallback row 151 / 271 - [timing] 144.6 sec elapsed, ETA 1.9 min
+    fallback row 152 / 271 - [timing] 145.5 sec elapsed, ETA 1.9 min
+    fallback row 153 / 271 - [timing] 146.4 sec elapsed, ETA 1.9 min
+    fallback row 154 / 271 - [timing] 147.4 sec elapsed, ETA 1.9 min
+    fallback row 155 / 271 - [timing] 148.3 sec elapsed, ETA 1.8 min
+    fallback row 156 / 271 - [timing] 149.2 sec elapsed, ETA 1.8 min
+    fallback row 157 / 271 - [timing] 150.2 sec elapsed, ETA 1.8 min
+    fallback row 158 / 271 - [timing] 151.1 sec elapsed, ETA 1.8 min
+    fallback row 159 / 271 - [timing] 152 sec elapsed, ETA 1.8 min
+    fallback row 160 / 271 - [timing] 153 sec elapsed, ETA 1.8 min
+    fallback row 161 / 271 - [timing] 153.9 sec elapsed, ETA 1.8 min
+    fallback row 162 / 271 - [timing] 155.1 sec elapsed, ETA 1.7 min
+    fallback row 163 / 271 - [timing] 156 sec elapsed, ETA 1.7 min
+    fallback row 164 / 271 - [timing] 156.9 sec elapsed, ETA 1.7 min
+    fallback row 165 / 271 - [timing] 157.8 sec elapsed, ETA 1.7 min
+    fallback row 166 / 271 - [timing] 158.7 sec elapsed, ETA 1.7 min
+    fallback row 167 / 271 - [timing] 159.6 sec elapsed, ETA 1.7 min
+    fallback row 168 / 271 - [timing] 160.5 sec elapsed, ETA 1.6 min
+    fallback row 169 / 271 - [timing] 161.6 sec elapsed, ETA 1.6 min
+    fallback row 170 / 271 - [timing] 162.5 sec elapsed, ETA 1.6 min
+    fallback row 171 / 271 - [timing] 163.3 sec elapsed, ETA 1.6 min
+    fallback row 172 / 271 - [timing] 164.3 sec elapsed, ETA 1.6 min
+    fallback row 173 / 271 - [timing] 165.2 sec elapsed, ETA 1.6 min
+    fallback row 174 / 271 - [timing] 166.1 sec elapsed, ETA 1.5 min
+    fallback row 175 / 271 - [timing] 167.1 sec elapsed, ETA 1.5 min
+    fallback row 176 / 271 - [timing] 168 sec elapsed, ETA 1.5 min
+    fallback row 177 / 271 - [timing] 168.9 sec elapsed, ETA 1.5 min
+    fallback row 178 / 271 - [timing] 169.9 sec elapsed, ETA 1.5 min
+    fallback row 179 / 271 - [timing] 170.8 sec elapsed, ETA 1.5 min
+    fallback row 180 / 271 - [timing] 171.7 sec elapsed, ETA 1.4 min
+    fallback row 181 / 271 - [timing] 172.9 sec elapsed, ETA 1.4 min
+    fallback row 182 / 271 - [timing] 173.8 sec elapsed, ETA 1.4 min
+    fallback row 183 / 271 - [timing] 174.7 sec elapsed, ETA 1.4 min
+    fallback row 184 / 271 - [timing] 175.6 sec elapsed, ETA 1.4 min
+    fallback row 185 / 271 - [timing] 176.5 sec elapsed, ETA 1.4 min
+    fallback row 186 / 271 - [timing] 177.6 sec elapsed, ETA 1.4 min
+    fallback row 187 / 271 - [timing] 178.5 sec elapsed, ETA 1.3 min
+    fallback row 188 / 271 - [timing] 179.4 sec elapsed, ETA 1.3 min
+    fallback row 189 / 271 - [timing] 180.3 sec elapsed, ETA 1.3 min
+    fallback row 190 / 271 - [timing] 181.3 sec elapsed, ETA 1.3 min
+    fallback row 191 / 271 - [timing] 182.2 sec elapsed, ETA 1.3 min
+    fallback row 192 / 271 - [timing] 183.1 sec elapsed, ETA 1.3 min
+    fallback row 193 / 271 - [timing] 184 sec elapsed, ETA 1.2 min
+    fallback row 194 / 271 - [timing] 184.9 sec elapsed, ETA 1.2 min
+    fallback row 195 / 271 - [timing] 185.9 sec elapsed, ETA 1.2 min
+    fallback row 196 / 271 - [timing] 186.8 sec elapsed, ETA 1.2 min
+    fallback row 197 / 271 - [timing] 187.7 sec elapsed, ETA 1.2 min
+    fallback row 198 / 271 - [timing] 188.7 sec elapsed, ETA 1.2 min
+    fallback row 199 / 271 - [timing] 189.6 sec elapsed, ETA 1.1 min
+    fallback row 200 / 271 - [timing] 190.5 sec elapsed, ETA 1.1 min
+    fallback row 201 / 271 - [timing] 191.7 sec elapsed, ETA 1.1 min
+    fallback row 202 / 271 - [timing] 192.6 sec elapsed, ETA 1.1 min
+    fallback row 203 / 271 - [timing] 193.5 sec elapsed, ETA 1.1 min
+    fallback row 204 / 271 - [timing] 194.4 sec elapsed, ETA 1.1 min
+    fallback row 205 / 271 - [timing] 195.3 sec elapsed, ETA 1 min
+    fallback row 206 / 271 - [timing] 196.3 sec elapsed, ETA 1 min
+    fallback row 207 / 271 - [timing] 197.2 sec elapsed, ETA 1 min
+    fallback row 208 / 271 - [timing] 198.1 sec elapsed, ETA 1 min
+    fallback row 209 / 271 - [timing] 199.1 sec elapsed, ETA 1 min
+    fallback row 210 / 271 - [timing] 200 sec elapsed, ETA 1 min
+    fallback row 211 / 271 - [timing] 200.9 sec elapsed, ETA 1 min
+    fallback row 212 / 271 - [timing] 201.9 sec elapsed, ETA 0.9 min
+    fallback row 213 / 271 - [timing] 202.8 sec elapsed, ETA 0.9 min
+    fallback row 214 / 271 - [timing] 203.7 sec elapsed, ETA 0.9 min
+    fallback row 215 / 271 - [timing] 204.7 sec elapsed, ETA 0.9 min
+    fallback row 216 / 271 - [timing] 205.6 sec elapsed, ETA 0.9 min
+    fallback row 217 / 271 - [timing] 206.5 sec elapsed, ETA 0.9 min
+    fallback row 218 / 271 - [timing] 207.5 sec elapsed, ETA 0.8 min
+    fallback row 219 / 271 - [timing] 208.4 sec elapsed, ETA 0.8 min
+    fallback row 220 / 271 - [timing] 209.5 sec elapsed, ETA 0.8 min
+    fallback row 221 / 271 - [timing] 210.4 sec elapsed, ETA 0.8 min
+    fallback row 222 / 271 - [timing] 211.3 sec elapsed, ETA 0.8 min
+    fallback row 223 / 271 - [timing] 212.2 sec elapsed, ETA 0.8 min
+    fallback row 224 / 271 - [timing] 213.1 sec elapsed, ETA 0.7 min
+    fallback row 225 / 271 - [timing] 214 sec elapsed, ETA 0.7 min
+    fallback row 226 / 271 - [timing] 214.9 sec elapsed, ETA 0.7 min
+    fallback row 227 / 271 - [timing] 215.8 sec elapsed, ETA 0.7 min
+    fallback row 228 / 271 - [timing] 216.8 sec elapsed, ETA 0.7 min
+    fallback row 229 / 271 - [timing] 217.7 sec elapsed, ETA 0.7 min
+    fallback row 230 / 271 - [timing] 218.7 sec elapsed, ETA 0.6 min
+    fallback row 231 / 271 - [timing] 219.7 sec elapsed, ETA 0.6 min
+    fallback row 232 / 271 - [timing] 220.6 sec elapsed, ETA 0.6 min
+    fallback row 233 / 271 - [timing] 221.5 sec elapsed, ETA 0.6 min
+    fallback row 234 / 271 - [timing] 222.6 sec elapsed, ETA 0.6 min
+    fallback row 235 / 271 - [timing] 223.5 sec elapsed, ETA 0.6 min
+    fallback row 236 / 271 - [timing] 224.4 sec elapsed, ETA 0.6 min
+    fallback row 237 / 271 - [timing] 225.5 sec elapsed, ETA 0.5 min
+    fallback row 238 / 271 - [timing] 226.4 sec elapsed, ETA 0.5 min
+    fallback row 239 / 271 - [timing] 227.4 sec elapsed, ETA 0.5 min
+    fallback row 240 / 271 - [timing] 228.8 sec elapsed, ETA 0.5 min
+    fallback row 241 / 271 - [timing] 229.8 sec elapsed, ETA 0.5 min
+    fallback row 242 / 271 - [timing] 230.7 sec elapsed, ETA 0.5 min
+    fallback row 243 / 271 - [timing] 231.6 sec elapsed, ETA 0.4 min
+    fallback row 244 / 271 - [timing] 232.6 sec elapsed, ETA 0.4 min
+    fallback row 245 / 271 - [timing] 233.7 sec elapsed, ETA 0.4 min
+    fallback row 246 / 271 - [timing] 234.6 sec elapsed, ETA 0.4 min
+    fallback row 247 / 271 - [timing] 235.5 sec elapsed, ETA 0.4 min
+    fallback row 248 / 271 - [timing] 236.5 sec elapsed, ETA 0.4 min
+    fallback row 249 / 271 - [timing] 237.4 sec elapsed, ETA 0.3 min
+    fallback row 250 / 271 - [timing] 238.4 sec elapsed, ETA 0.3 min
+    fallback row 251 / 271 - [timing] 239.4 sec elapsed, ETA 0.3 min
+    fallback row 252 / 271 - [timing] 240.3 sec elapsed, ETA 0.3 min
+    fallback row 253 / 271 - [timing] 241.2 sec elapsed, ETA 0.3 min
+    fallback row 254 / 271 - [timing] 242.2 sec elapsed, ETA 0.3 min
+    fallback row 255 / 271 - [timing] 243.1 sec elapsed, ETA 0.3 min
+    fallback row 256 / 271 - [timing] 244 sec elapsed, ETA 0.2 min
+    fallback row 257 / 271 - [timing] 245 sec elapsed, ETA 0.2 min
+    fallback row 258 / 271 - [timing] 246 sec elapsed, ETA 0.2 min
+    fallback row 259 / 271 - [timing] 246.9 sec elapsed, ETA 0.2 min
+    fallback row 260 / 271 - [timing] 248.2 sec elapsed, ETA 0.2 min
+    fallback row 261 / 271 - [timing] 249.1 sec elapsed, ETA 0.2 min
+    fallback row 262 / 271 - [timing] 250.2 sec elapsed, ETA 0.1 min
+    fallback row 263 / 271 - [timing] 251.1 sec elapsed, ETA 0.1 min
+    fallback row 264 / 271 - [timing] 252 sec elapsed, ETA 0.1 min
+    fallback row 265 / 271 - [timing] 253 sec elapsed, ETA 0.1 min
+    fallback row 266 / 271 - [timing] 253.9 sec elapsed, ETA 0.1 min
+    fallback row 267 / 271 - [timing] 254.9 sec elapsed, ETA 0.1 min
+    fallback row 268 / 271 - [timing] 255.9 sec elapsed, ETA 0 min
+    fallback row 269 / 271 - [timing] 256.8 sec elapsed, ETA 0 min
+    fallback row 270 / 271 - [timing] 257.7 sec elapsed, ETA 0 min
+    fallback row 271 / 271 - [timing] 259.6 sec elapsed, ETA 0 min
+  [timing] exact fallback for 271 rows: 259.6 sec
+[timing] FULL Nord-Norge , CERTIFIED EXACT: 8424.6 sec ( 140.4 min / 2.34 hr )
+Result summary:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00   12.97   30.87   73.78   75.34 7252.99 
+Written to ..\Data\connectivity_output_ar5/nord_norge_min_myr_distance_certified.gpkg 

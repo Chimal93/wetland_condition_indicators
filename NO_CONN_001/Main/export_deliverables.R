@@ -2,7 +2,7 @@
 # NO_CONN_001 - final export stage: platform-format indicator maps +
 # delivery tables (see the repository README, "Delivery format").
 #
-# Reads Fetch/scale_and_map_connectivity_indicator.R's write-out
+# Reads scale_and_map_connectivity_indicator.R's write-out
 # (Data/connectivity_scored/*_<label>.*) and writes, to ../Deliverables/:
 #   NO_CONN_001_indicatorMap_region.rds    5 landsdeler (primary)
 #   NO_CONN_001_indicatorMap_polygon.rds   every scored mire polygon (large)
@@ -55,9 +55,16 @@ LABEL     <- Sys.getenv("CONNECTIVITY_SCORE_LABEL", "national_2023")
 THR       <- 0.6
 WRITE_POLYGON_MAP <- tolower(Sys.getenv("CONN001_POLYGON_MAP", "true")) == "true"
 
+# VARIANT (2026-09-22). The indicator exists in two national variants that
+# differ only in which wetland polygons are scored - see
+# Data/connectivity_scored/README_variants.md. CONNECTIVITY_SCORE_LABEL
+# selects which one is exported; CONN001_OUT_DIR overrides the destination
+# so a variant can be written next to the other instead of over it.
+VARIANT     <- if (grepl("AR5", LABEL)) "ar5" else "miremodel"
 scored_dir  <- file.path("..", "Data", "connectivity_scored")
 spatial_dir <- file.path("..", "Data", "spatial")
-out_dir     <- file.path("..", "Deliverables")
+out_dir     <- Sys.getenv("CONN001_OUT_DIR", unset = file.path("..", "Deliverables"))
+cat("Variant:", VARIANT, "| label:", LABEL, "| out:", out_dir, "\n")
 
 regionlvl  <- c("Nord-Norge", "Midt-Norge", "Vestlandet", "Østlandet", "Sørlandet")
 region_ids <- c("Nord-Norge" = 1L, "Midt-Norge" = 2L, "Østlandet" = 3L, "Vestlandet" = 4L, "Sørlandet" = 5L)
@@ -134,6 +141,23 @@ if (WRITE_POLYGON_MAP) {
   units$polygon$areaId <- paste0(units$polygon$areaId, "_", seq_len(nrow(units$polygon)))
 }
 
+# --- variant-specific wording -------------------------------------------
+if (VARIANT == "ar5") {
+  v_population  <- "AR5 (national land-resource map, ARTYPE 60 myr), adjacent polygons dissolved into connected patches"
+  v_year_note   <- "N50 infrastructure and land-use-intensity layers of 2023; wetland polygons from AR5 (NIBIO)"
+  v_sources     <- "Kartverket N50 (open); AR5 land-resource map, NIBIO (access-restricted - see the access caveat); NVE regulated lakes (open); regions.shp"
+  v_coverage    <- paste0("AR5 covers the whole country, so all five regions describe a comparable wetland population - including Nord-Norge (", format(sum(mire_reg$area == "Nord-Norge"), big.mark = ","), " polygons here against 4,917 in the mire-model variant, which had no data north of ~64 N). AR5 also includes lowland and farm-edge wetland the mire-probability model never mapped, so the share of wetland within 1000 m of infrastructure is roughly twice as high outside the north and the index is correspondingly lower. Note that AR5 is not publicly downloadable; the fully open AR50 is the fallback for users without access")
+  v_variant     <- "AR5 variant. The alternative mire-model variant (national mire probability model + NiN in the north) is documented in Data/connectivity_scored/README_variants.md. The two are NOT on a common scale: the anchors are percentiles of each run's own distribution. A side-check separating the two effects shows the anchor change is small and uniform (-0.017 to -0.034 per region) while the population change dominates (+0.233 in Nord-Norge, -0.03 to -0.10 elsewhere)"
+  v_method      <- "Reconstruction of NINA's connectivity indicator (Bakkestuen). The original Earth Engine code is embedded in the published indicator documentation and was followed line by line; its two private data assets (mire probability model, infrastructure index) were rebuilt from open sources. This variant additionally replaces the mire population with AR5, which is a deliberate deviation from the original, made to obtain national coverage. Scaling and regional aggregation are ours (see Scaling function)"
+} else {
+  v_population  <- "National mire probability model (MyrMod2Rv, simplified), with NiN nature-type polygons where the model has no data"
+  v_year_note   <- "N50 infrastructure and land-use-intensity layers of 2023; mire polygons from the national mire probability model (MyrMod2Rv, simplified) and NiN"
+  v_sources     <- "Kartverket N50 (open); Miljødirektoratet mire probability model MyrMod2Rv; NiN nature types (open); NVE regulated lakes (open); regions.shp"
+  v_coverage    <- "The national mire probability map (MyrMod2Rv) covers Norway only to ~64 N. South of that, mire polygons come from the map + NiN; Nord-Norge is NiN-mapped mires ONLY (4,917 polygons, sparse, 48.6 % with infrastructure within 1000 m) and Midt-Norge is partially covered. Nord-Norge's value (0.65) therefore describes a different, much smaller and more human-proximate polygon population than the other regions' (0.96-0.98) and is not comparable to them; the national row is dominated by the four southern regions"
+  v_variant     <- "Mire-model variant, closest to the original indicator's own population. The alternative AR5 variant gives national coverage and is documented in Data/connectivity_scored/README_variants.md. The two are NOT on a common scale: the anchors are percentiles of each run's own distribution"
+  v_method      <- "Reconstruction of NINA's connectivity indicator (Bakkestuen). The original Earth Engine code is embedded in the published indicator documentation and was followed line by line; its two private data assets (mire probability model, infrastructure index) were rebuilt from open sources. Scaling and regional aggregation are ours (see Scaling function)"
+}
+
 metadata <- c(
   "Indicator ID"                = ID,
   "Version"                     = VERSION,
@@ -143,19 +167,21 @@ metadata <- c(
   "ECT class"                   = "C1 - Landscape and Seascape Characteristics",
   "Spatial units delivered"     = "landsdel (5 regions, primary map), individual mire polygons; national value in the values table (area = Norge)",
   "CRS"                         = "EPSG:25833 (ETRS89 / UTM 33N)",
-  "Data year label"             = paste0(DATA_YEAR, ": N50 infrastructure and land-use-intensity layers of 2023; mire polygons from the national mire probability model (MyrMod2Rv, simplified) and NiN"),
+  "Variant"                     = v_variant,
+  "Wetland population"          = v_population,
+  "Data year label"             = paste0(DATA_YEAR, ": ", v_year_note),
   "Variable (v)"                = "kvotient = min_infra_distance / min_myr_distance per mire polygon (dimensionless). Infrastructure = N50 objects with land-use intensity > 2, searched within 1000 m; nearest other mire searched without limit. Region/national v = area-weighted geometric mean over polygons with finite, non-zero kvotient; polygons without infrastructure within 1000 m (v = NA) enter the index as 1 and polygons touched by infrastructure (v = 0) as 0",
   "Indicator (i)"               = "log(kvotient) scaled linearly between reference_low and reference_high and truncated to [0, 1]; defined anchors for the NA and 0 cases as above; Inf (topology artefacts, touching mires) excluded. Units: area-weighted mean over polygons",
-  "Scaling function"            = "Linear on log(kvotient), truncated; no sigmoid. Percentile anchors (1st / 99th) computed from the national run itself (n = 97,072 finite non-zero values), following the aggregation framework of Kolstad et al. (in prep). The original indicator never finalised a scaling function (ecosystemCondition issue #144); this is our reconstruction",
-  "reference_high (X100)"       = paste0("kvotient = ", round(anchors$X100_kvotient, 2), " (99th percentile of log kvotient): infrastructure ~178x farther than the nearest mire"),
-  "reference_low (X0)"          = paste0("kvotient = ", round(anchors$X0_kvotient, 4), " (1st percentile): infrastructure ~7x closer than the nearest mire"),
+  "Scaling function"            = paste0("Linear on log(kvotient), truncated; no sigmoid. Percentile anchors (1st / 99th) computed from this run itself (n = ", format(anchors$n_scored, big.mark = ","), " finite non-zero values), following the aggregation framework of Kolstad et al. (in prep). The original indicator never finalised a scaling function (ecosystemCondition issue #144); this is our reconstruction"),
+  "reference_high (X100)"       = paste0("kvotient = ", round(anchors$X100_kvotient, 2), " (99th percentile of log kvotient): infrastructure about ", round(anchors$X100_kvotient), "x farther away than the nearest other mire"),
+  "reference_low (X0)"          = paste0("kvotient = ", round(anchors$X0_kvotient, 4), " (1st percentile): infrastructure about ", round(1 / anchors$X0_kvotient), "x closer than the nearest other mire"),
   "Threshold (thr)"             = "0.6 on the indicator scale = platform default; the original work mentions only a tentative 0.6",
   "Uncertainty (sd)"            = "Bootstrap standard deviation (R = 1000) of the area-weighted mean index, resampling (index, area) pairs. Supplementary boot_low / boot_high = 95 % bootstrap CI (the pipeline's own). Polygon level: not applicable",
   "Number of observations"      = paste0(nrow(mire_reg), " mire polygons with an index value (", nat_stats$n_scaled, " scaled, ", nat_stats$n_ref, " reference-anchored, ", nat_stats$n_zero, " zero-anchored); total mire area ", round(nat_stats$area_km2), " km2"),
-  "Coverage caveat"             = "The national mire probability map (MyrMod2Rv) covers Norway only to ~64 N. South of that, mire polygons come from the map + NiN; Nord-Norge is NiN-mapped mires ONLY (4,917 polygons, sparse, 48.6 % with infrastructure within 1000 m) and Midt-Norge is partially covered. Nord-Norge's value (0.65) therefore describes a different, much smaller and more human-proximate polygon population than the other regions' (0.96-0.98) and is not comparable to them; the national row is dominated by the four southern regions",
+  "Coverage caveat"             = v_coverage,
   "Justification of references" = "Data-driven anchors at the 1st/99th percentiles of the national log-ratio distribution, plus two defined ('natural zero') anchors: no infrastructure within 1000 m = reference condition, infrastructure touching the mire = complete disruption",
-  "Data sources"                = "Kartverket N50 (open); Miljødirektoratet mire probability model MyrMod2Rv; NiN nature types (open); NVE regulated lakes (open); regions.shp",
-  "Method note"                 = "Reconstruction of NINA's connectivity indicator (Bakkestuen; GEE workflow not public). Distance computations reproduced in R on the certified nearest-neighbour algorithm; scaling and regional aggregation are ours (see Scaling function)",
+  "Data sources"                = v_sources,
+  "Method note"                 = v_method,
   "Documentation"               = "https://github.com/Chimal93/wetland_condition_indicators/tree/main/NO_CONN_001 ; original: https://ninanor.github.io/ecosystemCondition/connectivity.html",
   "Column spelling note"        = "reference_high / reference_low as in the platform's example file; the platform docs and the contract text spell them referance_*",
   "Produced by"                 = "Sállir Natur AS",

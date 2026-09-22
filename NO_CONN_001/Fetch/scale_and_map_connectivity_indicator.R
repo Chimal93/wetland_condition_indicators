@@ -370,8 +370,10 @@ connectivity_condition_map <- ggplot() +
   theme(plot.title = element_text(size = 12, face = "bold"),
         plot.caption = element_text(size = 8, hjust = 0))
 
-out_map_path <- file.path(img_dir, if (is_final) "NO_CONN_001_connectivity_condition_map.png"
-                                     else "NO_CONN_001_connectivity_condition_map_PROVISIONAL.png")
+map_label <- Sys.getenv("CONNECTIVITY_SCORE_LABEL", unset = "national_2023")
+map_sfx   <- if (map_label == "national_2023") "" else paste0("_", map_label)   # a variant never overwrites the main map
+out_map_path <- file.path(img_dir, if (is_final) paste0("NO_CONN_001_connectivity_condition_map", map_sfx, ".png")
+                                   else paste0("NO_CONN_001_connectivity_condition_map_PROVISIONAL", map_sfx, ".png"))
 ggsave(out_map_path, connectivity_condition_map, width = 8, height = 8, dpi = 300, bg = "white")
 
 cat("\nMap written to", out_map_path, "\n")

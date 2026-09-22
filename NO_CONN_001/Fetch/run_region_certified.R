@@ -47,9 +47,17 @@ own_dir <- local({
 source(file.path(own_dir, "nn_distance_certified.R"))
 
 region_name <- Sys.getenv("CONNECTIVITY_REGION", unset = "")
+# ASCII aliases, so callers (PowerShell, schedulers) never have to pass the
+# Norwegian letters - a .ps1 read as ANSI mangles them silently.
+if (region_name == "Sorlandet") region_name <- "Sørlandet"
+if (region_name == "Ostlandet") region_name <- "Østlandet"
 if (!nzchar(region_name)) stop("Set CONNECTIVITY_REGION to one of: Nord-Norge, Midt-Norge, Vestlandet, Østlandet, Sørlandet")
 
-in_path <- file.path("..", "Data", "wetland_map_simplified", paste0("wetland_simplified_", region_name, ".gpkg"))
+# CONNECTIVITY_MIRE_DIR / CONNECTIVITY_OUT_DIR select the wetland
+# population being run - see README, "Two variants". Defaults are the
+# mire-probability-model variant, so an unset environment reproduces it.
+mire_dir <- Sys.getenv("CONNECTIVITY_MIRE_DIR", unset = file.path("..", "Data", "wetland_map_simplified"))
+in_path <- file.path(mire_dir, paste0("wetland_simplified_", region_name, ".gpkg"))
 mire <- st_read(in_path, quiet = TRUE)
 cat("Loaded", nrow(mire), "simplified", region_name, "mire polygons.\n")
 cat("Running certified nearest-neighbour distance (k=75 + giants, exact) on FULL region...\n\n")
@@ -63,7 +71,7 @@ cat("\n[timing] FULL", region_name, ", CERTIFIED EXACT:", round(elapsed, 1), "se
 cat("Result summary:\n"); print(summary(d))
 
 mire$min_myr_distance_certified <- d
-out_dir <- file.path("..", "Data", "connectivity_output_simplified")
+out_dir <- Sys.getenv("CONNECTIVITY_OUT_DIR", unset = file.path("..", "Data", "connectivity_output_simplified"))
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 # Explicit ASCII-safe filename per region, matching the names already in

@@ -1,0 +1,54 @@
+ÿþRscript.exe : Linking to GEOS 3.14.1, GDAL 3.12.1, PROJ 9.7.1; sf_use_s2() is TRUE
+At C:\Users\adria\Documents\Indikatorer\NO_CONN_001\run_connectivity_ar5.ps1:54 char:1
++ & $Rscript "scale_and_map_connectivity_indicator.R" *> (Join-Path $lo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Linking to GEOS...se_s2() is TRUE:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Attaching package: 'dplyr'
+The following objects are masked from 'package:stats':
+    filter, lag
+The following objects are masked from 'package:base':
+    intersect, setdiff, setequal, union
+Scoring 5 input file(s):
+[1] "midt_norge_connectivity_full_2023.gpkg"
+[2] "nord_norge_connectivity_full_2023.gpkg"
+[3] "ostlandet_connectivity_full_2023.gpkg" 
+[4] "sorlandet_connectivity_full_2023.gpkg" 
+[5] "vestlandet_connectivity_full_2023.gpkg"
+Total mire polygons loaded: 722567 
+Anchors computed from THIS run's data (n = 111397 finite nonzero kvotient values):
+  X0 (log scale, 1 th pct): -1.857  -> kvotient = 0.1562 
+  X100 (log scale, 99 th pct): 7.305  -> kvotient = 1487.663 
+=== Scoring summary ===
+          excluded_topology_artifact           extreme_infra_touches_mire 
+                                2341                                25123 
+log_kvotient_linear_scaled_truncated      reference_no_infra_within_1000m 
+                              111397                               583706 
+index summary (excludes topology-artifact rows):
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+ 0.0000  1.0000  1.0000  0.8892  1.0000  1.0000    2341 
+Computing bootstrap CIs on the regional area-weighted mean ( 1000 resamples per region)...
+  [timing] 69.3 sec
+=== Regional aggregation ===
+      region     index      n  boot_low boot_high
+1 Nord-Norge 0.8554262 127464 0.8367252 0.8724602
+2 Midt-Norge 0.9113723 186159 0.9045682 0.9179534
+3 Vestlandet 0.8251277  78023 0.8182219 0.8312371
+4  %ÿstlandet 0.9168057 203211 0.9113050 0.9219851
+5  S%U%rlandet 0.9079651 125603 0.8790001 0.9234179
+Warning message:
+attribute variables are assumed to be spatially constant throughout all geometries 
+Warning message:
+st_point_on_surface assumes attributes are constant over geometries 
+Warning message:
+st_point_on_surface assumes attributes are constant over geometries 
+Warning message:
+In data.frame(condition = factor(condition_labels, levels = condition_labels),  :
+  row names were found from a short variable and have been discarded
+Map written to ../img/NO_CON_001_connectivity_condition_map_national_2023_AR5.png 
+================================================
+Anchors computed from n = 111397 real data points (>=  5000 threshold) - labeled FINAL, not provisional.
+This map's underlying SCALING FUNCTION is OUR reconstruction either way,
+not confirmed NINA methodology (never finished at the source - issue #144).
+================================================
+Write-out: 722567 scored polygons -> ../Data/connectivity_scored (label national_2023_AR5 )
