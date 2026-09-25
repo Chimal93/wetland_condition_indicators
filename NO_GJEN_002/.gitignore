@@ -1,0 +1,56 @@
+# ----------------------------------------------------------------------
+# CREDENTIALS AND IMAGERY ACCESS - never commit anything matching these.
+#
+# This indicator reads an orthophoto that the user supplies. The imagery
+# behind the published results is commercial, licensed data: neither it
+# nor the access details may be redistributed, and nothing identifying a
+# particular provider belongs in this repository.
+#
+# Configure your own source with $ORTHOPHOTO_SOURCE_PATH (and
+# $ORTHOPHOTO_SOURCE_USERPWD if it needs authentication), or by copying
+# orthophoto_access.template.txt to orthophoto_access.txt - the template
+# is committed, the filled-in file is not.
+# ----------------------------------------------------------------------
+orthophoto_access.txt
+Pass_URL*
+*credential*
+*password*
+.env
+
+# ----------------------------------------------------------------------
+# The canopy-height model itself. Apache-2.0 and freely available, but it
+# is ~760 MB with the checkpoints and is upstream's to distribute, not
+# ours. CHM_MODEL_SETUP.md documents cloning it and fetching the weights
+# from Meta's public "Data for Good" bucket.
+# ----------------------------------------------------------------------
+chm_model/HighResCanopyHeight-main/
+chm_model/__pycache__/
+chm_model/*.pth
+chm_model/*.ckpt
+.venv_chm/
+*.pyc
+
+# ----------------------------------------------------------------------
+# Large, re-fetchable or regenerable data. The per-polygon predictions in
+# Data/OpenS_data/meta_chm_national_RAW_2026-09-17/ ARE committed - they
+# are the reproducibility anchor and cost ~90 hours of compute.
+# ----------------------------------------------------------------------
+Data/OpenS_data/nin_data/
+Data/OpenS_data/bioclim/
+Data/OpenS_data/eth_canopy_height/
+Data/OpenS_data/*.gpkg
+Data/OpenS_data/eth_canopy_height_national.csv
+
+# Scratch from a national run (per-region tiles and predictions).
+gjen002_national/
+Data/OpenS_data/meta_chm_scratch/
+
+# R / OS junk
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+*.Rout
+Rplots.pdf
+.DS_Store
+Thumbs.db

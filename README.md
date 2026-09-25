@@ -26,10 +26,22 @@ in that indicator's README rather than silently absorbed.
 | [`NO_FUNC_003`](NO_FUNC_003/) | Functional plant community index — plant trait indicator values (light, moisture, pH, nitrogen) against bootstrapped reference distributions | Complete |
 | [`NO_GJEN_001`](NO_GJEN_001/) | Gjengroing (woody encroachment) — canopy height against LiDAR-derived reference levels | Complete |
 | [`NO_CONN_001`](NO_CONN_001/) | Structural connectivity — per mire polygon, distance to nearest infrastructure vs. distance to nearest neighbouring mire | Complete |
+| [`NO_GJEN_002`](NO_GJEN_002/) | Gjengroing from **aerial photography** — canopy height predicted by a deep-learning model on orthophoto, against the same reference levels as `NO_GJEN_001` | Complete |
 
-Two further indicators (a flyfoto-based encroachment companion and an
-NDVI-based indicator) are in development and will be added here when
-ready.
+`NO_GJEN_001` and `NO_GJEN_002` are deliberately paired: they measure the
+same thing against the same two reference levels, and differ only in how
+the vegetation height is obtained — LiDAR for the first, aerial
+photography for the second. Photography is reflown far more often than
+national LiDAR, so the second can be updated on a much shorter cycle.
+
+**`NO_GJEN_002` needs imagery you supply yourself.** The photography
+behind its published numbers is commercial and cannot be redistributed,
+so nothing identifying a provider is in this repository — see that
+indicator's README. Its per-polygon canopy heights *are* published, so
+the indicator can be reproduced end to end without any imagery access.
+
+One further indicator (NDVI-based) is in development and will be added
+here when ready.
 
 ## How this repository is organised
 
