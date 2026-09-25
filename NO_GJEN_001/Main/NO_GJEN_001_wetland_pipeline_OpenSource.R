@@ -350,7 +350,18 @@ filter_disturbed_points <- function(points_sf,
 #' measured directly: a single bbox spanning many scattered points
 #' within a tile balloons back toward a near-full-tile read once
 #' points/tile rises much past ~2.
-.process_tile <- function(item, buffer_m) {
+# cell_m > 0: read the origin-anchored cell of size cell_m that CONTAINS
+# the point, instead of a buffer window around it. The DTM1 grid is
+# integer-aligned in EPSG:25833, so floor(x / cell_m) * cell_m reproduces
+# the same global grid Earth Engine uses for scale = cell_m.
+# cell_stat: "cell_mean"   = mean of the RAW DOM-DTM over the cell, clamped
+#                            at 0 afterwards - what a mean-pyramid read at
+#                            that scale gives (the forest anchor, X0);
+#            "cell_median" = median of the clamped 1 m CHM over the cell -
+#                            an explicit reduceResolution(median) (the
+#                            wetland population sample);
+#            "window_mean" = the original 1 m behaviour (5 m window).
+.process_tile <- function(item, buffer_m, cell_m = 0, cell_stat = "window_mean") {
   tile_url <- function(tile_id, product) {
     paste0("/vsicurl/https://nedlasting.geonorge.no/hoydedata/", product, "/", tile_id, ".tif")
   }
@@ -362,14 +373,28 @@ filter_disturbed_points <- function(points_sf,
 
   vals <- numeric(length(item$row_idx))
   for (k in seq_along(item$row_idx)) {
-    win <- terra::ext(item$x[k] - buffer_m, item$x[k] + buffer_m,
-                       item$y[k] - buffer_m, item$y[k] + buffer_m)
+    if (cell_m > 0) {
+      x0 <- floor(item$x[k] / cell_m) * cell_m
+      y0 <- floor(item$y[k] / cell_m) * cell_m
+      win <- terra::ext(x0, x0 + cell_m, y0, y0 + cell_m)
+    } else {
+      win <- terra::ext(item$x[k] - buffer_m, item$x[k] + buffer_m,
+                        item$y[k] - buffer_m, item$y[k] + buffer_m)
+    }
     vals[k] <- tryCatch({
       dtm_c <- terra::crop(dtm, win)
       dom_c <- terra::crop(dom, win)
-      c <- dom_c - dtm_c
-      c[c < 0] <- 0
-      as.numeric(terra::global(c, "mean", na.rm = TRUE)[1, 1])
+      raw <- dom_c - dtm_c
+      if (cell_stat == "cell_mean") {
+        max(0, as.numeric(terra::global(raw, "mean", na.rm = TRUE)[1, 1]))
+      } else {
+        c <- raw; c[c < 0] <- 0
+        if (cell_stat == "cell_median") {
+          as.numeric(stats::median(terra::values(c), na.rm = TRUE))
+        } else {
+          as.numeric(terra::global(c, "mean", na.rm = TRUE)[1, 1])
+        }
+      }
     }, error = function(e) NA_real_)
   }
   data.frame(row_idx = item$row_idx, chm = vals)
@@ -381,7 +406,7 @@ filter_disturbed_points <- function(points_sf,
 #' maxed out, to stay considerate to Kartverket's public server).
 #' buffer_m = 2.5 -> a 5m-diameter window, mirroring the original
 #' script's scale:5 sampling resolution.
-extract_chm_at_points <- function(points_sf, buffer_m = 2.5,
+extract_chm_at_points <- function(points_sf, buffer_m = 2.5, cell_m = 0, cell_stat = "window_mean",
                                    tile_footprint_path = file.path("..", "Data", "OpenS_data", "dtm1_tile_footprint.gpkg"),
                                    n_workers = 8) {
   tiles <- st_read(tile_footprint_path, quiet = TRUE)
@@ -409,7 +434,7 @@ extract_chm_at_points <- function(points_sf, buffer_m = 2.5,
   })
 
   t0 <- Sys.time()
-  results_list <- parallel::parLapply(cl, work_items, .process_tile, buffer_m = buffer_m)
+  results_list <- parallel::parLapply(cl, work_items, .process_tile, buffer_m = buffer_m, cell_m = cell_m, cell_stat = cell_stat)
   cat("  extraction across", length(tile_ids), "tiles took",
       round(as.numeric(Sys.time() - t0), 1), "sec\n")
 
@@ -422,6 +447,7 @@ extract_chm_at_points <- function(points_sf, buffer_m = 2.5,
 #' samples out. Building-masked by default (source = "osm") before CHM
 #' extraction, so sampled heights reflect vegetation, not rooftops.
 sample_chm_by_stratum <- function(polygons, bio_clim_reg, n_per_stratum = 1000,
+                                   cell_m = 0, cell_stat = "window_mean",
                                    seed = 123, buffer_m = 2.5, n_workers = 8,
                                    filter_buildings = TRUE, building_source = "osm") {
   cat("Assigning", nrow(polygons), "polygons to", nrow(bio_clim_reg), "strata...\n")
@@ -433,7 +459,8 @@ sample_chm_by_stratum <- function(polygons, bio_clim_reg, n_per_stratum = 1000,
     pts <- filter_building_points(pts, source = building_source)
     cat("Points remaining after building filter:", nrow(pts), "\n")
   }
-  extract_chm_at_points(pts, buffer_m = buffer_m, n_workers = n_workers)
+  extract_chm_at_points(pts, buffer_m = buffer_m, n_workers = n_workers,
+                        cell_m = cell_m, cell_stat = cell_stat)
 }
 
 
@@ -527,7 +554,28 @@ bioClimReg$region         <- factor(bioClimReg$region,         levels = regionlv
 # this turns out to matter for result quality.
 # ===========================================================
 
-skog_path_openS    <- file.path(spatial_dir, "vegHeights_skog_climZoneRegion_openS.csv")
+# ===========================================================
+# SAMPLING SCALE (GJEN001_SAMPLING_SCALE): at which pixel scale the
+# canopy-height model is read.
+#   "20m" (default) - as the original workflow: the forest anchor is the
+#                     90th percentile of 20 m cell MEANS, and the wetland
+#                     population is the 20 m cell MEDIAN. Earth Engine
+#                     resamples the 1 m model to the requested scale by
+#                     averaging, which is what these reproduce.
+#   "1m"            - the earlier reconstruction, read at the native 1 m
+#                     in a 5 m window. Kept so the effect is reproducible:
+#                     it puts the forest anchor about 14 % above the
+#                     published values (median ratio 1.14 against 0.98 at
+#                     20 m) and the index 0.01-0.03 lower per region.
+# Caches always carry the scale in their name, so a 1 m cache can never be
+# read by a 20 m run.
+sampling_scale <- Sys.getenv("GJEN001_SAMPLING_SCALE", "20m")
+if (!sampling_scale %in% c("20m", "1m")) stop("GJEN001_SAMPLING_SCALE must be '20m' or '1m', got '", sampling_scale, "'")
+samp_cell <- if (sampling_scale == "20m") 20 else 0
+cache_sfx <- paste0("_", sampling_scale)
+message("Sampling scale: ", sampling_scale)
+
+skog_path_openS    <- file.path(spatial_dir, paste0("vegHeights_skog_climZoneRegion_openS", cache_sfx, ".csv"))
 skog_raw_path_ar5  <- file.path(spatial_dir, "ar5_skog_national.gpkg")
 skog_raw_path_ar50 <- file.path(spatial_dir, "ar50_skog_national.gpkg")
 
@@ -577,7 +625,7 @@ if (file.exists(skog_path_openS)) {
   cat("Points drawn (before disturbance filter):", nrow(pts), "\n")
   pts   <- filter_disturbed_points(pts)
   pts   <- filter_building_points(pts, source = "osm")
-  samples <- extract_chm_at_points(pts, buffer_m = 2.5)
+  samples <- extract_chm_at_points(pts, buffer_m = 2.5, cell_m = samp_cell, cell_stat = "cell_mean")
 
   skog_region_bioclim <- samples %>%
     st_drop_geometry() %>%
@@ -623,8 +671,14 @@ skog_region_bioclim$vegClimZoneLab <- factor(skog_region_bioclim$vegClimZoneLab,
 
 ref_variant <- Sys.getenv("GJEN001_REF_VARIANT", "30m")
 if (!ref_variant %in% c("30m", "1m")) stop("GJEN001_REF_VARIANT must be '30m' or '1m', got '", ref_variant, "'")
-out_suffix <- if (ref_variant == "30m") "_OpenSource" else "_OpenSource_1m"
-message("Stage 5: reference variant '", ref_variant, "' -> outputs suffixed '", out_suffix, "'")
+# "_OpenSource" means the delivered combination: reference at 30 m and
+# sampling at 20 m, i.e. all three quantities on the original's own scales.
+# Any other combination is marked, so variants never overwrite each other.
+out_suffix <- paste0("_OpenSource",
+                     if (ref_variant == "1m") "_ref1m" else "",
+                     if (sampling_scale == "1m") "_samp1m" else "")
+message("Stage 5: reference '", ref_variant, "' + sampling '", sampling_scale,
+        "' -> outputs suffixed '", out_suffix, "'")
 
 refvaatmark_path_30m <- file.path(spatial_dir, "refvaatmark_30m", "refvaatmark_30m.csv")
 refvaatmark_path_1m  <- file.path(spatial_dir, "refvaatmark_1m", "refvaatmark_1m.csv")
@@ -752,7 +806,7 @@ refvaatmark$vegClimZoneLab <- factor(refvaatmark$vegClimZoneLab, levels = vegcli
 # from the raw AR5 polygons and caches it for next time.
 # ===========================================================
 
-pop_path_openS    <- file.path(spatial_dir, "vaatmark_pop_openS.gpkg")
+pop_path_openS    <- file.path(spatial_dir, paste0("vaatmark_pop_openS", cache_sfx, ".gpkg"))
 myr_raw_path_ar5  <- file.path(spatial_dir, "ar5_myr_national.gpkg")
 myr_raw_path_ar50 <- file.path(spatial_dir, "ar50_myr_national.gpkg")
 
@@ -798,7 +852,8 @@ if (file.exists(pop_path_openS)) {
   }
   myr_poly <- st_read(myr_raw_path, quiet = TRUE)
   vaatmark_sampled <- sample_chm_by_stratum(myr_poly, bioClimReg, n_per_stratum = 1000,
-                                             seed = 123, buffer_m = 2.5) %>%
+                                             seed = 123, buffer_m = 2.5,
+                                             cell_m = samp_cell, cell_stat = "cell_median") %>%
     mutate(population_source = myr_source)
   st_write(vaatmark_sampled, pop_path_openS, delete_dsn = TRUE, quiet = TRUE)
   cat("Cached to:", pop_path_openS, "(source:", myr_source,

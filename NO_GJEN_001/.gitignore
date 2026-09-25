@@ -24,8 +24,8 @@ Data/OpenS_data/dtm1_coverage_union.gpkg
 # only meaningful alongside whichever source (AR5/AR50) built them
 # (see the population_source column/tag). Not real deliverables; the
 # actual results are the final index/map exports in Results/.
-Data/OpenS_data/vegHeights_skog_climZoneRegion_openS.csv
-Data/OpenS_data/vaatmark_pop_openS.gpkg
+Data/OpenS_data/vegHeights_skog_climZoneRegion_openS*.csv
+Data/OpenS_data/vaatmark_pop_openS*.gpkg
 
 # Wetland reference heights - regenerate with Fetch/build_refvaatmark_30m.R
 # (default, ~40 min) or Main's legacy 1m variant. The published reference

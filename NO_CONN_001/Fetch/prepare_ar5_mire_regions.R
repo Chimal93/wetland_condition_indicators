@@ -76,7 +76,9 @@ find_population <- function() {
 ar5_path   <- find_population()
 pop_source <- if (grepl("ar50", basename(ar5_path))) "ar50_myr" else "ar5_myr"
 cat("Wetland population:", ar5_path, "(source tag:", pop_source, ")\n")
-out_dir  <- file.path("..", "Data", "wetland_map_ar5")
+# Write where the downstream scripts read from, so one variable defines the
+# variant's input folder end to end (run_connectivity_ar5.ps1 sets it).
+out_dir  <- Sys.getenv("CONNECTIVITY_MIRE_DIR", unset = file.path("..", "Data", "wetland_map_ar5"))
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 REGION_BUFFER_M <- 10000
 SIMPLIFY_M      <- 2
@@ -90,7 +92,7 @@ regions <- st_read(file.path("..", "Data", "spatial", "regions.shp"), quiet = TR
 regions$region[regions$id == 3] <- "Østlandet"; regions$region[regions$id == 5] <- "Sørlandet"
 
 layer <- st_layers(ar5_path)$name[1]
-cat("AR5 myr source:", ar5_path, "| layer", layer, "\n")
+cat("Layer:", layer, "\n")
 
 for (rsel in regions_sel) {
   region_name <- name_map[[rsel]]
@@ -99,11 +101,11 @@ for (rsel in regions_sel) {
   t0 <- Sys.time()
   reg_buf <- regions %>% filter(region == region_name) %>% st_buffer(REGION_BUFFER_M) %>% st_union()
   bb <- st_bbox(reg_buf)
-  cat("==", region_name, "- reading AR5 myr within the buffered bbox...\n")
+  cat("==", region_name, "- reading", pop_source, "within the buffered bbox...\n")
   wkt <- st_as_text(st_as_sfc(bb))
   myr <- st_read(ar5_path, layer = layer, wkt_filter = wkt, quiet = TRUE)
   myr <- myr[lengths(st_intersects(myr, reg_buf)) > 0, ]
-  cat("   ", nrow(myr), "AR5 polygons in region + buffer; dissolving touching polygons into patches...\n")
+  cat("   ", nrow(myr), "source polygons in region + buffer; dissolving touching polygons into patches...\n")
   myr <- st_make_valid(myr)
   patches <- st_union(st_geometry(myr)) %>% st_cast("POLYGON")
   cat("   ", length(patches), "patches after dissolve (", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), "min )\n")

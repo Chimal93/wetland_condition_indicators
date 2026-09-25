@@ -192,6 +192,13 @@ comparison, not as ground truth.
 
 ## Deliverables (platform format)
 
+The published set is the corrected combination: the wetland reference
+evaluated at 30 m and the forest anchor and population sampled at 20 m,
+i.e. all three quantities on the scales the original workflow uses (see
+"Reference heights - the evaluation scale"). `GJEN001_SAMPLING_SCALE=1m`
+reproduces the earlier native-resolution sampling for comparison; its
+outputs are suffixed `_samp1m` and never overwrite the delivered ones.
+
 `Main/export_deliverables.R` maps the pipeline's results onto the
 ecosystemCondition platform schema (`area, areaId, v_YYYY, sd_YYYY,
 i_YYYY, reference_high, reference_low, thr`; see the repository README):
@@ -208,6 +215,11 @@ i_YYYY, reference_high, reference_low, thr`; see the repository README):
   Kartverket's national products flown 2010-2024, stated in the metadata.
 - Grid membership is re-derived spatially in the export (the pipeline's
   polygon-level `ssbid` is only a row number).
+- Regional values, corrected scales: Nord-Norge 0.977, Midt-Norge 0.960,
+  Vestlandet 0.959, Sørlandet 0.950, Østlandet 0.908; national 0.949.
+  Sampling at 1 m instead gives 0.970 / 0.946 / 0.943 / 0.941 / 0.899 -
+  0.01 to 0.03 lower, because the 1 m forest anchor sits about 14 % above
+  the published reference values.
 
 ## Known limitations
 
