@@ -40,6 +40,7 @@ their results stay on your machine; the image only provides the software.
 | `run_indicators.sh` | The main runner: runs the selected indicators from start to finish and records everything. |
 | `run_script.sh` | Runs a single R script from the repository inside the image. |
 | `prepare_ar5_input/` | One script, run once by hand: builds the AR5 forest and mire layers for `NO_GJEN_001` from the municipal FKB-AR5 GeoPackages. Needs restricted-access data; not part of the normal run. |
+| `run_NO_CONN_001_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_001`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_001" below. |
 | `internal/` | Pieces used by the scripts above; you do not call these yourself. `run_indicators_in_container.sh` is the step list that runs inside the image; `common.sh` loads the settings. |
 
 Nothing in this folder changes the indicator scripts under `NO_*/`.
@@ -201,6 +202,26 @@ The pipeline can use two sources, chosen with `GJEN_SOURCE`:
 - `AR50`: a coarser, freely downloadable map. The sensible choice if you
   do not have FKB-AR5: nothing to obtain, nothing to prepare. Results
   differ slightly from the AR5-based ones.
+
+## The AR5 variant of NO_CONN_001
+
+The delivered `NO_CONN_001` result uses AR5 mires as the wetland
+population. `run_indicators.sh` reproduces only the older mire-model
+variant from published caches; the AR5 variant is computed from scratch:
+
+```bash
+bash docker/run_NO_CONN_001_ar5_variant.sh
+```
+
+It needs `ar5_myr_national.gpkg` (built by `prepare_ar5_input/`, see
+above) and the infrastructure layer from a normal `NO_CONN_001` run
+(`INDICATORS="CONN" bash docker/run_indicators.sh`); the script checks
+both first. About 25 hours, so start it in `screen` or `tmux`. It can be
+stopped and restarted: regions already done are skipped. The run folder is
+`runs/conn001_ar5_<date>_<time>/`; the results land in
+`NO_CONN_001/Deliverables/`, where `git diff` shows any difference from the
+published ones. Same steps as upstream's `run_connectivity_ar5.ps1`, plus
+the final `export_deliverables.R`.
 
 ## Running a single script
 

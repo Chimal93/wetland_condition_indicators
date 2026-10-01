@@ -161,6 +161,10 @@ folder:
 powershell -ExecutionPolicy Bypass -File .\run_connectivity_ar5.ps1
 ```
 
+On Linux or macOS, or anywhere with Docker, the same run is
+`bash docker/run_NO_CONN_001_ar5_variant.sh` from the repository root
+(see `docker/README.md`).
+
 Before the first AR5 run you need the wetland population layer. The
 pipeline looks for it in this order: `$AR5_MYR_GPKG`, then
 `Data/wetland_population/`, then the sibling `NO_GJEN_001/Data/OpenS_data/`
