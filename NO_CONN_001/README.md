@@ -197,25 +197,20 @@ way from RStudio, `Rscript script.R`, or `source("script.R")`.
 
 ## External dependencies - read before deleting any cache
 
-- **QGIS** (tested against 3.44.12) must be installed locally, purely
-  for Stage 2 (2006's N50 archive is SOSI-only, and SOSI support isn't
-  in the GDAL build bundled with R's own `sf` package - it IS in QGIS's
-  own bundled GDAL). Fully automated via `system2()` - nobody opens
-  QGIS's own interface. `Fetch/convert_n50_2006_sosi_to_gpkg.R` hardcodes
-  `qgis_root <- "C:/Program Files/QGIS 3.44.12"` - edit this if your
-  install is elsewhere or a different version. You only hit this
-  requirement if you delete `Data/LUI_output/` and rebuild the
-  infrastructure index from scratch. If QGIS truly isn't available, the
-  documented fallback is a 2013/2023-only 2-point time series instead
-  of the full 3-point series (not automated - needs manual script
-  edits).
-- **Windows + PowerShell**: Stage 5 (fetching the ~8.1GB wetland map)
-  extracts its zip via PowerShell's .NET `ZipFile` class, because R's
-  own `unzip()` hits a real ZIP64 limitation at this file size (confirmed,
-  not a precaution). This means `Fetch/fetch_wetland_map.R`, as written,
-  only runs on Windows. You only hit this if you delete
-  `Data/wetland_map_simplified/` and need to rebuild it from the raw
-  raster on a non-Windows machine.
+Two rebuild steps need a program from outside R. **You only meet them if
+you delete a cache folder and rebuild it from scratch**; the normal run
+reads the published caches and needs neither. Both steps work on Windows,
+Linux and macOS, and both work out of the box in the project's Docker
+image (see `docker/README.md`), which is the easiest way to run them.
+
+| Step | What it needs, and why | Windows | Linux / macOS |
+|---|---|---|---|
+| Stage 2, `Fetch/convert_n50_2006_sosi_to_gpkg.R` (only if you delete `Data/LUI_output/`) | The 2006 N50 maps exist only in the Norwegian SOSI format. Reading SOSI needs GDAL's SOSI driver, which the GDAL inside R's `sf` package lacks. | QGIS 3.44.12, used automatically (nobody opens QGIS itself). If QGIS is installed elsewhere or in another version, edit `qgis_root` in the script. | The system's `ogr2ogr` (Ubuntu/Debian: `sudo apt install gdal-bin`). The script checks that it has the SOSI driver and stops with an explanation if not. |
+| Stage 5, `Fetch/fetch_wetland_map.R` (only if you delete `Data/wetland_map_simplified/`) | The wetland map is an ~8.1 GB zip file. R's own `unzip()` cannot open zips that large (confirmed, not a precaution). | PowerShell, built into Windows. | The `unzip` command (preinstalled on macOS; Ubuntu/Debian: `sudo apt install unzip`). |
+
+If the SOSI step cannot run at all, the documented fallback is a
+2013/2023-only 2-point time series instead of the full 3-point series
+(not automated - needs manual script edits).
 
 ## Quick test
 

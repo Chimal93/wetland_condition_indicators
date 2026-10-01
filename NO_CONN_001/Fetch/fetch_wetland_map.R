@@ -56,17 +56,34 @@ download.file(url, zip_path, mode = "wb", quiet = FALSE)
 # "error -103 with zipfile in unzGetCurrentFileInfo") even on a
 # complete download - confirmed the zip itself was fine by
 # reading it with .NET's System.IO.Compression.ZipFile class instead.
-# Extract via PowerShell/.NET rather than R's own unzip() for exactly
-# that reason.
-cat("\nExtracting via .NET ZipFile (R's own unzip() can't handle a\n")
-cat("zip this large - confirmed, not just a precaution)...\n")
-ps_cmd <- sprintf(
-  'Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory(\'%s\', \'%s\')',
-  normalizePath(zip_path), normalizePath(out_dir)
-)
-status <- system2("powershell.exe", c("-NoProfile", "-Command", ps_cmd))
+# Extract with a tool that handles zips this large instead:
+#   - on Windows: PowerShell/.NET (built into every Windows install);
+#   - on Linux and macOS: the standard `unzip` command (Info-ZIP 6.0 or
+#     newer handles large "ZIP64" archives; it is preinstalled on macOS
+#     and in the project's Docker image, and on Ubuntu/Debian comes with
+#     `sudo apt install unzip`).
+if (.Platform$OS.type == "windows") {
+  cat("\nExtracting via .NET ZipFile (R's own unzip() can't handle a\n")
+  cat("zip this large - confirmed, not just a precaution)...\n")
+  ps_cmd <- sprintf(
+    'Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory(\'%s\', \'%s\')',
+    normalizePath(zip_path), normalizePath(out_dir)
+  )
+  status <- system2("powershell.exe", c("-NoProfile", "-Command", ps_cmd))
+  tool <- "PowerShell/.NET"
+} else {
+  if (!nzchar(Sys.which("unzip"))) {
+    stop("The `unzip` command was not found. Install it (Ubuntu/Debian: ",
+         "sudo apt install unzip) or run this script in the project's Docker image. ",
+         "Zip left in place at ", zip_path, ".")
+  }
+  cat("\nExtracting with the `unzip` command (R's own unzip() can't handle a\n")
+  cat("zip this large - confirmed, not just a precaution)...\n")
+  status <- system2("unzip", c("-o", "-q", shQuote(zip_path), "-d", shQuote(out_dir)))
+  tool <- "unzip"
+}
 if (status != 0) {
-  stop("PowerShell/.NET extraction failed (exit ", status, "). ",
+  stop(tool, " extraction failed (exit ", status, "). ",
        "Zip left in place at ", zip_path, " for manual inspection.")
 }
 file.remove(zip_path)

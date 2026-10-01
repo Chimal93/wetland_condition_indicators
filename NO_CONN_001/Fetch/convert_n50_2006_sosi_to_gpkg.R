@@ -9,9 +9,10 @@
 # (C:/Program Files/QGIS 3.44.12/apps/gdal/lib/gdalplugins/ogr_SOSI.dll,
 # GDAL 3.13.1) - confirmed working via QGIS's own ogrinfo/ogr2ogr.
 #
-# REQUIRES QGIS installed locally (tested against QGIS 3.44.12) - this
-# is a genuine machine-specific dependency, not something portable to
-# just any R install. If QGIS isn't present, this step can't run; fall
+# On Windows this REQUIRES QGIS installed locally (tested against QGIS
+# 3.44.12). On Linux and macOS it uses the system's `ogr2ogr` instead,
+# which must have the SOSI driver (the project's Docker image does; see
+# the check further down). If neither is available, this step can't run; fall
 # back to a 2013/2023-only 2-point time series instead (see fetch
 # script's header for that option). Once this script has produced the
 # GPKG, everything downstream reads it with plain sf - no QGIS needed
@@ -72,20 +73,39 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 sosi_dir <- file.path("..", "Data", "infra_index_source", "N50", "2006")
 gpkg_out <- file.path(sosi_dir, "N50_2006.gpkg")
 
-qgis_root <- "C:/Program Files/QGIS 3.44.12"
-ogr2ogr   <- file.path(qgis_root, "bin", "ogr2ogr.exe")
-if (!file.exists(ogr2ogr)) {
-  stop(
-    "QGIS's ogr2ogr.exe not found at ", ogr2ogr, ".\n",
-    "This conversion needs a local QGIS install for its bundled SOSI ",
-    "driver (not present in sf's own GDAL). If QGIS isn't installed, or ",
-    "is installed at a different version/path, either install/update it ",
-    "or edit qgis_root above to match. Alternative: skip 2006 entirely ",
-    "and use a 2013/2023-only 2-point time series."
-  )
+# Which ogr2ogr (the GDAL conversion tool) to use:
+#   - on Windows: the one bundled with QGIS, as before;
+#   - on Linux and macOS: the system's own `ogr2ogr`. Linux GDAL packages
+#     usually include the SOSI driver (Ubuntu's `gdal-bin` and the
+#     project's Docker image do); this is checked below rather than
+#     assumed.
+if (.Platform$OS.type == "windows") {
+  qgis_root <- "C:/Program Files/QGIS 3.44.12"
+  ogr2ogr   <- file.path(qgis_root, "bin", "ogr2ogr.exe")
+  if (!file.exists(ogr2ogr)) {
+    stop(
+      "QGIS's ogr2ogr.exe not found at ", ogr2ogr, ".\n",
+      "This conversion needs a local QGIS install for its bundled SOSI ",
+      "driver (not present in sf's own GDAL). If QGIS isn't installed, or ",
+      "is installed at a different version/path, either install/update it ",
+      "or edit qgis_root above to match. Alternative: skip 2006 entirely ",
+      "and use a 2013/2023-only 2-point time series."
+    )
+  }
+  Sys.setenv(GDAL_DRIVER_PATH = file.path(qgis_root, "apps", "gdal", "lib", "gdalplugins"))
+  Sys.setenv(GDAL_DATA = file.path(qgis_root, "share", "gdal"))
+} else {
+  ogr2ogr <- Sys.which("ogr2ogr")
+  if (!nzchar(ogr2ogr)) {
+    stop("The `ogr2ogr` command was not found. Install GDAL (Ubuntu/Debian: ",
+         "sudo apt install gdal-bin) or run this script in the project's Docker image.")
+  }
+  formats <- system2(ogr2ogr, "--formats", stdout = TRUE)
+  if (!any(grepl("SOSI", formats))) {
+    stop("This GDAL (", ogr2ogr, ") has no SOSI driver, which the 2006 N50 data needs. ",
+         "Use the project's Docker image, whose GDAL has it.")
+  }
 }
-Sys.setenv(GDAL_DRIVER_PATH = file.path(qgis_root, "apps", "gdal", "lib", "gdalplugins"))
-Sys.setenv(GDAL_DATA = file.path(qgis_root, "share", "gdal"))
 
 if (file.exists(gpkg_out)) {
   cat("GPKG already exists at", gpkg_out, "- delete it first to reconvert. Skipping.\n")

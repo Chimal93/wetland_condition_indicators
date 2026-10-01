@@ -183,9 +183,10 @@ Good to know:
   downloads for a while. Wait an hour and try again, or create a free
   GitHub token and run `Sys.setenv(GITHUB_PAT = "<token>")` before
   `renv::restore()`.
-- A few rebuild-from-scratch steps in `NO_CONN_001` need extra software on
-  Windows (QGIS, PowerShell). You only hit them if you delete that
-  indicator's published caches; its README explains when.
+- Two rebuild-from-scratch steps in `NO_CONN_001` need a program from
+  outside R: QGIS or PowerShell on Windows, GDAL's `ogr2ogr` and `unzip`
+  on Linux and macOS (both are in the Docker image). You only hit them if
+  you delete that indicator's published caches; its README explains when.
 
 ## Reference data included here
 
