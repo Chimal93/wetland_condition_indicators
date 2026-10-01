@@ -3,6 +3,11 @@
 # Three layers of pinning, each recorded:
 #   1. rocker/geospatial:4.6.1 pins R and the system GDAL/GEOS/PROJ that
 #      sf and terra link against (README says the code targets R 4.6).
+#      The tag alone is not enough: rocker republishes it (it changed
+#      between 2026-09-15 and 2026-10-01), so the image is pinned by
+#      digest. To move to a newer base on purpose, look up the digest with
+#        docker buildx imagetools inspect rocker/geospatial:<tag>
+#      and replace both the tag and the digest below.
 #   2. renv.lock (repo root) pins every R package version; it is the same
 #      lockfile Windows/RStudio users restore from, so both audiences get
 #      identical package versions.
@@ -10,7 +15,7 @@
 #
 # Build from the REPO ROOT so renv.lock is in the build context:
 #   docker build -f docker/Dockerfile -t wetland-indicators:r4.6.1 .
-FROM rocker/geospatial:4.6.1
+FROM rocker/geospatial:4.6.1@sha256:e67737e30c66e6d2237570cd647e2bfec59315e533713473ab2ba391992bfa2c
 
 # renv downloads GitHub sources (ecTools) with the curl binary, which the base image lacks.
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
