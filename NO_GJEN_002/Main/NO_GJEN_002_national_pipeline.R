@@ -163,7 +163,13 @@ scaleSigmoid <- function(pop, ref, skog) {
 vaatmarkIndexPoly <- vaatmarkHts %>%
   mutate(index = 1 - scaleSigmoid(pop, ref, skog)) %>%
   mutate(region = factor(region, levels = regionlvl),
-         vegClimZoneLab = factor(vegClimZoneLab, levels = vegclimzonelvl))
+         vegClimZoneLab = factor(vegClimZoneLab, levels = vegclimzonelvl)) %>%
+  # A fixed row order, so the bootstrap standard errors below (and the
+  # polygon files written in Stage 6) come out identical on every machine.
+  # The order rows arrive in otherwise depends on the platform's GDAL and
+  # sorting, and a bootstrap with a fixed seed still draws different
+  # polygons when the rows are in a different order.
+  arrange(id)
 cat("Wetland polygons with a valid indicator value:", nrow(vaatmarkIndexPoly), "\n")
 cat("Index summary:\n"); print(summary(vaatmarkIndexPoly$index))
 
@@ -183,6 +189,9 @@ heights_region <- vaatmarkIndexPoly %>% st_drop_geometry() %>%
 
 cat("Aggregating to regions and 50 km grid with ecTools::ea_spread (bootstrap SE)...\n")
 t0 <- Sys.time()
+# ea_spread's standard error is a bootstrap (random resampling); a fixed
+# seed before each call makes it the same on every run.
+set.seed(123)
 vaatmarkIndexRegion <- ecTools::ea_spread(
   indicator_data = vaatmarkIndexPoly, indicator = index,
   regions = regions, groups = region, threshold = 1
@@ -194,6 +203,7 @@ vaatmarkIndexRegion <- ecTools::ea_spread(
 ssb50km <- st_read(file.path(opens_dir, "ssb50km.shp"), quiet = TRUE) %>%
   mutate(SSBID = as.numeric(SSBID) / 1000) %>%      # same DBF-scale convention as NO_GJEN_001
   st_transform(st_crs(regions))
+set.seed(123)
 vaatmarkIndexGrid <- ecTools::ea_spread(
   indicator_data = vaatmarkIndexPoly, indicator = index,
   regions = ssb50km, groups = SSBID, threshold = 1

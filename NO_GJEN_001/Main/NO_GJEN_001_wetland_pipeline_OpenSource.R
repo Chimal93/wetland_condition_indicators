@@ -973,6 +973,9 @@ if (!file.exists(ssb50km_path)) {
     mutate(SSBID = as.numeric(SSBID) / 1000) %>%
     st_transform(st_crs(regions))
 
+  # ea_spread's standard error is a bootstrap (random resampling); a fixed
+  # seed before each call makes it the same on every run.
+  set.seed(123)
   vaatmarkIndexGrid <- ecTools::ea_spread(
     indicator_data = vaatmarkIndexPolySpat,
     indicator      = index,
@@ -1006,6 +1009,7 @@ vaatmarkHeightsRegion <- regions %>%
             sd_pop    = sd(pop),
             n         = n())
 
+set.seed(123)  # bootstrap standard error, as for the grid above
 vaatmarkIndexRegion <- ecTools::ea_spread(
   indicator_data = vaatmarkIndexPolySpat,
   indicator      = index,
