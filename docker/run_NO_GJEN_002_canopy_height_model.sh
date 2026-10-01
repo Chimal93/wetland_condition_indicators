@@ -87,7 +87,7 @@ for d in "$NIN_DIR"/*.gdb; do fingerprint_folder "$d"; done > "$PROV/nin_polygon
 } > "$PROV/run_info.txt"
 
 # A resumed run must read the same imagery as the part already done.
-FIRST=$(ls -d "$OUT_DIR"/provenance/*/ 2>/dev/null | head -1)
+FIRST=$(ls -d "$OUT_DIR"/provenance/*/ 2>/dev/null | head -1 || true)   # none on a first start
 if [ -n "$FIRST" ] && ! cmp -s <(grep -v '^file:' "$FIRST/orthophoto.txt") <(grep -v '^file:' "$PROV/orthophoto.txt"); then
   echo "STOP: the orthophoto differs from the one this run ($CHM_RUN_NAME) started with:"
   diff "$FIRST/orthophoto.txt" "$PROV/orthophoto.txt" || true

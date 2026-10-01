@@ -1,6 +1,9 @@
 # Shared by the host-side scripts in docker/. Not meant to be run directly.
 # Resolves folders, loads settings and defines run_in_container().
-set -euo pipefail
+set -eEuo pipefail
+# Scripts stop at the first failing command (set -e). Say where, so a stop is
+# never silent.
+trap 'echo "ERROR: stopped at ${BASH_SOURCE[0]} line $LINENO (exit code $?): $BASH_COMMAND" >&2' ERR
 DOCKER_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 REPO_DIR=$(cd "$DOCKER_DIR/.." && pwd)
 
