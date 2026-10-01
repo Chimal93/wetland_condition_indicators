@@ -27,3 +27,9 @@ Rplots.pdf
 # Output of the Docker runner (logs, recorded versions, result snapshots,
 # download caches) - see docker/README.md. Change the place with RUNS_DIR.
 runs/
+
+# Canopy heights computed by docker/run_NO_GJEN_002_canopy_height_model.sh,
+# one folder per CHM_RUN_NAME with its provenance. Not committed by default:
+# they derive from licensed imagery. Commit a finished run deliberately, as
+# upstream did with meta_chm_national_RAW_2026-09-17/.
+NO_GJEN_002/Data/OpenS_data/canopy_height_runs/

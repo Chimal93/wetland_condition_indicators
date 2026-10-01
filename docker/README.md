@@ -41,6 +41,8 @@ their results stay on your machine; the image only provides the software.
 | `run_script.sh` | Runs a single R script from the repository inside the image. |
 | `prepare_ar5_input/` | One script, run once by hand: builds the AR5 forest and mire layers for `NO_GJEN_001` from the municipal FKB-AR5 GeoPackages. Needs restricted-access data; not part of the normal run. |
 | `run_NO_CONN_001_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_001`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_001" below. |
+| `build_canopy_height_image.sh`, `canopy_height_model/` | A second image with the Python environment for Meta's canopy-height model, and everything it is built from. Only needed for new `NO_GJEN_002` canopy heights. |
+| `run_NO_GJEN_002_canopy_height_model.sh` | Computes per-polygon canopy heights from an orthophoto for `NO_GJEN_002` and records exactly which inputs were used. See "New canopy heights for NO_GJEN_002" below. |
 | `internal/` | Pieces used by the scripts above; you do not call these yourself. `run_indicators_in_container.sh` is the step list that runs inside the image; `common.sh` loads the settings. |
 
 Nothing in this folder changes the indicator scripts under `NO_*/`.
@@ -222,6 +224,83 @@ stopped and restarted: regions already done are skipped. The run folder is
 `NO_CONN_001/Deliverables/`, where `git diff` shows any difference from the
 published ones. Same steps as upstream's `run_connectivity_ar5.ps1`, plus
 the final `export_deliverables.R`.
+
+## New canopy heights for NO_GJEN_002
+
+`NO_GJEN_002` measures vegetation height with Meta's HighResCanopyHeight
+model on RGB aerial photos. The published result is recomputed from
+canopy heights committed in the repository and needs none of this.
+This section is for computing **new**
+canopy heights: new imagery, a later year, or a test of the model.
+
+**One-time setup** (about 800 MB download, a few minutes):
+
+```bash
+bash docker/build_canopy_height_image.sh                       # image with Python and the model's packages
+bash docker/canopy_height_model/download_model_and_weights.sh  # model code and weights, checksum-verified
+bash docker/run_script.sh NO_GJEN_002/Fetch/fetch_nin_data.R   # NiN wetland polygons
+```
+
+Then tell the runner which orthophoto to use, in `config.local.env`:
+
+```bash
+ORTHOPHOTO_SOURCE_PATH=/path/to/national_ortho_50cm.tif
+ORTHOPHOTO_METADATA=/path/to/source_image_list.txt
+# Flight metadata of the mosaic, for the photo date of every polygon (optional):
+ORTHOPHOTO_VISIBLE_PROJECTS=/path/to/metadata/mosaic_coverage_by_project.gpkg
+ORTHOPHOTO_PROJECT_GRID=/path/to/metadata/metadata_omløpsprosjekt_mosaic_v2_2025.gpkg
+```
+
+A national mosaic is stitched together from many flights, often years
+apart and in different months, so a polygon's canopy height describes
+the date of *its* photo, not the mosaic's nominal year. With the two
+flight-metadata files set, the runner finishes by writing
+`orthophoto_flight_dates.csv` next to the canopy heights: for every
+polygon the flight project it is seen in (name and Norge i bilder project
+id), the flight dates, the original pixel size of the photos, and how much
+of the polygon that project covers. `orthophoto_flight_projects.csv` adds
+one row per flight project with everything the metadata says about it
+(owner, flight company, producer, product specification, ...). Method in
+`NO_GJEN_002/Fetch/assign_orthophoto_flight_dates.R`. Use it to check
+whether differences between regions or years could come from photo age
+or season.
+
+**Run** (a quick test first, then the full run):
+
+```bash
+CHM_RUN_NAME=test20 CHM_REGIONS=Vestlandet CHM_MAX_POLYGONS=20 bash docker/run_NO_GJEN_002_canopy_height_model.sh
+CHM_RUN_NAME=ortho2025 bash docker/run_NO_GJEN_002_canopy_height_model.sh
+```
+
+The full national run takes several days on CPU. Rerunning with the same
+`CHM_RUN_NAME` resumes it. A region that fails, or leaves polygons
+without a value, is retried three times (after 10, 30 and 90 seconds, to
+ride out a network-share hiccup); whatever still fails is listed in an
+`INCOMPLETE.txt` in the output folder, and the run ends with an error.
+
+The output is one CSV per region in
+`NO_GJEN_002/Data/OpenS_data/canopy_height_runs/<CHM_RUN_NAME>/`, next to a
+`provenance/` folder that records, for every start of the run:
+
+- a fingerprint of the orthophoto (size, date, checksums of its header and
+  of 64 samples spread over the file; a full checksum of a multi-terabyte
+  file is not practical) and what GDAL reports about it;
+- the checksum of every file listed in `ORTHOPHOTO_METADATA` and of the
+  two flight-metadata files;
+- a fingerprint of the NiN polygon data;
+- the repository commit, the image, the model code commit and the
+  checksums of the model weights and Python packages.
+
+A resumed run whose orthophoto fingerprint differs from the one it started
+with is refused, so two sets of imagery are never mixed in one result.
+
+What is pinned, and where:
+
+| What | Pinned in |
+|---|---|
+| Python version, `uv` (the installer), model code commit, package-resolution date | `canopy_height_model/versions.env` |
+| Every Python package, by version and checksum | `canopy_height_model/requirements.lock` (generated from `requirements.in` by `update_requirements_lock.sh`) |
+| Model code archive and the two weight files | `canopy_height_model/model_files.sha256` |
 
 ## Running a single script
 

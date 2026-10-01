@@ -1,0 +1,19 @@
+# Python packages for Meta's HighResCanopyHeight model (NO_GJEN_002).
+# The direct pins are the ones upstream tested (NO_GJEN_002/CHM_MODEL_SETUP.md);
+# everything else is resolved once and frozen, with hashes, in
+# requirements.lock by:
+#   bash docker/canopy_height_model/update_requirements_lock.sh
+# Only edit this file on purpose, then rerun that script and rebuild.
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
+pytorch_lightning==1.7.0
+torchmetrics==0.11.4
+# torch 2.0.1 is built against the NumPy 1.x ABI.
+numpy<2
+# torchmetrics imports pkg_resources, which setuptools 81 removed.
+setuptools<81
+# Imported by Meta's inference.py; upstream left them unpinned.
+pandas
+matplotlib
+tqdm
+pillow
