@@ -30,7 +30,7 @@ mkdir -p "$RUN_DIR"
 echo "Run folder: $RUN_DIR"
 echo "Progress:   tail -f $RUN_DIR/SUMMARY.txt"
 run_in_container "$RUN_DIR" --name "wetland_$STAMP" \
-  -e INDICATORS="$INDICATORS" -e GJEN_SOURCE="$GJEN_SOURCE" -e RERUN_FETCH="$RERUN_FETCH" \
+  -e INDICATORS="$INDICATORS" -e GJEN_SOURCE="$GJEN_SOURCE" -e RERUN_FETCH="$RERUN_FETCH" -e RUN_NAME="run_$STAMP" \
   -- bash /work/docker/internal/run_indicators_in_container.sh
 docker rm "wetland_$STAMP" >/dev/null 2>&1 || true
 echo "Finished. Run folder: $RUN_DIR"

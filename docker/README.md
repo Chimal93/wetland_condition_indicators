@@ -43,6 +43,7 @@ their results stay on your machine; the image only provides the software.
 | `run_NO_CONN_001_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_001`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_001" below. |
 | `build_canopy_height_image.sh`, `canopy_height_model/` | A second image with the Python environment for Meta's canopy-height model, and everything it is built from. Only needed for new `NO_GJEN_002` canopy heights. |
 | `run_NO_GJEN_002_canopy_height_model.sh` | Computes per-polygon canopy heights from an orthophoto for `NO_GJEN_002` and records exactly which inputs were used. See "New canopy heights for NO_GJEN_002" below. |
+| `data_sources.tsv` | The list of every input the runners use and where it comes from (see "Where the data came from"). |
 | `internal/` | Pieces used by the scripts above; you do not call these yourself. `run_indicators_in_container.sh` is the step list that runs inside the image; `common.sh` loads the settings. |
 
 Nothing in this folder changes the indicator scripts under `NO_*/`.
@@ -141,6 +142,7 @@ progress. Each run gets its own folder under `runs/` in the repository
 | `logs/` | The full console output of every step, one file per script, every line stamped with the time. |
 | `versions/` | The exact software used: R session info, GDAL/GEOS/PROJ versions, every installed package with its version, and a copy of `renv.lock`. |
 | `run_info.txt` | Which repository commit, image and settings the run used. |
+| `data_sources.csv` | Every input the run used: where it comes from, size, last change, checksum and when it was fetched (see "Where the data came from" below). |
 | `results_committed/` | The `Results/` and `Deliverables/` folders as they were before the run. |
 | `results_after/` | The same folders after the run. Compare with the folder above. |
 | `home/`, `tmp/` | Scratch space used by R during the run. |
@@ -148,6 +150,34 @@ progress. Each run gets its own folder under `runs/` in the repository
 Fetched data goes where the indicator scripts put it: into `Data/` inside
 each indicator folder, which git ignores. The national OpenStreetMap
 download is kept in `runs/osm_cache/` and reused by later runs.
+
+### Where the data came from
+
+Most inputs are downloaded from public services that update their data
+over time (NiN, OpenStreetMap, ...). To compare results years apart you
+need to know which version of each dataset went in, so the runners keep
+two records:
+
+- **A download log next to the data.** Every time a download (or the AR5
+  preparation) actually runs, one row per file is added to
+  `<indicator>/Data/data_sources_log.csv`: date and time, file, source,
+  size, checksum, repository commit and run. Because it lives next to the
+  data, the date survives later runs that skip the download.
+- **A snapshot per run.** At the end of every run, `data_sources.csv` in
+  the run folder lists every input of the selected indicators as that run
+  used it, with its last logged download date. A checksum that differs
+  between two runs means the input changed. Web services that are read
+  live during the run (Kartverket's elevation data) are listed with the
+  time of the run.
+
+The AR5 preparation also writes
+`NO_GJEN_001/Data/OpenS_data/ar5_national_source_files.csv`, the name,
+size, date and checksum of every municipal FKB-AR5 file it used.
+
+Which files belong to which source is listed in `docker/data_sources.tsv`.
+Data fetched before this logging existed shows "not logged" and its file
+date instead. If you add a download step to a runner, add its output to
+that list.
 
 ## What the runner does, step by step
 

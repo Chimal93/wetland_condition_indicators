@@ -33,3 +33,10 @@ runs/
 # they derive from licensed imagery. Commit a finished run deliberately, as
 # upstream did with meta_chm_national_RAW_2026-09-17/.
 NO_GJEN_002/Data/OpenS_data/canopy_height_runs/
+
+# Download logs and the AR5 source-file list describe the local copies of
+# the data (which are not committed either) - see "Where the data came
+# from" in docker/README.md. Each run's data_sources.csv in runs/ is the
+# copy to keep or share.
+NO_*/Data/data_sources_log.csv
+NO_GJEN_001/Data/OpenS_data/ar5_national_source_files.csv

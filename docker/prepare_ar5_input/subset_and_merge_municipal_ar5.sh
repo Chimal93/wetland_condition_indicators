@@ -57,6 +57,7 @@ if [ "${INSIDE_CONTAINER:-}" != "yes" ]; then
   echo "Reading FKB-AR5 from: $FKB_DIR"
   echo "Work folder and log:  $WORK_DIR"
   run_in_container "$WORK_DIR" --rm -v "$FKB_DIR:/fkb:ro" -e INSIDE_CONTAINER=yes \
+    -e FKB_SOURCE_DIR="$FKB_DIR" -e RUN_NAME="$(basename "$WORK_DIR")" \
     -- bash /work/docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh 2>&1 | tee "$WORK_DIR/log.txt"
   exit "${PIPESTATUS[0]}"
 fi
@@ -75,6 +76,9 @@ MYR=$OUT/ar5_myr_national.gpkg
 rm -f "$SKOG" "$MYR"
 FAILED=()
 DELAYS=(10 30 90)
+# Which municipal files went in: name, size, date, checksum (of the copy read).
+SOURCE_LIST=$OUT/ar5_national_source_files.csv
+echo '"file","size_bytes","modified","sha256"' > "$SOURCE_LIST"
 
 log() { echo "$(date '+%F %T')  $*"; }
 
@@ -100,11 +104,13 @@ for f in "${FILES[@]}"; do
     if cp "$f" "$local_f" \
        && subset "$local_f" 30 "$SKOG" ar5_skog \
        && subset "$local_f" 60 "$MYR" ar5_myr; then
+      sha=$(sha256sum "$local_f" | cut -d' ' -f1)
       ok=1; break
     fi
   done
   rm -f "$local_f"
   if [ "$ok" -eq 1 ]; then
+    echo "\"$name\",$(stat -c %s "$f"),\"$(date -r "$f" '+%Y-%m-%d %H:%M:%S')\",\"$sha\"" >> "$SOURCE_LIST"
     log "[$i/$N] ok   $name"
   else
     log "[$i/$N] FAIL $name"; FAILED+=("$name")
@@ -124,3 +130,10 @@ fi
 cp "$SKOG" "$DEST/ar5_skog_national.gpkg" && cp "$MYR" "$DEST/ar5_myr_national.gpkg" \
   && log "Installed ar5_skog_national.gpkg and ar5_myr_national.gpkg into NO_GJEN_001/Data/OpenS_data/" \
   || { log "Copy into the repository failed"; exit 1; }
+
+# Record where the two layers came from (see docker/data_sources.tsv).
+cp "$SOURCE_LIST" "$DEST/ar5_national_source_files.csv"
+. /work/docker/internal/record_data_sources.sh
+log_fetch NO_GJEN_001 docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh "$RUN_NAME (from $FKB_SOURCE_DIR)"
+log "Recorded in NO_GJEN_001/Data/data_sources_log.csv; the municipal files used are listed in"
+log "NO_GJEN_001/Data/OpenS_data/ar5_national_source_files.csv"

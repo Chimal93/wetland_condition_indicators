@@ -36,6 +36,10 @@ GDAL_HTTP_USERPWD=${ORTHOPHOTO_SOURCE_USERPWD:-} gdalinfo -json "$ORTHOPHOTO_SOU
   > "$RUN/provenance/orthophoto_gdalinfo.json" 2>> "$RUN/provenance/orthophoto_gdalinfo.err" \
   || { say "Could not open the orthophoto with GDAL - see provenance/orthophoto_gdalinfo.err"; exit 1; }
 
+# The other inputs (NiN polygons, bioclimatic zones), as in every runner.
+. /work/docker/internal/record_data_sources.sh
+write_data_sources "$RUN/provenance/data_sources.csv" NO_GJEN_002
+
 # outstanding <csv>: polygons in the failures file that are not (yet) in the
 # output. The failures file only ever grows, so this is the real count.
 outstanding() {

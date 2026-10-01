@@ -44,6 +44,10 @@ declare -A ASCII=([Nord-Norge]=nord_norge [Midt-Norge]=midt_norge [Vestlandet]=v
 OUT=/work/NO_CONN_001/Data/connectivity_output_ar5
 
 say "NO_CONN_001 AR5 variant. Wetland population: $AR5_MYR_GPKG"
+# The inputs of this run (AR5 mires from NO_GJEN_001, infrastructure layers
+# from NO_CONN_001), with sizes, dates and checksums.
+. /work/docker/internal/record_data_sources.sh
+write_data_sources "$RUN/data_sources.csv" NO_CONN_001 NO_GJEN_001
 failed=()
 
 export CONNECTIVITY_REGIONS=$(IFS=,; echo "${REGIONS[*]}")

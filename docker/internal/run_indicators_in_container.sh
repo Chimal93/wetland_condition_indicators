@@ -17,6 +17,7 @@ INDICATORS=${INDICATORS:-"FUNC CONN GJEN2 GJEN"}
 GJEN_SOURCE=${GJEN_SOURCE:-AR5}
 RERUN_FETCH=${RERUN_FETCH:-no}
 mkdir -p "$LOG" "$RUN/versions" "$RUN/results_committed" "$RUN/results_after"
+. /work/docker/internal/record_data_sources.sh
 ALL_INDICATORS="NO_FUNC_003 NO_CONN_001 NO_GJEN_002 NO_GJEN_001"
 
 say()  { echo "$(date '+%F %T')  $*" | tee -a "$SUMMARY"; }
@@ -37,6 +38,8 @@ step() {
   ( cd "/work/$ind/$dir" && stdbuf -oL -eL Rscript "$script" ) 2>&1 | stamp_lines > "$log"
   local rc=${PIPESTATUS[0]}
   say "END   $ind/$dir/$script  rc=$rc  $(( (SECONDS - t0) / 60 )) min  -> logs/$(basename "$log")"
+  # Record when and from where the data was fetched (see docker/data_sources.tsv).
+  [ "$rc" -eq 0 ] && [ "$dir" = Fetch ] && log_fetch "$ind" "$dir/$script" "${RUN_NAME:-}"
   return $rc
 }
 
@@ -159,4 +162,8 @@ fi
 
 # ---- 6. results after the run ----------------------------------------------
 snapshot "$RUN/results_after"
+say "Recording the inputs this run used -> data_sources.csv"
+inds=(); want FUNC && inds+=(NO_FUNC_003); want CONN && inds+=(NO_CONN_001)
+want GJEN2 && inds+=(NO_GJEN_002); want GJEN && inds+=(NO_GJEN_001)
+write_data_sources "$RUN/data_sources.csv" "${inds[@]}"
 say "ALL DONE. Results before/after this run: results_committed/ and results_after/ in this folder."

@@ -126,6 +126,8 @@ run_in_container "$RUN_DIR" --name "gjen002_chm_$STAMP" \
   -e CHM_RUN_NAME="$CHM_RUN_NAME" -e CHM_REGIONS="$CHM_REGIONS" -e CHM_MAX_POLYGONS="$CHM_MAX_POLYGONS" \
   -- bash /work/docker/internal/run_NO_GJEN_002_canopy_height_model_in_container.sh || rc=$?
 docker rm "gjen002_chm_$STAMP" >/dev/null 2>&1 || true
-cp "$PROV/orthophoto_gdalinfo.json" "$OUT_DIR/provenance/$STAMP/" 2>/dev/null || true
+for f in orthophoto_gdalinfo.json data_sources.csv; do   # written inside the container
+  cp "$PROV/$f" "$OUT_DIR/provenance/$STAMP/" 2>/dev/null || true
+done
 echo "Finished (exit $rc). Run folder: $RUN_DIR"
 exit $rc
