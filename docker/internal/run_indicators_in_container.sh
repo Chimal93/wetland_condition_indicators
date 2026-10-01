@@ -5,7 +5,7 @@
 # Settings arrive as environment variables: INDICATORS, GJEN_SOURCE, RERUN_FETCH.
 #
 # Order: record software versions, snapshot the committed results, then run
-# the selected indicators cheapest first (FUNC, CONN, GJEN). Within one
+# the selected indicators cheapest first (FUNC, CONN, GJEN2, GJEN). Within one
 # indicator a failed step stops that indicator; the others still run.
 # Fetch steps whose output already exists are skipped unless RERUN_FETCH=yes.
 # The repository's own scripts are never modified.
@@ -13,10 +13,11 @@ set -u
 RUN=/runs/current
 LOG=$RUN/logs
 SUMMARY=$RUN/SUMMARY.txt
-INDICATORS=${INDICATORS:-"FUNC CONN GJEN"}
+INDICATORS=${INDICATORS:-"FUNC CONN GJEN2 GJEN"}
 GJEN_SOURCE=${GJEN_SOURCE:-AR5}
 RERUN_FETCH=${RERUN_FETCH:-no}
 mkdir -p "$LOG" "$RUN/versions" "$RUN/results_committed" "$RUN/results_after"
+ALL_INDICATORS="NO_FUNC_003 NO_CONN_001 NO_GJEN_002 NO_GJEN_001"
 
 say()  { echo "$(date '+%F %T')  $*" | tee -a "$SUMMARY"; }
 stamp_lines() { while IFS= read -r line || [ -n "$line" ]; do echo "$(date '+%F %T')  $line"; done; }
@@ -56,7 +57,15 @@ file.copy("/work/renv.lock", "/runs/current/versions/renv.lock", overwrite = TRU
 REOF
 
 # ---- 2. keep a copy of the results as they were before this run ------------
-for ind in NO_FUNC_003 NO_CONN_001 NO_GJEN_001; do cp -r "/work/$ind/Results" "$RUN/results_committed/$ind"; done
+# Results/ and Deliverables/ (the platform-format export) of every indicator.
+snapshot() {
+  local ind
+  for ind in $ALL_INDICATORS; do
+    mkdir -p "$1/$ind"
+    for d in Results Deliverables; do [ -d "/work/$ind/$d" ] && cp -r "/work/$ind/$d" "$1/$ind/"; done
+  done
+}
+snapshot "$RUN/results_committed"
 
 # ---- 3. NO_FUNC_003 (about a minute) ----------------------------------------
 # Needs Data/OpenS_data/Tyler_data_raw.xlsx, which must be downloaded by hand
@@ -69,17 +78,37 @@ if want FUNC; then
   else
     step NO_FUNC_003 Fetch fetch_ano_data.R Data/OpenS_data/ano_data/naturovervaking_eksport.gpkg \
       && step NO_FUNC_003 Main NO_FUNC_003_wetland_pipeline_OpenSource.R \
+      && step NO_FUNC_003 Main export_deliverables.R \
       || say "NO_FUNC_003 FAILED (see its log)"
   fi
 fi
 
 # ---- 4. NO_CONN_001 (a few minutes with the published caches) ---------------
 # download_caches.R checks file sizes itself and only downloads what is missing.
+# The published caches are those of the mire-model variant, so this is the
+# variant reproduced here, and its export goes to Deliverables_MireModel/.
+# The delivered AR5 variant (Deliverables/) is a separate ~25 h run:
+# docker/run_NO_CONN_001_ar5_variant.sh.
 if want CONN; then
-  say "=== NO_CONN_001 ==="
+  say "=== NO_CONN_001 (mire-model variant) ==="
   step NO_CONN_001 Fetch download_caches.R \
     && step NO_CONN_001 Main NO_CONN_001_wetland_pipeline.R \
+    && CONNECTIVITY_SCORE_LABEL=national_2023 CONN001_OUT_DIR=../Deliverables_MireModel \
+       step NO_CONN_001 Main export_deliverables.R \
     || say "NO_CONN_001 FAILED (see its log)"
+fi
+
+# ---- 4b. NO_GJEN_002 (minutes, from the committed canopy heights) -----------
+# Recomputes the indicator from Data/OpenS_data/meta_chm_national_RAW_2026-09-17/,
+# the per-polygon canopy heights of upstream's national model run. New
+# canopy heights from imagery: docker/run_NO_GJEN_002_canopy_height_model.sh.
+if want GJEN2; then
+  say "=== NO_GJEN_002 ==="
+  step NO_GJEN_002 Fetch fetch_nin_data.R Data/OpenS_data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb \
+    && step NO_GJEN_002 Fetch fetch_bioclim_zones.R Data/OpenS_data/bioclim/soner2017.shp \
+    && step NO_GJEN_002 Main NO_GJEN_002_national_pipeline.R \
+    && step NO_GJEN_002 Main export_deliverables.R \
+    || say "NO_GJEN_002 FAILED (see its log)"
 fi
 
 # ---- 5. NO_GJEN_001 (hours on a first run) ----------------------------------
@@ -122,10 +151,12 @@ if want GJEN; then
     && step NO_GJEN_001 Fetch fetch_osm_buildings.R Data/OpenS_data/osm_buildings_national.gpkg \
     && step NO_GJEN_001 Fetch fetch_nin_data.R Data/OpenS_data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb \
     && gjen_polygons \
+    && step NO_GJEN_001 Fetch build_refvaatmark_30m.R Data/OpenS_data/refvaatmark_30m/refvaatmark_30m.csv \
     && step NO_GJEN_001 Main NO_GJEN_001_wetland_pipeline_OpenSource.R \
+    && step NO_GJEN_001 Main export_deliverables.R \
     || say "NO_GJEN_001 FAILED (see its log)"
 fi
 
 # ---- 6. results after the run ----------------------------------------------
-for ind in NO_FUNC_003 NO_CONN_001 NO_GJEN_001; do cp -r "/work/$ind/Results" "$RUN/results_after/$ind"; done
+snapshot "$RUN/results_after"
 say "ALL DONE. Results before/after this run: results_committed/ and results_after/ in this folder."

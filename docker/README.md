@@ -141,8 +141,8 @@ progress. Each run gets its own folder under `runs/` in the repository
 | `logs/` | The full console output of every step, one file per script, every line stamped with the time. |
 | `versions/` | The exact software used: R session info, GDAL/GEOS/PROJ versions, every installed package with its version, and a copy of `renv.lock`. |
 | `run_info.txt` | Which repository commit, image and settings the run used. |
-| `results_committed/` | The `Results/` folders as they were before the run. |
-| `results_after/` | The `Results/` folders after the run. Compare with the folder above. |
+| `results_committed/` | The `Results/` and `Deliverables/` folders as they were before the run. |
+| `results_after/` | The same folders after the run. Compare with the folder above. |
 | `home/`, `tmp/` | Scratch space used by R during the run. |
 
 Fetched data goes where the indicator scripts put it: into `Data/` inside
@@ -152,21 +152,32 @@ download is kept in `runs/osm_cache/` and reused by later runs.
 ## What the runner does, step by step
 
 1. Records the software versions into `versions/`.
-2. Copies the current `Results/` folders to `results_committed/`.
-3. `NO_FUNC_003`: downloads the ANO field-survey data, then runs the
-   pipeline. Requires the Tyler et al. spreadsheet (see "Before your first
-   run").
+2. Copies the current `Results/` and `Deliverables/` folders to
+   `results_committed/`.
+3. `NO_FUNC_003`: downloads the ANO field-survey data, runs the pipeline,
+   then writes the deliverables. Requires the Tyler et al. spreadsheet
+   (see "Before your first run").
 4. `NO_CONN_001`: downloads the published caches (about 2 GB, only what is
-   missing), then runs the pipeline. With the caches this takes minutes;
-   without them it would take more than 20 hours.
-5. `NO_GJEN_001`: downloads the bioclimatic zones, the forest disturbance
+   missing), runs the pipeline, then writes the deliverables. With the
+   caches this takes minutes; without them it would take more than 20
+   hours. The caches belong to the older *mire-model* variant, so this
+   reproduces that variant, and its deliverables go to
+   `NO_CONN_001/Deliverables_MireModel/`. The delivered AR5 variant is a
+   separate run (see "The AR5 variant of NO_CONN_001" below).
+5. `NO_GJEN_002` (`GJEN2`): downloads the NiN nature-type data and the
+   bioclimatic zones, recomputes the indicator from the canopy heights
+   committed in the repository, then writes the deliverables. Minutes.
+   Computing new canopy heights from aerial photos is a separate run (see
+   "New canopy heights for NO_GJEN_002" below).
+6. `NO_GJEN_001`: downloads the bioclimatic zones, the forest disturbance
    map, OpenStreetMap buildings and the NiN nature-type data, checks or
-   downloads the forest and mire polygons (see below), then runs the
-   pipeline. The first
-   run takes about 3.5 hours, most of it reading elevation data from
+   downloads the forest and mire polygons (see below), builds the
+   good-condition reference heights at 30 m (about 40 minutes, the first
+   time only), runs the pipeline, then writes the deliverables. The first
+   run takes several hours, most of it reading elevation data from
    Kartverket's servers; later runs reuse the cached results and finish in
    minutes.
-6. Copies the `Results/` folders to `results_after/`.
+7. Copies the `Results/` and `Deliverables/` folders to `results_after/`.
 
 A download step is skipped when its output file already exists. Set
 `RERUN_FETCH=yes` to download everything again. Within one indicator, a

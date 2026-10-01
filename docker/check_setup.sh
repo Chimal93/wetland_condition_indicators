@@ -58,6 +58,11 @@ if want CONN; then
   ok "NO_CONN_001: no manual inputs (about 2 GB of caches are downloaded on the first run)"
 fi
 
+# ---- NO_GJEN_002: nothing manual (NiN and bioclim are downloaded) --------
+if want GJEN2; then
+  ok "NO_GJEN_002: no manual inputs (recomputed from the committed canopy heights)"
+fi
+
 # ---- NO_GJEN_001: AR5 forest/mire layers, restricted access ---------------
 if want GJEN; then
   case "$GJEN_SOURCE" in

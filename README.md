@@ -37,6 +37,13 @@ AR5 forest and mire layers for `NO_GJEN_001` (or set `GJEN_SOURCE=AR50`
 to use the public map instead). Logs, software versions and the results
 before and after the run land in `runs/`. Details: [`docker/README.md`](docker/README.md).
 
+Two longer computations have their own scripts, because they take a day
+or more: the delivered AR5 variant of `NO_CONN_001`
+(`bash docker/run_NO_CONN_001_ar5_variant.sh`, about 25 hours) and new
+canopy heights from aerial photos for `NO_GJEN_002`
+(`bash docker/run_NO_GJEN_002_canopy_height_model.sh`, days, needs your
+own imagery).
+
 ## Indicators
 
 | Indicator | Measures | Status |
