@@ -45,6 +45,10 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 }
 
 region_name <- Sys.getenv("CONNECTIVITY_REGION", unset = "")
+# ASCII aliases, so callers (PowerShell, schedulers) never have to pass the
+# Norwegian letters - a .ps1 read as ANSI mangles them silently.
+if (region_name == "Sorlandet") region_name <- "Sørlandet"
+if (region_name == "Ostlandet") region_name <- "Østlandet"
 if (!nzchar(region_name)) stop("Set CONNECTIVITY_REGION to one of: Nord-Norge, Midt-Norge, Vestlandet, Østlandet, Sørlandet")
 
 ascii_name <- c(
@@ -61,7 +65,8 @@ REGION_BUFFER_M <- 10000
 YEAR <- Sys.getenv("CONNECTIVITY_YEAR", unset = "2023")
 
 lui_path <- file.path("..", "Data", "LUI_output", paste0("LUI_", YEAR, ".tif"))
-mire_path <- file.path("..", "Data", "connectivity_output_simplified",
+conn_dir <- Sys.getenv("CONNECTIVITY_OUT_DIR", unset = file.path("..", "Data", "connectivity_output_simplified"))
+mire_path <- file.path(conn_dir,
                         paste0(ascii_name, "_min_myr_distance_certified.gpkg"))
 
 cat("Region:", region_name, "- year:", YEAR, "\n")
@@ -122,7 +127,7 @@ in_true_region <- lengths(st_intersects(centroids, region_true_boundary)) > 0
 mire_polygons <- mire_polygons[in_true_region, ]
 cat("True-boundary filter: kept", nrow(mire_polygons), "of", n_before, "polygons.\n")
 
-out_dir <- file.path("..", "Data", "connectivity_output_simplified")
+out_dir <- conn_dir
 out_path <- file.path(out_dir, paste0(ascii_name, "_connectivity_full_", YEAR, ".gpkg"))
 st_write(mire_polygons, out_path, quiet = TRUE, append = FALSE)
 

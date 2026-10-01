@@ -36,6 +36,7 @@ bioclimatic-zone strata, a 50km grid, and national/regional levels.
 | `Fetch/` | Scripts that download or build each input. Run these first. |
 | `Data/OpenS_data/` | Everything the pipeline reads/writes, flat (no NINA/OpenS split - none of this data is actually gated). |
 | `Results/` | Final maps, tables, and exported shapefiles/CSVs. |
+| `Deliverables/` | The indicator in the ecosystemCondition platform format - region, 50 km grid and polygon maps (`.rds`, EPSG:25833), values table (csv/xlsx with a metadata sheet), figure. Produced by `Main/export_deliverables.R`. |
 | `Results_TEST_AOI/` | Created by `Fetch/quick_test_small_aoi.R` - small-region smoke-test output, not a real result (gitignored). |
 
 ## How to run it (in order)
@@ -47,22 +48,26 @@ bioclimatic-zone strata, a 50km grid, and national/regional levels.
 5. `Fetch/build_ssb_grids.R` - dissolves Kartverket's open 1km grid into the 10km/50km grids used for aggregation.
 6. `Fetch/build_ar50_wetland_lidar_coverage.R` - **run this even if you have AR5 access.** Produces `dtm1_tile_footprint.gpkg`, required by every CHM extraction regardless of population source, plus the AR50 wetland fallback data.
 7. `Fetch/build_ar50_skog.R` - the AR50 forest fallback data.
-8. **If you have AR5 access** (your collaborators do): place `AR5-skog-myr.gpkg` at the repo's `Indikatorer`-equivalent root (one level above this indicator's folder tree, matching the original project layout - adjust the path in `extract_ar5_skog_myr.R` if your repo root is laid out differently), then run `Fetch/extract_ar5_skog_myr.R`. If you skip this, the pipeline automatically falls back to the AR50 data from steps 6-7 - see "AR5 vs. AR50" below.
-9. `Main/NO_GJEN_001_wetland_pipeline_OpenSource.R` - the actual indicator computation. First run computes Stage 4/5/6's reference heights from scratch (national stratified sampling + CHM extraction against Kartverket's live LiDAR service) and caches the results; later runs read the cache instantly. In practice this is quick, not the hours-long worst case you might expect from "national stratified sampling" - a full cold-cache run (all three stages, ~25,000 points each, 8 parallel workers) took under 5 minutes end to end on a normal laptop.
+8. `Fetch/build_refvaatmark_30m.R` - the wetland "good condition" reference heights (Stage 5 input). Needs steps 4 and 6. Evaluates the LiDAR canopy height at 30 m inside every good-condition NiN wetland polygon, as the original reference is defined - see "Reference heights" below for why the scale matters. ~40 min, network-bound, checkpointed (safe to interrupt and re-run). Prints a per-stratum comparison against the published reference table at the end.
+9. **If you have AR5 access** (your collaborators do): place `AR5-skog-myr.gpkg` at the repo's `Indikatorer`-equivalent root (one level above this indicator's folder tree, matching the original project layout - adjust the path in `extract_ar5_skog_myr.R` if your repo root is laid out differently), then run `Fetch/extract_ar5_skog_myr.R`. If you skip this, the pipeline automatically falls back to the AR50 data from steps 6-7 - see "AR5 vs. AR50" below.
+10. `Main/NO_GJEN_001_wetland_pipeline_OpenSource.R` - the actual indicator computation. First run computes Stage 4/6's forest-reference and population heights from scratch (national stratified sampling + CHM extraction against Kartverket's live LiDAR service) and caches the results; later runs read the cache instantly. In practice this is quick, not the hours-long worst case you might expect from "national stratified sampling" - a full cold-cache run (both stages, ~25,000 points each, 8 parallel workers) took under 5 minutes end to end on a normal laptop. Stage 5 reads step 8's table.
+11. `Main/export_deliverables.R` - writes the finished indicator in the ecosystemCondition platform format to `Deliverables/` (see "Deliverables" below). Seconds; reads `Results/` only.
 
 Each script has a 3-tier working-directory fallback and runs the same
 way from RStudio, `Rscript script.R`, or `source("script.R")`.
 
 ### Quick test, without the full run
 
-Once AR5 or AR50 skog/myr data exists (steps 6-8 above), `Fetch/
+Once AR5 or AR50 skog/myr data exists (steps 6-9 above), `Fetch/
 quick_test_small_aoi.R` runs the *real, unmodified* Main script against
 one small region (default Nord-Norge) instead of the whole country -
 useful to confirm your setup actually works in a few minutes, without
 waiting on the multi-hour national run described below. It temporarily
 swaps in a small-region subset of the AR5/AR50 skog and myr layers,
-hides Stage 4/5/6's cached outputs so Main is forced through the real
-compute path, runs Main as a genuine separate process, and restores the
+hides Stage 4/6's cached outputs so Main is forced through the real
+compute path (Stage 5's reference table from step 8 is a national
+prerequisite, not a cache, and is left in place), runs Main as a
+genuine separate process, and restores the
 real data, caches, and `Results/` folder afterward - Main itself is
 never modified and has no awareness this exists. Output:
 `Results_TEST_AOI/` (gitignored - not a real result, just a smoke-test
@@ -90,7 +95,11 @@ genuinely cold cache), and CPU/disk contention once the 8 parallel CHM
 workers are competing with everything else on the machine. Treat the
 console's self-reported per-step timings as a floor, not a ceiling.
 
-Once every `Fetch/` step has been run once and `Main`'s Stage 4/5/6
+Of that, `Fetch/build_refvaatmark_30m.R` alone is ~40 min: it reads
+DTM1/DOM1 for 8,200 polygons over HTTP. It is checkpointed, so an
+interrupted run resumes where it stopped.
+
+Once every `Fetch/` step has been run once and `Main`'s Stage 4/6
 caches exist, re-running `Main` is fast (well under a minute) - the
 2+ hour budget is a one-time, first-run cost.
 
@@ -125,11 +134,24 @@ produced 21,026 wetland polygons with a valid indicator value -
 identical to the original (non-migrated) pipeline's result. Nothing
 here is untested guesswork.
 
-`Fetch/quick_test_small_aoi.R` has also been run for real: a
-Nord-Norge-only pass produced index 0.9669 for that region - an exact
-match to the full national run's own Nord-Norge value - confirming the
-small-region shortcut reproduces the real compute path faithfully, not
-just a superficially-passing stub.
+`Fetch/quick_test_small_aoi.R` has also been run for real, most
+recently after the 30 m reference change: a Nord-Norge-only pass on AR5
+produced index 0.9698 for that region - an exact match to the full
+national run's own Nord-Norge value - confirming the small-region
+shortcut reproduces the real compute path faithfully, not just a
+superficially-passing stub. The same test on the AR50 fallback gives
+0.9759: the expected AR5/AR50 difference (coarser AR50 wetland polygons
+sample slightly taller vegetation, coarser AR50 forest polygons give a
+lower forest anchor), not a Stage 5 effect - the reference table is
+identical in both runs.
+
+The 30 m reference build (`Fetch/build_refvaatmark_30m.R`, added
+2026-09) was run nationally in this layout and `Main` re-run on it:
+15 of 20 strata fall within 0.5-2x of the published reference table
+(4 of 20 with the earlier 1 m method), the same 21,026 polygons get a
+value, and the index values are identical to the project-folder run of
+the same method. Current region means: Nord-Norge 0.970, Midt-Norge
+0.946, Vestlandet 0.943, Østlandet 0.899, Sørlandet 0.941.
 
 ## R environment
 
@@ -142,16 +164,65 @@ current master branch has renamed the function this pipeline needs, so
 install a pinned commit instead:
 `remotes::install_github("NINAnor/eaTools@e9480b4b977f4a15597e64f649e43b2dd8dc4bfc")`).
 
+## Reference heights - the evaluation scale
+
+The wetland "good condition" reference (Stage 5) is defined in the
+original indicator as the median canopy height per good-condition NiN
+wetland polygon with the 1 m LiDAR canopy-height model evaluated at
+30 m, then the median across polygons per region x bioclim stratum.
+The scale is part of the definition: at 1 m an open bog is a few
+centimetres almost everywhere, while a 30 m cell (900 m^2) averages in
+scattered trees and, for sub-hectare polygons, the forest edge - the
+same polygons give 5-20x higher values at 30 m. `Fetch/build_
+refvaatmark_30m.R` reproduces the 30 m evaluation on open data and is
+the default. The earlier 1 m point-sampling reconstruction is kept in
+`Main` as a switchable legacy variant (`GJEN001_REF_VARIANT=1m`,
+outputs suffixed `_OpenSource_1m`); it is what produced the 2-16x
+shortfall against the published table this README used to list as an
+open limitation. Its effect on the final index is small but systematic
+(region means +0.002 to +0.018, Østlandet and Sørlandet most).
+
+Residual differences from the published table are a matter of polygon
+set, not method: in the strata that still differ most (Sørlandet SB/MB,
+Nord-Norge NB), 65-90 % of the good-condition polygons in the current
+NiN download were mapped in 2023-2025 and postdate the polygon set the
+published table was built from. The current download is the correct
+input for a current reconstruction; the published table is used for
+comparison, not as ground truth.
+
+## Deliverables (platform format)
+
+The published set is the corrected combination: the wetland reference
+evaluated at 30 m and the forest anchor and population sampled at 20 m,
+i.e. all three quantities on the scales the original workflow uses (see
+"Reference heights - the evaluation scale"). `GJEN001_SAMPLING_SCALE=1m`
+reproduces the earlier native-resolution sampling for comparison; its
+outputs are suffixed `_samp1m` and never overwrite the delivered ones.
+
+`Main/export_deliverables.R` maps the pipeline's results onto the
+ecosystemCondition platform schema (`area, areaId, v_YYYY, sd_YYYY,
+i_YYYY, reference_high, reference_low, thr`; see the repository README):
+
+- `v` = mean vegetation height of the wetland population (m), `i` = the
+  sigmoid-scaled index, `reference_high` = the good-condition wetland
+  reference (X100), `reference_low` = the forest reference (X0), `thr` =
+  0.6 on the indicator scale (platform default - no X60 is defined on the
+  variable scale in the original work), `sd` = the bootstrap standard error
+  of the area-weighted mean index (the quantity `ea_spread()` computes).
+- Three unit sets: landsdel (primary), SSB 50 km cells with data, and every
+  valued wetland polygon; plus a national row in the values table.
+- Year label `2024` (`GJEN001_DATA_YEAR`): the elevation models are
+  Kartverket's national products flown 2010-2024, stated in the metadata.
+- Grid membership is re-derived spatially in the export (the pipeline's
+  polygon-level `ssbid` is only a row number).
+- Regional values, corrected scales: Nord-Norge 0.977, Midt-Norge 0.960,
+  Vestlandet 0.959, Sørlandet 0.950, Østlandet 0.908; national 0.949.
+  Sampling at 1 m instead gives 0.970 / 0.946 / 0.943 / 0.941 / 0.899 -
+  0.01 to 0.03 lower, because the 1 m forest anchor sits about 14 % above
+  the published reference values.
+
 ## Known limitations
 
-- **Wetland reference heights (Stage 5) do not closely match NINA's
-  original values** - systematically lower in most of the 25 region x
-  bioclim strata (2-16x in the worst cases), for reasons not resolvable
-  from open data or documentation (possible causes: different DTM/DSM
-  source, or a different NiN dataset vintage). A controlled comparison
-  showed this has only a small effect on the final downstream indicator
-  (mean abs. difference 0.005, max 0.077 on the 0-1 scale) - kept as the
-  best available open substitute. See `Main`'s Stage 5 header for detail.
 - **AR5/AR50's plain forest/wetland classification has no equivalent to
   NiN's V2 "sumpskog" (swamp-forest) tree-cover carve-out** - a
   classification-scheme gap, not something either data source's finer

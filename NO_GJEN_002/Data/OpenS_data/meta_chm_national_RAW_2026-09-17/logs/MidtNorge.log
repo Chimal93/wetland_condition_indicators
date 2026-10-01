@@ -1,0 +1,679 @@
+��Rscript.exe : Spherical geometry (s2) switched off
+At C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\run_national_by_region.ps1:72 char:5
++     & $rscript run_meta_chm_on_polygons.R 2>&1 | Tee-Object -FilePath ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Spherical geometry (s2) switched off:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Population        : national 
+Region filter     : Midt-Norge 
+Model input res   : 0.50 m/px (tiles 128 x 128 m) 
+Batch size        : 250  clean after batch: TRUE 
+Orthophoto source : <vendor COG URL redacted>
+Work dir          : C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge 
+Output            : ../Data/OpenS_data/meta_chm_national_MidtNorge.csv 
+Reading national NiN geodatabase (slow): ../Data/OpenS_data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb 
+Warning message:
+In CPL_read_ogr(dsn, layer, query, as.character(options), quiet,  :
+  GDAL Message 1: organizePolygons() received a polygon with more than 100 parts. The processing may be really 
+slow.  You can skip the processing by setting METHOD=SKIP, or only make it analyze counter-clock wise parts by 
+setting METHOD=ONLY_CCW if you can assume that the outline of holes is counter-clock wise defined
+Loaded 24524 polygon(s).
+Invalid geometries: 16 - repairing with st_make_valid()
+Assigning regions (st_intersects - slow at national scale)...
+Region 'Midt-Norge': 7123 of 24524 polygon(s)
+To process this run: 7123 polygon(s)
+
+29 batch(es) of up to 250 polygon(s).
+
+=========== batch 1/29 (250 polygons) ===========
+  tiling: 5137 tile(s) from 250 polygon(s) in 29.3 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 5137 tile(s) already done, 5137 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.8 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 5137 tile(s) in 7551.3 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 250
+
+=========== batch 2/29 (250 polygons) ===========
+  tiling: 1248 tile(s) from 250 polygon(s) in 8.4 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1248 tile(s) already done, 1248 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.7 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1248 tile(s) in 1887.0 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 500
+
+=========== batch 3/29 (250 polygons) ===========
+  tiling: 1454 tile(s) from 250 polygon(s) in 7.8 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1454 tile(s) already done, 1454 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.5 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1454 tile(s) in 2121.7 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 750
+
+=========== batch 4/29 (250 polygons) ===========
+  tiling: 1477 tile(s) from 250 polygon(s) in 10.9 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1477 tile(s) already done, 1477 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.0 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1477 tile(s) in 2066.5 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 1000
+
+=========== batch 5/29 (250 polygons) ===========
+  tiling: 1578 tile(s) from 250 polygon(s) in 7.8 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1578 tile(s) already done, 1578 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.8 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1578 tile(s) in 2351.5 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 1250
+
+=========== batch 6/29 (250 polygons) ===========
+  tiling: 1874 tile(s) from 250 polygon(s) in 11.2 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1874 tile(s) already done, 1874 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.0 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1874 tile(s) in 2835.4 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 1500
+
+=========== batch 7/29 (250 polygons) ===========
+  tiling: 1254 tile(s) from 250 polygon(s) in 9.1 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1254 tile(s) already done, 1254 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.9 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1254 tile(s) in 1873.3 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 1750
+
+=========== batch 8/29 (250 polygons) ===========
+  tiling: 1128 tile(s) from 250 polygon(s) in 8.1 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1128 tile(s) already done, 1128 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.6 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1128 tile(s) in 1675.5 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 2000
+
+=========== batch 9/29 (250 polygons) ===========
+  tiling: 1301 tile(s) from 250 polygon(s) in 7.0 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1301 tile(s) already done, 1301 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.5 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1301 tile(s) in 1917.4 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 2250
+
+=========== batch 10/29 (250 polygons) ===========
+  tiling: 1530 tile(s) from 250 polygon(s) in 8.4 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1530 tile(s) already done, 1530 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.8 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1530 tile(s) in 2246.4 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 2500
+
+=========== batch 11/29 (250 polygons) ===========
+  tiling: 1377 tile(s) from 250 polygon(s) in 7.2 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1377 tile(s) already done, 1377 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.3 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1377 tile(s) in 2086.4 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 2750
+
+=========== batch 12/29 (250 polygons) ===========
+  tiling: 1697 tile(s) from 250 polygon(s) in 8.9 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1697 tile(s) already done, 1697 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.3 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1697 tile(s) in 2545.7 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 3000
+
+=========== batch 13/29 (250 polygons) ===========
+  tiling: 1584 tile(s) from 250 polygon(s) in 7.1 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1584 tile(s) already done, 1584 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 7.8 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1584 tile(s) in 2307.4 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 3250
+
+=========== batch 14/29 (250 polygons) ===========
+  tiling: 1362 tile(s) from 250 polygon(s) in 7.5 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1362 tile(s) already done, 1362 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.5 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1362 tile(s) in 2039.9 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 3500
+
+=========== batch 15/29 (250 polygons) ===========
+  tiling: 1287 tile(s) from 250 polygon(s) in 7.5 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1287 tile(s) already done, 1287 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.6 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1287 tile(s) in 1911.6 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 3750
+
+=========== batch 16/29 (250 polygons) ===========
+  tiling: 1324 tile(s) from 250 polygon(s) in 106.9 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1324 tile(s) already done, 1324 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.9 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1324 tile(s) in 1938.2 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 4000
+
+=========== batch 17/29 (250 polygons) ===========
+  tiling: 1211 tile(s) from 250 polygon(s) in 6.4 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1211 tile(s) already done, 1211 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.6 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1211 tile(s) in 1781.6 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 4250
+
+=========== batch 18/29 (250 polygons) ===========
+  tiling: 1813 tile(s) from 250 polygon(s) in 8.6 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1813 tile(s) already done, 1813 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.9 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1813 tile(s) in 2660.1 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 4500
+
+=========== batch 19/29 (250 polygons) ===========
+  tiling: 1202 tile(s) from 250 polygon(s) in 6.3 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1202 tile(s) already done, 1202 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.7 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1202 tile(s) in 1761.8 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 4750
+
+=========== batch 20/29 (250 polygons) ===========
+  tiling: 1912 tile(s) from 250 polygon(s) in 8.9 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1912 tile(s) already done, 1912 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.3 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1912 tile(s) in 2801.4 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 5000
+
+=========== batch 21/29 (250 polygons) ===========
+  tiling: 1172 tile(s) from 250 polygon(s) in 6.4 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1172 tile(s) already done, 1172 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.1 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1172 tile(s) in 1719.7 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 5250
+
+=========== batch 22/29 (250 polygons) ===========
+  tiling: 1461 tile(s) from 250 polygon(s) in 6.3 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1461 tile(s) already done, 1461 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.1 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1461 tile(s) in 2136.9 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 5500
+
+=========== batch 23/29 (250 polygons) ===========
+  tiling: 1430 tile(s) from 250 polygon(s) in 6.3 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1430 tile(s) already done, 1430 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.0 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1430 tile(s) in 2102.0 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 5750
+
+=========== batch 24/29 (250 polygons) ===========
+  tiling: 1108 tile(s) from 250 polygon(s) in 5.6 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1108 tile(s) already done, 1108 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.7 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1108 tile(s) in 1629.9 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 6000
+
+=========== batch 25/29 (250 polygons) ===========
+  tiling: 1480 tile(s) from 250 polygon(s) in 6.0 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1480 tile(s) already done, 1480 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 9.7 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1480 tile(s) in 2163.2 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 6250
+
+=========== batch 26/29 (250 polygons) ===========
+  tiling: 1223 tile(s) from 250 polygon(s) in 5.5 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1223 tile(s) already done, 1223 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.0 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1223 tile(s) in 1797.9 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 6500
+
+=========== batch 27/29 (250 polygons) ===========
+  tiling: 1294 tile(s) from 250 polygon(s) in 5.6 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1294 tile(s) already done, 1294 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.0 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1294 tile(s) in 1904.1 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 250 valued, 0 failed. Running total: 6750
+
+=========== batch 28/29 (250 polygons) ===========
+  tiling: 1379 tile(s) from 250 polygon(s) in 5.5 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 1379 tile(s) already done, 1379 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.4 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 1379 tile(s) in 2026.2 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+
+|---------|---------|---------|---------|
+=========================================
+                                          
+  aggregated: 250 valued, 0 failed. Running total: 7000
+
+=========== batch 29/29 (123 polygons) ===========
+  tiling: 617 tile(s) from 123 polygon(s) in 2.9 min
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torchmetrics\utilities\imports.py:
+early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+Resuming: 0 of 617 tile(s) already done, 617 to run.
+Loading models (CPU)...
+C:\Users\adria\Documents\Indikatorer\NO_GJEN_002\.venv_chm\Lib\site-packages\torch\_utils.py:314: UserWarning: 
+TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage 
+class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, 
+use tensor.untyped_storage() instead of tensor.storage()
+  device=storage.device,
+  models loaded in 10.3 s
+  Maxar quantile matching: OFF (aerial checkpoint detected)
+
+Done: 617 tile(s) in 906.6 s -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred
+Per-tile stats -> C:\Users\adria\AppData\Local\Temp\gjen002_national\MidtNorge\pred_stats.csv
+  aggregated: 123 valued, 0 failed. Running total: 7123
+There were 50 or more warnings (use warnings() to see the first 50)
+
+Done. 7123 polygon(s) valued this run in 1552.6 min -> ../Data/OpenS_data/meta_chm_national_MidtNorge.csv
+Downstream must use `meta_chm_mean` (validated), not `meta_chm_median`.
+
+[43,914 per-tile progress lines removed for the repository copy; batch summaries, timings and totals above are complete]

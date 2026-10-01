@@ -1,0 +1,44 @@
+ÿþRscript.exe : terra 1.9.34
+At C:\Users\adria\Documents\Indikatorer\NO_CONN_001\run_connectivity_ar5.ps1:49 char:5
++     & $Rscript "compute_infra_distance_region.R" *> (Join-Path $logDi ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (terra 1.9.34:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Linking to GEOS 3.14.1, GDAL 3.12.1, PROJ 9.7.1; sf_use_s2() is TRUE
+Attaching package: 'dplyr'
+The following objects are masked from 'package:terra':
+    intersect, union
+The following objects are masked from 'package:stats':
+    filter, lag
+The following objects are masked from 'package:base':
+    intersect, setdiff, setequal, union
+Region: S%U%rlandet - year: 2023 
+Loading certified mire polygons (includes 10km buffer zone)...
+   137587 polygons loaded.
+Buffered extent: -31808.96 261957.2 6416048 6701903 
+Template raster cells: 839741545 
+Loading infrastructure index, cropping, resampling to 10m...
+|---------|---------|---------|---------|
+=========================================
+  [timing] crop+resample: 13.5 sec
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+  [timing] threshold+vectorize: 35 sec
+Infrastructure polygon(s) (dissolved): 1 
+Computing nearest-infrastructure distances ( 1000 m local search)...
+  [timing] nearest-infra distance: 175.3 sec
+  with infrastructure within 1000 m: 24424 ( 17.8 % )
+True-boundary filter: kept 125939 of 137587 polygons.
+=== Summary for S%U%rlandet ===
+Final polygon count: 125939 
+min_infra_distance (NA = none within buffer):    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+    0.0   130.8   467.3   452.9   744.7   999.9  103864 
+kvotient:    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+  0.000   1.824  10.786     Inf  54.890     Inf  103997 
+Written to ..\Data\connectivity_output_ar5/sorlandet_connectivity_full_2023.gpkg 

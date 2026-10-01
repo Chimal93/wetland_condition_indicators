@@ -44,10 +44,22 @@ before and after the run land in `runs/`. Details: [`docker/README.md`](docker/R
 | [`NO_FUNC_003`](NO_FUNC_003/) | Functional plant community index — plant trait indicator values (light, moisture, pH, nitrogen) against bootstrapped reference distributions | Complete |
 | [`NO_GJEN_001`](NO_GJEN_001/) | Gjengroing (woody encroachment) — canopy height against LiDAR-derived reference levels | Complete |
 | [`NO_CONN_001`](NO_CONN_001/) | Structural connectivity — per mire polygon, distance to nearest infrastructure vs. distance to nearest neighbouring mire | Complete |
+| [`NO_GJEN_002`](NO_GJEN_002/) | Gjengroing from **aerial photography** — canopy height predicted by a deep-learning model on orthophoto, against the same reference levels as `NO_GJEN_001` | Complete |
 
-Two further indicators (a flyfoto-based encroachment companion and an
-NDVI-based indicator) are in development and will be added here when
-ready.
+`NO_GJEN_001` and `NO_GJEN_002` are deliberately paired: they measure the
+same thing against the same two reference levels, and differ only in how
+the vegetation height is obtained — LiDAR for the first, aerial
+photography for the second. Photography is reflown far more often than
+national LiDAR, so the second can be updated on a much shorter cycle.
+
+**`NO_GJEN_002` needs imagery you supply yourself.** The photography
+behind its published numbers is commercial and cannot be redistributed,
+so nothing identifying a provider is in this repository — see that
+indicator's README. Its per-polygon canopy heights *are* published, so
+the indicator can be reproduced end to end without any imagery access.
+
+One further indicator (NDVI-based) is in development and will be added
+here when ready.
 
 ## How this repository is organised
 
@@ -62,6 +74,7 @@ follows the same layout:
 | `Fetch/` | Scripts that download or build each input; run these first |
 | `Data/` | Inputs and intermediates (large files are fetched, not committed) |
 | `Results/` | Final maps, indices and diagnostics |
+| `Deliverables/` | The indicator in the ecosystemCondition platform format (see below) |
 
 At the repository level:
 
@@ -74,6 +87,32 @@ At the repository level:
 **Start with the README inside the indicator you want to run.** Each
 documents its own inputs, runtime, external dependencies and known
 limitations.
+
+## Delivery format (`Tools/` and each `Deliverables/`)
+
+Every finished indicator ends with `Main/export_deliverables.R`, which
+writes the indicator in the data structure used by the
+[ecosystemCondition platform](https://ninanor.github.io/ecosystemCondition/)
+so it can be used in a condition assessment without conversion:
+
+- `<ID>_indicatorMap_region.rds` — an `sf` object in EPSG:25833, one row
+  per landsdel, columns `area, areaId, v_YYYY, sd_YYYY, i_YYYY,
+  reference_high, reference_low, thr` (variable value, its uncertainty,
+  the 0-1 indicator value, the X100/X0 reference levels on the variable
+  scale, and the good-condition threshold on the indicator scale). Finer
+  unit sets (grid cells, polygons, plots) are written alongside with the
+  same columns.
+- `<ID>_values.csv` / `.xlsx` — the same table without geometry plus a
+  national row and supplementary columns; the workbook carries a
+  `metadata` sheet (ID and version, names, ecosystem, data years,
+  variable and scaling definitions, reference-level justification,
+  uncertainty definition, sources, documentation links).
+- `<ID>_map.png` — a figure of the primary map.
+
+`Tools/export_platform_format.R` is the one shared writer; each
+indicator's export script only maps its own results onto the schema.
+Column names follow the platform's own example file (`reference_high`;
+the platform documentation spells it `referance_high`).
 
 ## Data is not committed
 

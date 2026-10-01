@@ -9,9 +9,13 @@
 # exists. Instead, this script:
 #   1. Temporarily swaps the real national AR5 skog/myr gpkgs for a
 #      small-region subset (same file names/paths/schema, so Main can't
-#      tell the difference), and hides Stage 4/5/6's cached CSV/gpkg
-#      outputs so Main is forced through the real compute path on all
-#      three stages, not a stale national cache.
+#      tell the difference), and hides Stage 4/6's cached CSV/gpkg
+#      outputs so Main is forced through the real compute path on both
+#      stages, not a stale national cache. Stage 5's 30 m reference
+#      table (Fetch/build_refvaatmark_30m.R) is a national prerequisite
+#      read as-is, not a cache, and is left in place - it must exist
+#      (the legacy 1m variant's inline cache is still hidden when
+#      GJEN001_REF_VARIANT=1m).
 #   2. Runs Main AS A REAL SEPARATE Rscript SUBPROCESS - literally the
 #      same command a collaborator would type themselves, not a
 #      source()-in-process shortcut.
@@ -73,8 +77,18 @@ myr_ar5    <- file.path(spatial_dir, "ar5_myr_national.gpkg")
 myr_ar50   <- file.path(spatial_dir, "ar50_myr_national.gpkg")
 
 cache_skog <- file.path(spatial_dir, "vegHeights_skog_climZoneRegion_openS.csv")
-cache_ref  <- file.path(spatial_dir, "refvaatmark_NINA_median", "refvaatmark_openS.csv")
+cache_ref  <- file.path(spatial_dir, "refvaatmark_1m", "refvaatmark_1m.csv")   # 1m variant only
 cache_pop  <- file.path(spatial_dir, "vaatmark_pop_openS.gpkg")
+
+# Which reference variant Main will run with - decides the output suffix
+# used in the sanity check below and whether the 30 m table is required.
+ref_variant <- Sys.getenv("GJEN001_REF_VARIANT", "30m")
+out_suffix  <- if (ref_variant == "30m") "_OpenSource" else "_OpenSource_1m"
+ref_30m     <- file.path(spatial_dir, "refvaatmark_30m", "refvaatmark_30m.csv")
+if (ref_variant == "30m" && !file.exists(ref_30m)) {
+  stop("Missing ", ref_30m, " - Main's default Stage 5 reads it. Run ",
+       "Fetch/build_refvaatmark_30m.R first (or set GJEN001_REF_VARIANT=1m).")
+}
 
 results_dir      <- file.path("..", "Results")
 results_test_dir <- file.path("..", "Results_TEST_AOI")
@@ -210,8 +224,8 @@ tryCatch({
   # Sanity-check print: compare this test's regional index for
   # test_region against the real (just-restored) national run's value
   # for the same region, if both are available.
-  test_shp <- file.path(results_test_dir, "NO_GJEN_001_wetland_index_region_OpenSource.shp")
-  real_shp <- file.path(results_dir,      "NO_GJEN_001_wetland_index_region_OpenSource.shp")
+  test_shp <- file.path(results_test_dir, paste0("NO_GJEN_001_wetland_index_region", out_suffix, ".shp"))
+  real_shp <- file.path(results_dir,      paste0("NO_GJEN_001_wetland_index_region", out_suffix, ".shp"))
   if (file.exists(test_shp) && file.exists(real_shp)) {
     test_val <- st_read(test_shp, quiet = TRUE) %>% st_drop_geometry() %>% filter(region == test_region)
     real_val <- st_read(real_shp, quiet = TRUE) %>% st_drop_geometry() %>% filter(region == test_region)

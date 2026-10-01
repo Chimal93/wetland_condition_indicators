@@ -1,0 +1,44 @@
+ÿþRscript.exe : terra 1.9.34
+At C:\Users\adria\Documents\Indikatorer\NO_CONN_001\run_connectivity_ar5.ps1:49 char:5
++     & $Rscript "compute_infra_distance_region.R" *> (Join-Path $logDi ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (terra 1.9.34:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Linking to GEOS 3.14.1, GDAL 3.12.1, PROJ 9.7.1; sf_use_s2() is TRUE
+Attaching package: 'dplyr'
+The following objects are masked from 'package:terra':
+    intersect, union
+The following objects are masked from 'package:stats':
+    filter, lag
+The following objects are masked from 'package:base':
+    intersect, setdiff, setequal, union
+Region: Vestlandet - year: 2023 
+Loading certified mire polygons (includes 10km buffer zone)...
+   85395 polygons loaded.
+Buffered extent: -109550.6 154444.4 6456106 6968283 
+Template raster cells: 1352155200 
+Loading infrastructure index, cropping, resampling to 10m...
+|---------|---------|---------|---------|
+=========================================
+  [timing] crop+resample: 21.8 sec
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+  [timing] threshold+vectorize: 54.5 sec
+Infrastructure polygon(s) (dissolved): 1 
+Computing nearest-infrastructure distances ( 1000 m local search)...
+  [timing] nearest-infra distance: 117.7 sec
+  with infrastructure within 1000 m: 27273 ( 31.9 % )
+True-boundary filter: kept 78600 of 85395 polygons.
+=== Summary for Vestlandet ===
+Final polygon count: 78600 
+min_infra_distance (NA = none within buffer):    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+   0.00   44.84  405.03  410.71  704.20  999.93   52782 
+kvotient:    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+ 0.0000  0.6844  9.7452     Inf 46.9771     Inf   52942 
+Written to ..\Data\connectivity_output_ar5/vestlandet_connectivity_full_2023.gpkg 

@@ -56,20 +56,27 @@
 #                                                         <- build_ar50_skog.R /
 #                                                            build_ar50_wetland_lidar_coverage.R
 #                                                            (only needed as the AR5 fallback)
-#   - Stage 5's wetland reference heights are computed inline below and
-#     cached to Data/OpenS_data/refvaatmark_NINA_median/refvaatmark_openS.csv
-#     on first run - no separate build script needed.
+#   - Data/OpenS_data/refvaatmark_30m/refvaatmark_30m.csv
+#                                                         <- build_refvaatmark_30m.R
+#     Stage 5's wetland reference heights (the "good condition" anchor),
+#     evaluated at 30 m as in the original design. REQUIRED for the
+#     default run; see Stage 5 for the legacy 1 m alternative.
 #
-# KNOWN CAVEAT: Stage 5's wetland reference-height reconstruction below
-# does not closely match NINA's original refvaatmark.csv in absolute
-# terms - systematically lower in most of the 25 region x bioclim strata
-# (2-16x in the worst cases). Root cause unresolved (NINA's internal GEE
-# script isn't public; likely candidates are a different DTM/DSM source
-# or NiN dataset vintage). A controlled side-by-side run showed the
-# downstream final indicator is only minimally affected (mean abs.
-# difference across strata: 0.005; max: 0.077, both on the 0-1 scale) -
-# kept as the best available open-data substitute. See Stage 5 below for
-# the reasoning on why the divergence matters less than it looks.
+# REFERENCE-HEIGHT VARIANTS (GJEN001_REF_VARIANT env var, Stage 5):
+#   "30m" (default) - reads build_refvaatmark_30m.R's table. Matches the
+#                     original reference definition (per-polygon median of
+#                     the CHM at 30 m); outputs suffixed "_OpenSource".
+#   "1m"            - the earlier native-resolution point-sampling
+#                     reconstruction, computed inline and cached. Kept for
+#                     comparison only: it evaluates the same polygons at
+#                     1 m, which gives reference values 5-20x lower and was
+#                     the cause of this repo's previously documented 2-16x
+#                     shortfall against the published reference table.
+#                     Outputs suffixed "_OpenSource_1m".
+# Everything else (Stage 4 forest anchor, Stage 6 population, scaling,
+# aggregation) is identical between the two, so any difference in output
+# is attributable to the reference alone. Effect on the final index:
+# region means move by +0.002 to +0.018 (Østlandet and Sørlandet most).
 #
 # RUN TIME: see this migration's README's "Estimated run time" section -
 # real cold-cache time was measured in hours, not the minutes a naive
@@ -343,7 +350,18 @@ filter_disturbed_points <- function(points_sf,
 #' measured directly: a single bbox spanning many scattered points
 #' within a tile balloons back toward a near-full-tile read once
 #' points/tile rises much past ~2.
-.process_tile <- function(item, buffer_m) {
+# cell_m > 0: read the origin-anchored cell of size cell_m that CONTAINS
+# the point, instead of a buffer window around it. The DTM1 grid is
+# integer-aligned in EPSG:25833, so floor(x / cell_m) * cell_m reproduces
+# the same global grid Earth Engine uses for scale = cell_m.
+# cell_stat: "cell_mean"   = mean of the RAW DOM-DTM over the cell, clamped
+#                            at 0 afterwards - what a mean-pyramid read at
+#                            that scale gives (the forest anchor, X0);
+#            "cell_median" = median of the clamped 1 m CHM over the cell -
+#                            an explicit reduceResolution(median) (the
+#                            wetland population sample);
+#            "window_mean" = the original 1 m behaviour (5 m window).
+.process_tile <- function(item, buffer_m, cell_m = 0, cell_stat = "window_mean") {
   tile_url <- function(tile_id, product) {
     paste0("/vsicurl/https://nedlasting.geonorge.no/hoydedata/", product, "/", tile_id, ".tif")
   }
@@ -355,14 +373,28 @@ filter_disturbed_points <- function(points_sf,
 
   vals <- numeric(length(item$row_idx))
   for (k in seq_along(item$row_idx)) {
-    win <- terra::ext(item$x[k] - buffer_m, item$x[k] + buffer_m,
-                       item$y[k] - buffer_m, item$y[k] + buffer_m)
+    if (cell_m > 0) {
+      x0 <- floor(item$x[k] / cell_m) * cell_m
+      y0 <- floor(item$y[k] / cell_m) * cell_m
+      win <- terra::ext(x0, x0 + cell_m, y0, y0 + cell_m)
+    } else {
+      win <- terra::ext(item$x[k] - buffer_m, item$x[k] + buffer_m,
+                        item$y[k] - buffer_m, item$y[k] + buffer_m)
+    }
     vals[k] <- tryCatch({
       dtm_c <- terra::crop(dtm, win)
       dom_c <- terra::crop(dom, win)
-      c <- dom_c - dtm_c
-      c[c < 0] <- 0
-      as.numeric(terra::global(c, "mean", na.rm = TRUE)[1, 1])
+      raw <- dom_c - dtm_c
+      if (cell_stat == "cell_mean") {
+        max(0, as.numeric(terra::global(raw, "mean", na.rm = TRUE)[1, 1]))
+      } else {
+        c <- raw; c[c < 0] <- 0
+        if (cell_stat == "cell_median") {
+          as.numeric(stats::median(terra::values(c), na.rm = TRUE))
+        } else {
+          as.numeric(terra::global(c, "mean", na.rm = TRUE)[1, 1])
+        }
+      }
     }, error = function(e) NA_real_)
   }
   data.frame(row_idx = item$row_idx, chm = vals)
@@ -374,7 +406,7 @@ filter_disturbed_points <- function(points_sf,
 #' maxed out, to stay considerate to Kartverket's public server).
 #' buffer_m = 2.5 -> a 5m-diameter window, mirroring the original
 #' script's scale:5 sampling resolution.
-extract_chm_at_points <- function(points_sf, buffer_m = 2.5,
+extract_chm_at_points <- function(points_sf, buffer_m = 2.5, cell_m = 0, cell_stat = "window_mean",
                                    tile_footprint_path = file.path("..", "Data", "OpenS_data", "dtm1_tile_footprint.gpkg"),
                                    n_workers = 8) {
   tiles <- st_read(tile_footprint_path, quiet = TRUE)
@@ -402,7 +434,7 @@ extract_chm_at_points <- function(points_sf, buffer_m = 2.5,
   })
 
   t0 <- Sys.time()
-  results_list <- parallel::parLapply(cl, work_items, .process_tile, buffer_m = buffer_m)
+  results_list <- parallel::parLapply(cl, work_items, .process_tile, buffer_m = buffer_m, cell_m = cell_m, cell_stat = cell_stat)
   cat("  extraction across", length(tile_ids), "tiles took",
       round(as.numeric(Sys.time() - t0), 1), "sec\n")
 
@@ -415,6 +447,7 @@ extract_chm_at_points <- function(points_sf, buffer_m = 2.5,
 #' samples out. Building-masked by default (source = "osm") before CHM
 #' extraction, so sampled heights reflect vegetation, not rooftops.
 sample_chm_by_stratum <- function(polygons, bio_clim_reg, n_per_stratum = 1000,
+                                   cell_m = 0, cell_stat = "window_mean",
                                    seed = 123, buffer_m = 2.5, n_workers = 8,
                                    filter_buildings = TRUE, building_source = "osm") {
   cat("Assigning", nrow(polygons), "polygons to", nrow(bio_clim_reg), "strata...\n")
@@ -426,7 +459,8 @@ sample_chm_by_stratum <- function(polygons, bio_clim_reg, n_per_stratum = 1000,
     pts <- filter_building_points(pts, source = building_source)
     cat("Points remaining after building filter:", nrow(pts), "\n")
   }
-  extract_chm_at_points(pts, buffer_m = buffer_m, n_workers = n_workers)
+  extract_chm_at_points(pts, buffer_m = buffer_m, n_workers = n_workers,
+                        cell_m = cell_m, cell_stat = cell_stat)
 }
 
 
@@ -520,7 +554,28 @@ bioClimReg$region         <- factor(bioClimReg$region,         levels = regionlv
 # this turns out to matter for result quality.
 # ===========================================================
 
-skog_path_openS    <- file.path(spatial_dir, "vegHeights_skog_climZoneRegion_openS.csv")
+# ===========================================================
+# SAMPLING SCALE (GJEN001_SAMPLING_SCALE): at which pixel scale the
+# canopy-height model is read.
+#   "20m" (default) - as the original workflow: the forest anchor is the
+#                     90th percentile of 20 m cell MEANS, and the wetland
+#                     population is the 20 m cell MEDIAN. Earth Engine
+#                     resamples the 1 m model to the requested scale by
+#                     averaging, which is what these reproduce.
+#   "1m"            - the earlier reconstruction, read at the native 1 m
+#                     in a 5 m window. Kept so the effect is reproducible:
+#                     it puts the forest anchor about 14 % above the
+#                     published values (median ratio 1.14 against 0.98 at
+#                     20 m) and the index 0.01-0.03 lower per region.
+# Caches always carry the scale in their name, so a 1 m cache can never be
+# read by a 20 m run.
+sampling_scale <- Sys.getenv("GJEN001_SAMPLING_SCALE", "20m")
+if (!sampling_scale %in% c("20m", "1m")) stop("GJEN001_SAMPLING_SCALE must be '20m' or '1m', got '", sampling_scale, "'")
+samp_cell <- if (sampling_scale == "20m") 20 else 0
+cache_sfx <- paste0("_", sampling_scale)
+message("Sampling scale: ", sampling_scale)
+
+skog_path_openS    <- file.path(spatial_dir, paste0("vegHeights_skog_climZoneRegion_openS", cache_sfx, ".csv"))
 skog_raw_path_ar5  <- file.path(spatial_dir, "ar5_skog_national.gpkg")
 skog_raw_path_ar50 <- file.path(spatial_dir, "ar50_skog_national.gpkg")
 
@@ -570,7 +625,7 @@ if (file.exists(skog_path_openS)) {
   cat("Points drawn (before disturbance filter):", nrow(pts), "\n")
   pts   <- filter_disturbed_points(pts)
   pts   <- filter_building_points(pts, source = "osm")
-  samples <- extract_chm_at_points(pts, buffer_m = 2.5)
+  samples <- extract_chm_at_points(pts, buffer_m = 2.5, cell_m = samp_cell, cell_stat = "cell_mean")
 
   skog_region_bioclim <- samples %>%
     st_drop_geometry() %>%
@@ -592,41 +647,58 @@ skog_region_bioclim$vegClimZoneLab <- factor(skog_region_bioclim$vegClimZoneLab,
 # ===========================================================
 # STAGE 5: Wetland reference heights (X100, good-condition anchor).
 #
-# [OPEN SOURCE] Original: median LiDAR height within NiN "Vatmark"
-# polygons with tilstand=="God" (good ecological condition), excluding
-# tree-covered-but-good-condition swamp-forest/spring-forest/strand-
-# forest types and T1 (nakent berg) types, from a bespoke GEE export.
-# Here: the same national NiN nature-type dataset (open, Miljodirektoratet),
-# same tilstand/exclusion-list filters, points allocated proportional to
-# each polygon's own area (not a single stratum-wide sample - avoids a
-# confirmed pathological memory/time blowup on strata with few, widely-
-# scattered polygons), Kartverket DTM1/DOM1 CHM, OSM building mask,
-# aggregated to the MEDIAN per stratum (matching NINA's methodology -
-# X100 is explicitly defined as a percentile, and median is used
-# consistently across all 3 ecosystem types, not the mean).
+# [OPEN SOURCE] Original definition: one median canopy height per
+# good-condition NiN wetland polygon (tilstand "god"; tree-covered-while-
+# in-good-condition swamp/spring/strand-forest types and T1 mapping units
+# excluded), with the CHM evaluated at 30 m, then the median across
+# polygons per region x bioclim stratum.
 #
-# KNOWN CAVEAT: does not closely match NINA's original refvaatmark.csv in
-# absolute terms (systematically lower in most strata, 2-16x in the worst
-# cases) - root cause unresolved (see header). Only a small effect on the
-# final downstream indicator regardless (mean abs. index diff 0.005, max
-# 0.077 on the 0-1 scale) - kept as the best available open substitute.
+# DEFAULT ("30m"): read the table produced by Fetch/build_refvaatmark_30m.R,
+# which reproduces that definition on the open NiN dataset and Kartverket
+# DTM1/DOM1 (see that script's header for the method and its comparison
+# against the published table). It must exist - run the Fetch script first.
 #
-# Reads the cached result instantly if present; otherwise computes it here
-# from the raw NiN geodatabase and caches it for next time. Optional
-# sample-size (n) labels for Stage 12's chart come from raw per-polygon
-# files that also aren't bundled; skipped gracefully if absent (they always
-# will be here, since that directory is NINA-only).
+# LEGACY ("1m"): the earlier reconstruction, computed inline below and
+# cached: 1000 points per stratum allocated to polygons proportional to
+# their area, seed 123, CHM sampled at 1 m in a 5 m window, OSM building
+# mask, median per stratum. Same polygons and filters as the 30 m build -
+# only the evaluation scale differs. Kept so the effect of that scale on
+# the final index can be reproduced (see header).
+#
+# Both variants carry an `n` column (polygons resp. points per stratum)
+# that labels Stage 12's reference-height chart.
 # ===========================================================
 
-refvaatmark_path_openS <- file.path(spatial_dir, "refvaatmark_NINA_median", "refvaatmark_openS.csv")
+ref_variant <- Sys.getenv("GJEN001_REF_VARIANT", "30m")
+if (!ref_variant %in% c("30m", "1m")) stop("GJEN001_REF_VARIANT must be '30m' or '1m', got '", ref_variant, "'")
+# "_OpenSource" means the delivered combination: reference at 30 m and
+# sampling at 20 m, i.e. all three quantities on the original's own scales.
+# Any other combination is marked, so variants never overwrite each other.
+out_suffix <- paste0("_OpenSource",
+                     if (ref_variant == "1m") "_ref1m" else "",
+                     if (sampling_scale == "1m") "_samp1m" else "")
+message("Stage 5: reference '", ref_variant, "' + sampling '", sampling_scale,
+        "' -> outputs suffixed '", out_suffix, "'")
+
+refvaatmark_path_30m <- file.path(spatial_dir, "refvaatmark_30m", "refvaatmark_30m.csv")
+refvaatmark_path_1m  <- file.path(spatial_dir, "refvaatmark_1m", "refvaatmark_1m.csv")
 nin_gdb_path <- file.path(spatial_dir, "nin_data", "Naturtyper_nin_0000_norge_4326_FILEGDB.gdb")
 
-if (file.exists(refvaatmark_path_openS)) {
-  message("Stage 5: using cached wetland reference heights: ", refvaatmark_path_openS)
-  refvaatmark <- read_csv(refvaatmark_path_openS, show_col_types = FALSE) %>%
-    dplyr::select(region, vegClimZoneLab, ref)
+if (ref_variant == "30m") {
+  if (!file.exists(refvaatmark_path_30m)) {
+    stop("Missing required file: ", refvaatmark_path_30m, "\n",
+         "Run Fetch/build_refvaatmark_30m.R first (full build, ~40 min, network-bound), ",
+         "or set GJEN001_REF_VARIANT=1m for the legacy inline reconstruction.")
+  }
+  message("Stage 5: using 30 m wetland reference heights: ", refvaatmark_path_30m)
+  refvaatmark <- read_csv(refvaatmark_path_30m, show_col_types = FALSE) %>%
+    dplyr::select(region, vegClimZoneLab, ref, n)
+} else if (file.exists(refvaatmark_path_1m)) {
+  message("Stage 5: using cached 1 m wetland reference heights: ", refvaatmark_path_1m)
+  refvaatmark <- read_csv(refvaatmark_path_1m, show_col_types = FALSE) %>%
+    dplyr::select(region, vegClimZoneLab, ref, n)
 } else {
-  message("Stage 5: no cache found - computing wetland reference heights from the ",
+  message("Stage 5: no 1 m cache found - computing wetland reference heights from the ",
           "national NiN dataset now (national stratified sampling + CHM extraction; ",
           "expect this to take a while on a cold cache).")
   if (!file.exists(nin_gdb_path)) {
@@ -710,58 +782,13 @@ if (file.exists(refvaatmark_path_openS)) {
     group_by(region, vegClimZoneLab) %>%
     summarise(ref = median(chm, na.rm = TRUE), n = n(), .groups = "drop")
 
-  dir.create(dirname(refvaatmark_path_openS), showWarnings = FALSE, recursive = TRUE)
-  write_csv(refvaatmark, refvaatmark_path_openS)
-  cat("Cached to:", refvaatmark_path_openS, "(future runs will read this instantly)\n")
-  refvaatmark <- refvaatmark %>% dplyr::select(region, vegClimZoneLab, ref)
+  dir.create(dirname(refvaatmark_path_1m), showWarnings = FALSE, recursive = TRUE)
+  write_csv(refvaatmark, refvaatmark_path_1m)
+  cat("Cached to:", refvaatmark_path_1m, "(future runs will read this instantly)\n")
 }
 
 refvaatmark$region         <- factor(refvaatmark$region,         levels = regionlvl)
 refvaatmark$vegClimZoneLab <- factor(refvaatmark$vegClimZoneLab, levels = vegclimzonelvl)
-
-# Only used to decode the optional raw n-label files just below (if ever
-# supplied) - numeric region_id/vegClimZone codes to string labels.
-vegLookup <- tibble(
-  vegClimZone    = c(1, 2, 3, 4, 5),
-  vegClimZoneLab = c("Boreonemoral sone (BN)", "Lavalpin sone (LA)", "Mellomboreal sone (MB)",
-                      "Nordboreal sone (NB)", "Sørboreal sone (SB)")
-)
-cleanRegClim <- function(data) {
-  data %>%
-    mutate(region = case_match(region_id,
-      1 ~ "Nord-Norge", 2 ~ "Midt-Norge", 3 ~ "Østlandet",
-      4 ~ "Vestlandet", 5 ~ "Sørlandet"
-    )) %>%
-    mutate(vegClimZone = round(vegClimZone)) %>%
-    left_join(vegLookup, by = "vegClimZone") %>%
-    dplyr::select(-region_id, -vegClimZone) %>%
-    drop_na(vegClimZoneLab, region)
-}
-
-refheight_dir <- file.path(data_dir, "From_GEE", "vegHeights")
-vaatmarkrawtab <- NULL
-if (dir.exists(refheight_dir)) {
-  readVegHeightFiles <- function(dir, uniqueString) {
-    files <- list.files(dir)[str_detect(list.files(dir), uniqueString)]
-    dat <- tibble()
-    for (f in files) {
-      dat <- dat %>%
-        bind_rows(read_csv(file.path(dir, f), show_col_types = FALSE) %>%
-                    mutate(ssbid = substr(str_split(f, "_")[[1]][3], 1, 14)))
-    }
-    dat
-  }
-  refvaatmarkRaw <- readVegHeightFiles(refheight_dir, "vaatmark_ref") %>%
-    mutate(ref = chm) %>%
-    dplyr::select(-any_of(c(".geo", "system:index", "chm")))
-  vaatmarkrawtab <- cleanRegClim(refvaatmarkRaw) %>%
-    group_by(region, vegClimZoneLab) %>%
-    summarise(n = n(), .groups = "drop")
-} else {
-  message("Skipping sample-size (n) labels on the reference-height plot: ",
-          refheight_dir, " not found.")
-}
-
 
 # ===========================================================
 # STAGE 6: Wetland population heights (raw LiDAR heights per sampled
@@ -779,7 +806,7 @@ if (dir.exists(refheight_dir)) {
 # from the raw AR5 polygons and caches it for next time.
 # ===========================================================
 
-pop_path_openS    <- file.path(spatial_dir, "vaatmark_pop_openS.gpkg")
+pop_path_openS    <- file.path(spatial_dir, paste0("vaatmark_pop_openS", cache_sfx, ".gpkg"))
 myr_raw_path_ar5  <- file.path(spatial_dir, "ar5_myr_national.gpkg")
 myr_raw_path_ar50 <- file.path(spatial_dir, "ar50_myr_national.gpkg")
 
@@ -825,7 +852,8 @@ if (file.exists(pop_path_openS)) {
   }
   myr_poly <- st_read(myr_raw_path, quiet = TRUE)
   vaatmark_sampled <- sample_chm_by_stratum(myr_poly, bioClimReg, n_per_stratum = 1000,
-                                             seed = 123, buffer_m = 2.5) %>%
+                                             seed = 123, buffer_m = 2.5,
+                                             cell_m = samp_cell, cell_stat = "cell_median") %>%
     mutate(population_source = myr_source)
   st_write(vaatmark_sampled, pop_path_openS, delete_dsn = TRUE, quiet = TRUE)
   cat("Cached to:", pop_path_openS, "(source:", myr_source,
@@ -922,7 +950,7 @@ vaatmarkIndexStrata <- bioClimReg %>%
   as_tibble() %>%
   dplyr::select(-geometry)
 
-write_csv(vaatmarkIndexStrata, file.path(results_dir, "vaatmarkIndexStrata_OpenSource.csv"))
+write_csv(vaatmarkIndexStrata, file.path(results_dir, paste0("vaatmarkIndexStrata", out_suffix, ".csv")))
 
 
 # ===========================================================
@@ -955,7 +983,7 @@ if (!file.exists(ssb50km_path)) {
     mutate(index = w_mean, ssbid = ID) %>%
     dplyr::select(ssbid, index, sd)
 
-  st_write(vaatmarkIndexGrid, file.path(results_dir, "vaatmark_index_grid_OpenSource.shp"),
+  st_write(vaatmarkIndexGrid, file.path(results_dir, paste0("vaatmark_index_grid", out_suffix, ".shp")),
            delete_dsn = TRUE, quiet = TRUE)
 }
 
@@ -989,7 +1017,7 @@ vaatmarkIndexRegion <- ecTools::ea_spread(
   dplyr::select(region, index, sd) %>%
   left_join(vaatmarkHeightsRegion, by = "region")
 
-st_write(vaatmarkIndexRegion, file.path(results_dir, "vaatmark_index_region_OpenSource.shp"),
+st_write(vaatmarkIndexRegion, file.path(results_dir, paste0("vaatmark_index_region", out_suffix, ".shp")),
          delete_dsn = TRUE, quiet = TRUE)
 
 
@@ -997,12 +1025,10 @@ st_write(vaatmarkIndexRegion, file.path(results_dir, "vaatmark_index_region_Open
 # STAGE 12: Results - reference heights.
 # ===========================================================
 
-refvaatmarknr <- refvaatmark
-if (!is.null(vaatmarkrawtab)) refvaatmarknr <- refvaatmarknr %>% left_join(vaatmarkrawtab, by = c("region", "vegClimZoneLab"))
-
-ref_plot <- refvaatmarknr %>%
+# n labels: polygons (30m variant) or sample points (1m variant) per stratum.
+ref_plot <- refvaatmark %>%
   ggplot(aes(x = vegClimZoneLab, y = ref)) +
-  {if (!is.null(vaatmarkrawtab)) geom_text(aes(label = n), hjust = -.5)} +
+  geom_text(aes(label = n), hjust = -.5) +
   geom_bar(stat = "identity") +
   theme_bw(base_size = 12) +
   coord_flip() +
@@ -1011,7 +1037,7 @@ ref_plot <- refvaatmarknr %>%
   labs(title = "Reference vegetation height in wetland ecosystems",
        y = "Reference vegetation height (m)", x = " ")
 
-ggsave(file.path(results_dir, "NO_GJEN_001_wetland_refHeights_OpenSource.png"),
+ggsave(file.path(results_dir, paste0("NO_GJEN_001_wetland_refHeights", out_suffix, ".png")),
        ref_plot, width = 9, height = 6, dpi = 300, bg = "white")
 print(ref_plot)
 
@@ -1055,7 +1081,7 @@ v3 <- makeStrataHeightMap(vaatmarkIndexStrata, "pop", "Våtmark vegetation heigh
 
 strataHeightPlot <- grid.arrange(v1, v2, v3, ncol = 3, widths = c(1, 1, 1),
                                   padding = unit(0, "line"), newpage = TRUE)
-ggsave(file.path(results_dir, "NO_GJEN_001_wetland_strataMap_OpenSource.png"),
+ggsave(file.path(results_dir, paste0("NO_GJEN_001_wetland_strataMap", out_suffix, ".png")),
        strataHeightPlot, width = 11, height = 5, dpi = 300, bg = "white")
 
 if (!is.null(vaatmarkIndexGrid)) {
@@ -1068,7 +1094,7 @@ if (!is.null(vaatmarkIndexGrid)) {
     theme(legend.position = c(0.7, 0.4), plot.title = element_text(size = 10)) +
     ggtitle("Våtmark gjengroing condition (50km grid)")
 
-  ggsave(file.path(results_dir, "NO_GJEN_001_wetland_gridMap_OpenSource.png"),
+  ggsave(file.path(results_dir, paste0("NO_GJEN_001_wetland_gridMap", out_suffix, ".png")),
          grid_map, width = 7, height = 7, dpi = 300, bg = "white")
   print(grid_map)
 } else {
@@ -1090,7 +1116,7 @@ region_forest <- regions %>%
   labs(x = "Tilstandsverdi", title = "Regional wetland gjengroing indicator") +
   theme(axis.title.y = element_blank())
 
-ggsave(file.path(results_dir, "NO_GJEN_001_wetland_regionForest_OpenSource.png"),
+ggsave(file.path(results_dir, paste0("NO_GJEN_001_wetland_regionForest", out_suffix, ".png")),
        region_forest, width = 6, height = 5, dpi = 300, bg = "white")
 print(region_forest)
 
@@ -1103,7 +1129,7 @@ region_map <- regions %>%
   theme_void() +
   theme(legend.position = c(0.7, 0.4))
 
-ggsave(file.path(results_dir, "NO_GJEN_001_wetland_regionMap_OpenSource.png"),
+ggsave(file.path(results_dir, paste0("NO_GJEN_001_wetland_regionMap", out_suffix, ".png")),
        region_map, width = 7, height = 7, dpi = 300, bg = "white")
 print(region_map)
 
@@ -1173,7 +1199,7 @@ wetland_condition_map <- ggplot() +
   )
 
 ggsave(
-  filename = file.path(results_dir, "NO_GJEN_001_wetland_map_OpenSource.png"),
+  filename = file.path(results_dir, paste0("NO_GJEN_001_wetland_map", out_suffix, ".png")),
   plot     = wetland_condition_map,
   width    = 11, height = 10, dpi = 300, bg = "white"
 )
@@ -1190,21 +1216,21 @@ print(wetland_condition_map)
 vaatmarkIndexPolySpat %>%
   mutate(id = `system:index`, vegZn = vegClimZoneLab) %>%
   dplyr::select(-`system:index`, -vegClimZoneLab, -any_of("elevation")) %>%
-  st_write(file.path(results_dir, "NO_GJEN_001_wetland_index_OpenSource.shp"), delete_dsn = TRUE, quiet = TRUE)
+  st_write(file.path(results_dir, paste0("NO_GJEN_001_wetland_index", out_suffix, ".shp")), delete_dsn = TRUE, quiet = TRUE)
 
 vaatmarkIndexPolySpat %>%
   st_drop_geometry() %>%
-  write_csv(file.path(results_dir, "NO_GJEN_001_wetland_index_OpenSource.csv"))
+  write_csv(file.path(results_dir, paste0("NO_GJEN_001_wetland_index", out_suffix, ".csv")))
 
 if (!is.null(vaatmarkIndexGrid)) {
   vaatmarkIndexGrid %>%
-    st_write(file.path(results_dir, "NO_GJEN_001_wetland_index_grid_OpenSource.shp"), delete_dsn = TRUE, quiet = TRUE)
+    st_write(file.path(results_dir, paste0("NO_GJEN_001_wetland_index_grid", out_suffix, ".shp")), delete_dsn = TRUE, quiet = TRUE)
 }
 
 vaatmarkIndexRegion %>%
-  st_write(file.path(results_dir, "NO_GJEN_001_wetland_index_region_OpenSource.shp"), delete_dsn = TRUE, quiet = TRUE)
+  st_write(file.path(results_dir, paste0("NO_GJEN_001_wetland_index_region", out_suffix, ".shp")), delete_dsn = TRUE, quiet = TRUE)
 
 cat("Done. Open-source wetland indicator exported to:\n",
-    " - ", file.path(results_dir, "NO_GJEN_001_wetland_index_OpenSource.shp"), "\n",
-    " - ", file.path(results_dir, "NO_GJEN_001_wetland_index_OpenSource.csv"), "\n",
-    " - ", file.path(results_dir, "NO_GJEN_001_wetland_index_region_OpenSource.shp"), "\n", sep = "")
+    " - ", file.path(results_dir, paste0("NO_GJEN_001_wetland_index", out_suffix, ".shp")), "\n",
+    " - ", file.path(results_dir, paste0("NO_GJEN_001_wetland_index", out_suffix, ".csv")), "\n",
+    " - ", file.path(results_dir, paste0("NO_GJEN_001_wetland_index_region", out_suffix, ".shp")), "\n", sep = "")

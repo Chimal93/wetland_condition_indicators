@@ -1,0 +1,44 @@
+ÿþRscript.exe : terra 1.9.34
+At C:\Users\adria\Documents\Indikatorer\NO_CONN_001\run_connectivity_ar5.ps1:49 char:5
++     & $Rscript "compute_infra_distance_region.R" *> (Join-Path $logDi ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (terra 1.9.34:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+Linking to GEOS 3.14.1, GDAL 3.12.1, PROJ 9.7.1; sf_use_s2() is TRUE
+Attaching package: 'dplyr'
+The following objects are masked from 'package:terra':
+    intersect, union
+The following objects are masked from 'package:stats':
+    filter, lag
+The following objects are masked from 'package:base':
+    intersect, setdiff, setequal, union
+Region: Midt-Norge - year: 2023 
+Loading certified mire polygons (includes 10km buffer zone)...
+   193492 polygons loaded.
+Buffered extent: -35091.77 478355.2 6887024 7278048 
+Template raster cells: 2007692190 
+Loading infrastructure index, cropping, resampling to 10m...
+|---------|---------|---------|---------|
+=========================================
+  [timing] crop+resample: 32.7 sec
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+|---------|---------|---------|---------|
+=========================================
+  [timing] threshold+vectorize: 79 sec
+Infrastructure polygon(s) (dissolved): 1 
+Computing nearest-infrastructure distances ( 1000 m local search)...
+  [timing] nearest-infra distance: 362.6 sec
+  with infrastructure within 1000 m: 33876 ( 17.5 % )
+True-boundary filter: kept 186626 of 193492 polygons.
+=== Summary for Midt-Norge ===
+Final polygon count: 186626 
+min_infra_distance (NA = none within buffer):    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+    0.0   139.1   465.4   454.2   746.8   999.6  154221 
+kvotient:    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     NAs 
+  0.000   2.297  12.159     Inf  42.404     Inf  154333 
+Written to ..\Data\connectivity_output_ar5/midt_norge_connectivity_full_2023.gpkg 

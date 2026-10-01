@@ -1,0 +1,34 @@
+# -------------------------------------------------------------------
+# Orthophoto access - TEMPLATE. Copy to  orthophoto_access.txt  and fill
+# in YOUR OWN imagery source. That file is gitignored and must never be
+# committed.
+#
+# This indicator needs a national (or area-of-interest) RGB orthophoto.
+# It is never downloaded in bulk: the pipeline reads only the tiles it
+# needs, as HTTP range requests for a remote COG, or directly from disk
+# for a local file. Any provider works - a national mapping agency, a
+# commercial supplier, or your own imagery - as long as it is:
+#
+#   * 3-band RGB, 8-bit
+#   * 0.5 m per pixel or finer (the model is run at 0.5 m; finer input is
+#     resampled down, coarser input is not recommended - see
+#     METHODOLOGY_CANOPY_HEIGHT.md)
+#   * in a projected CRS, ideally EPSG:25833 for Norway
+#   * a GeoTIFF, a Cloud-Optimised GeoTIFF, or a VRT over either
+#
+# The reference run behind the published results used a commercial
+# national 50 cm mosaic (2025) accessed under licence. That licence does
+# not permit us to redistribute the imagery or the access details, which
+# is why this file is a blank template - fill in your own.
+# -------------------------------------------------------------------
+
+# Path GDAL should open. Examples:
+#   local file    D:/imagery/ortho_50cm.tif
+#   local VRT     D:/imagery/ortho.vrt
+#   remote COG    /vsicurl/https://example.org/path/ortho_50cm.tif
+url:
+
+# Only needed if the remote source requires HTTP authentication.
+# Leave both blank for local files or open endpoints.
+user:
+password:

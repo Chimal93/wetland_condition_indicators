@@ -1034,3 +1034,42 @@ ggsave(
 )
 
 print(wetland_map)
+
+
+# ===========================================================
+# STAGE 11: Write the final tables to disk (no computation happens here).
+#   Results/NO_FUNC_003_index_by_region_period.csv   (NO_FUNC_003)
+#   Results/NO_FUNC_003_supp_indicators.csv          (NO_FUNC_003_supp)
+#   Results/NO_FUNC_003_by_round.csv                 (NO_FUNC_003_by_round)
+#   Results/NO_FUNC_003_plots.gpkg / .csv            one row per ANO plot
+#     visit: identifiers, year, round, region, NiN unit, the 8 scaled
+#     indicators, fpci.min, and the 4 raw CWM values (native trait units).
+# Main/export_deliverables.R reads these and produces the platform-format
+# files under Deliverables/.
+# ===========================================================
+
+results_dir <- file.path("..", "Results")
+if (!dir.exists(results_dir)) dir.create(results_dir, recursive = TRUE)
+
+readr::write_csv(NO_FUNC_003,          file.path(results_dir, "NO_FUNC_003_index_by_region_period.csv"))
+readr::write_csv(NO_FUNC_003_supp,     file.path(results_dir, "NO_FUNC_003_supp_indicators.csv"))
+readr::write_csv(NO_FUNC_003_by_round, file.path(results_dir, "NO_FUNC_003_by_round.csv"))
+
+# results.wet[["original"]] and res.wet are row-aligned copies of ANO.wet
+# (Stage 7/8), so the raw CWMs are attached by position - NOT joined on
+# GlobalID, which is NA for the plots without species records and would
+# cross-multiply those rows.
+raw_cwm <- results.wet[["original"]] |>
+  select(cwm_Light = Light1, cwm_Moisture = Moist1, cwm_pH = pH1, cwm_Nitrogen = Nitrogen1, richness)
+stopifnot(nrow(raw_cwm) == nrow(res.wet))
+
+plots_out <- res.wet |>
+  mutate(GlobalID = as.character(GlobalID), region = str_remove(region, "\\.Norway$")) |>
+  select(GlobalID, ano_flate_id, aar, ano_round, region, kartleggingsenhet_1m2,
+         all_of(wet_indicators), fpci.min) |>
+  bind_cols(raw_cwm) |>
+  filter(!is.na(aar))   # drop rows that never had a survey record
+
+sf::st_write(plots_out, file.path(results_dir, "NO_FUNC_003_plots.gpkg"), delete_dsn = TRUE, quiet = TRUE)
+readr::write_csv(sf::st_drop_geometry(plots_out), file.path(results_dir, "NO_FUNC_003_plots.csv"))
+cat("\nStage 11: tables written to", results_dir, "-", nrow(plots_out), "plot visits\n")
