@@ -294,26 +294,29 @@ ANO.geo$slatteintensitet     <- decode_nin(ANO.geo$slatteintensitet,     "7JB-SI
 ANO.geo$tungekjoretoy        <- decode_nin(ANO.geo$tungekjoretoy,        "7TK_")
 ANO.geo$slitasje             <- decode_nin(ANO.geo$slitasje,             "7SE_")
 
-# Classify each survey instance as round 1 (first-ever visit to that
-# ano_flate_id) or round 2 (a revisit) - 89% of 2022-2024 plots are
-# brand-new round-1 coverage; the remainder are round-2 revisits,
-# overwhelmingly exactly 5 years after a flate's first visit, matching
-# ANO's documented 5-year rotation design. Carried through the rest of
-# the pipeline; Stage 10 adds a round-based breakdown alongside the
-# existing period-based one (the main NO_FUNC_003/NO_FUNC_003_supp
-# tables are unaffected - still every plot, both rounds).
-ano_first_year <- ANO.geo |>
+# Number each survey of a plot POINT (ano_punkt_id) by year: ano_visit = 1
+# is the point's first-ever survey, 2 its first revisit, and so on.
+# ANO revisits every point on a 5-year rotation, so visit 1 = monitoring
+# cycle 1 (2019-2023/24), visit 2 = cycle 2 (from 2024). ano_round keeps
+# the older round1/round2 label (round2 = any revisit).
+# Counted per point, not per site (ano_flate_id): a site's first survey is
+# sometimes split over two field seasons, and a site-level count wrongly
+# turned 134 of those new points into "revisits" (mostly 1 year after the
+# site's first year). Verified 2026-10-08 against the full export.
+ano_visits <- ANO.geo |>
   st_drop_geometry() |>
-  group_by(ano_flate_id) |>
-  summarise(first_year = min(aar, na.rm = TRUE), .groups = "drop")
+  filter(!is.na(ano_punkt_id), !is.na(aar)) |>
+  distinct(ano_punkt_id, aar) |>
+  group_by(ano_punkt_id) |>
+  mutate(ano_visit = dense_rank(aar)) |>
+  ungroup()
 
 ANO.geo <- ANO.geo |>
-  left_join(ano_first_year, by = "ano_flate_id") |>
-  mutate(ano_round = ifelse(aar == first_year, "round1", "round2")) |>
-  select(-first_year)
+  left_join(ano_visits, by = c("ano_punkt_id", "aar")) |>
+  mutate(ano_round = ifelse(ano_visit == 1, "round1", "round2"))
 
-cat("ANO survey rounds: round1 (first visit) =", sum(ANO.geo$ano_round == "round1"),
-    ", round2 (revisit) =", sum(ANO.geo$ano_round == "round2"), "\n")
+cat("ANO survey rounds: round1 (first visit) =", sum(ANO.geo$ano_round == "round1", na.rm = TRUE),
+    ", round2 (revisit) =", sum(ANO.geo$ano_round == "round2", na.rm = TRUE), "\n")
 
 # Standardise ANO species names: trim to binomial, fix capitalisation
 ANO.sp$Species <- word(ANO.sp$art_navn, 1, 2)
@@ -752,7 +755,12 @@ print(scaled_plot)
 # STAGE 10: Aggregate to NO_FUNC_003 final product
 # Compute national and regional median and 0.25/0.75
 # quantiles for each indicator and for the index (fpci.min),
-# separately for the two 3-year reporting periods.
+# separately for each reporting period:
+#   2019to2021, 2022to2024  - the original indicator's two 3-year
+#                              periods (every plot survey in those years)
+#   cycle1_2019to2024        - one full ANO monitoring cycle: each plot
+#                              point's FIRST survey only (ano_visit == 1),
+#                              so no point is counted twice
 # Final output: NO_FUNC_003 (index only) and
 #               NO_FUNC_003_supp (all underlying indicators).
 # ===========================================================
@@ -781,15 +789,37 @@ boot_median_ci <- function(x, n = boot.n, probs = boot.probs) {
 all_indicators <- c("fpci.min", wet_indicators)
 regions        <- c("Norway", "Northern.Norway", "Central.Norway",
                     "Western.Norway", "Eastern.Norway", "Southern.Norway")
-periods        <- list(
-  "2019to2021" = c(2019, 2020, 2021),
-  "2022to2024" = c(2022, 2023, 2024)
+# Each period = survey years + which visit of a plot point to use
+# (visit = NULL keeps every survey in those years).
+periods <- list(
+  "2019to2021"        = list(years = 2019:2021, visit = NULL),
+  "2022to2024"        = list(years = 2022:2024, visit = NULL),
+  "cycle1_2019to2024" = list(years = 2019:2024, visit = 1)
 )
+
+# ANO monitoring cycle 2 (each point's first REVISIT). Off until the cycle
+# is complete: as of the 2025 export only ~180 wetland points have been
+# revisited, nearly all in 2024. When the export covers the whole second
+# rotation, set this to TRUE and set the last year - the cycle then flows
+# through the Results tables, the maps and export_deliverables.R
+# automatically (it picks up every "cycleN_" period it finds).
+include_cycle2   <- FALSE
+cycle2_last_year <- 2028
+if (include_cycle2) {
+  periods[[paste0("cycle2_2024to", cycle2_last_year)]] <-
+    list(years = 2024:cycle2_last_year, visit = 2)
+}
+
+in_period <- function(dat, p) {
+  keep <- dat$aar %in% p$years
+  if (!is.null(p$visit)) keep <- keep & dat$ano_visit %in% p$visit
+  keep
+}
 
 agg_list <- list()
 
 for (period_name in names(periods)) {
-  yrs <- periods[[period_name]]
+  p_def <- periods[[period_name]]
 
   med <- low <- high <- n_obs <- boot_low <- boot_high <-
     data.frame(Indicator = all_indicators,
@@ -800,7 +830,7 @@ for (period_name in names(periods)) {
     ind <- all_indicators[i]
 
     # National
-    df  <- res.wet.long[res.wet.long$fp_ind == ind & res.wet.long$aar %in% yrs,
+    df  <- res.wet.long[res.wet.long$fp_ind == ind & in_period(res.wet.long, p_def),
                         c("scaled_value", "ano_flate_id")]
     res <- quantile(df$scaled_value, res.quant, na.rm = TRUE)
     low[i,  "Norway"] <- res[1]
@@ -814,7 +844,7 @@ for (period_name in names(periods)) {
     # Regional
     for (rgn in regions[-1]) {
       df2  <- res.wet.long[res.wet.long$fp_ind == ind &
-                             res.wet.long$aar %in% yrs &
+                             in_period(res.wet.long, p_def) &
                              res.wet.long$region == rgn,
                            c("scaled_value", "ano_flate_id")]
       res2 <- quantile(df2$scaled_value, res.quant, na.rm = TRUE)
@@ -852,10 +882,7 @@ make_long <- function(lst, period) {
   )
 }
 
-NO_FUNC_003_full <- rbind(
-  make_long(agg_list[["2019to2021"]], "2019to2021"),
-  make_long(agg_list[["2022to2024"]], "2022to2024")
-)
+NO_FUNC_003_full <- do.call(rbind, lapply(names(agg_list), function(p) make_long(agg_list[[p]], p)))
 
 # Index table: fpci.min only, with official indicator ID
 NO_FUNC_003 <- NO_FUNC_003_full |>
@@ -878,9 +905,9 @@ print(NO_FUNC_003_supp)
 # median/quantile aggregation as above, grouped by ano_round instead of
 # reporting period, so the effect of mixing brand-new round-1 coverage
 # with round-2 revisits in the 2022-2024 period can be inspected
-# separately. Does NOT change NO_FUNC_003/NO_FUNC_003_supp above (still
-# every plot, both rounds, exactly as the original pipeline defines it) -
-# this is a supplementary table only.
+# separately. Does NOT change NO_FUNC_003/NO_FUNC_003_supp above - this
+# is a supplementary table only (the first-visit-only indicator is the
+# cycle1_2019to2024 period there).
 # ===========================================================
 
 round_agg_list <- list()
@@ -946,8 +973,7 @@ print(NO_FUNC_003_by_round |> filter(Indicator == "fpci.min"))
 # Saved to ../img (sibling of R/ and Data/).
 # -----------------------------------------------------------
 
-map_period <- "2019to2021"  # switch to "2022to2024" once that period has data
-
+# One map per reporting period (see `periods` in Stage 10).
 condition_breaks <- c(a.s, 0.2, 0.4, l.s, 0.8, r.s)
 condition_labels <- c("Svært dårlig", "Dårlig", "Moderat", "God", "Svært god")
 # setNames() reuses the condition_labels strings directly as names, rather than
@@ -957,6 +983,8 @@ condition_colors <- setNames(
   c("#d7191c", "#fdae61", "#ffffbf", "#a6d96a", "#1a9641"),
   condition_labels
 )
+
+for (map_period in names(periods)) {
 
 map_dat <- NO_FUNC_003 |>
   filter(period == map_period, region != "Norway") |>
@@ -1010,7 +1038,10 @@ wetland_map <- ggplot() +
   ) +
   labs(
     title    = "NO_FUNC_003 indikator Våtmark",
-    subtitle = paste("Periode:", gsub("to", " to ", map_period)),
+    subtitle = if (startsWith(map_period, "cycle"))
+      paste0("ANO-syklus ", sub("cycle(\\d+)_.*", "\\1", map_period), ", ",
+             gsub("to", "-", sub("^cycle\\d+_", "", map_period)), " (kun første registrering per punkt)")
+    else paste("Periode:", gsub("to", " to ", map_period)),
     caption  = "Median skalert FPCI-verdi per region. God tilstand ≥ 0.6."
   ) +
   theme_void() +
@@ -1034,6 +1065,7 @@ ggsave(
 )
 
 print(wetland_map)
+}
 
 
 # ===========================================================
@@ -1042,7 +1074,8 @@ print(wetland_map)
 #   Results/NO_FUNC_003_supp_indicators.csv          (NO_FUNC_003_supp)
 #   Results/NO_FUNC_003_by_round.csv                 (NO_FUNC_003_by_round)
 #   Results/NO_FUNC_003_plots.gpkg / .csv            one row per ANO plot
-#     visit: identifiers, year, round, region, NiN unit, the 8 scaled
+#     visit: identifiers (site, point), year, visit number/round, region,
+#     NiN unit, the 8 scaled
 #     indicators, fpci.min, and the 4 raw CWM values (native trait units).
 # Main/export_deliverables.R reads these and produces the platform-format
 # files under Deliverables/.
@@ -1065,7 +1098,7 @@ stopifnot(nrow(raw_cwm) == nrow(res.wet))
 
 plots_out <- res.wet |>
   mutate(GlobalID = as.character(GlobalID), region = str_remove(region, "\\.Norway$")) |>
-  select(GlobalID, ano_flate_id, aar, ano_round, region, kartleggingsenhet_1m2,
+  select(GlobalID, ano_flate_id, ano_punkt_id, aar, ano_visit, ano_round, region, kartleggingsenhet_1m2,
          all_of(wet_indicators), fpci.min) |>
   bind_cols(raw_cwm) |>
   filter(!is.na(aar))   # drop rows that never had a survey record

@@ -106,8 +106,20 @@ platform schema (`area, areaId, v_YYYY, sd_YYYY, i_YYYY, reference_high,
 reference_low, thr`; see the repository README). Points specific to this
 indicator:
 
-- Two periods, two column sets: `_2021` (ANO 2019-2021) and `_2024`
-  (ANO 2022-2024).
+- Two file sets:
+  - `NO_FUNC_003_*` - the original indicator's two 3-year periods, every
+    survey in those years: `_2021` (ANO 2019-2021) and `_2024` (ANO
+    2022-2024).
+  - `NO_FUNC_003_cycle1_2019to2024_*` - one full ANO monitoring cycle,
+    using each plot point's **first** survey only, so no point is counted
+    twice: `_2024` (ANO 2019-2024).
+- ANO revisits each point on a 5-year rotation. Visits are numbered per
+  plot point (`ano_visit` in `Results/NO_FUNC_003_plots.*`). When the
+  export covers the whole second rotation, set `include_cycle2 <- TRUE`
+  (and `cycle2_last_year`) in Stage 10 of the pipeline; the cycle-2
+  tables, map and `NO_FUNC_003_cycle2_*` deliverables then follow
+  automatically. Off by default: only ~180 wetland points had been
+  revisited in the 2019-2024 export.
 - `v = i`: the index is a worst-rule minimum over eight scaled indicators
   and has no single unscaled variable (the platform's own Nature Index
   example does the same). The four raw community-weighted means and the
@@ -116,7 +128,8 @@ indicator:
   0.25/0.75 quantile is mapped to 0.6 by the scaling function.
 - `sd` = bootstrap standard deviation of the median over plot visits; the
   pipeline's 95 % bootstrap CI is kept as `boot_low`/`boot_high`.
-- Units: landsdel (primary) and every ANO wetland plot visit (points).
+- Units: landsdel (primary) and every scored ANO wetland plot point
+  (`areaId` = `ano_punkt_id`).
 
 ## Known limitations
 
