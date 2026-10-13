@@ -141,7 +141,7 @@ against 0.95) and is where mapped wetland polygons are most tree-fringed.
   published run used a commercial national 50 cm mosaic whose product year
   is 2025, but whose individual flights span several years — the delivery
   metadata says so, and this is the main caveat when comparing regions.
-- **The index saturates for open bog**: 64 % of polygons score above 0.99,
+- **The index saturates for open bog**: 62 % of polygons score above 0.99,
   because the sigmoid is flat near the reference. Fine for a condition
   score, misleading if read as a continuous height measure.
 - **495 polygons (2 %) are excluded** because they fall in the four
