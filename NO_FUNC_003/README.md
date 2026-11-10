@@ -131,6 +131,44 @@ indicator:
 - Units: landsdel (primary) and every scored ANO wetland plot point
   (`areaId` = `ano_punkt_id`).
 
+### The four vegetation indicators as separate indicators
+
+The light, moisture, pH and nitrogen indicators are also delivered as
+separate indicators, following NINA's split functional plant indicators
+on ecRxiv (NO_FULI_002, NO_FUMO_004, NO_FUNI_002/004, accepted 2026):
+
+| ID (provisional) | Indicator | Scaling |
+|---|---|---|
+| `NO_FULI_003` | Vegetasjonsindikator for lys | two-sided, limits = 0.025 / 0.975 quantiles |
+| `NO_FUMO_003` | Vegetasjonsindikator for fuktighet | two-sided, limits = 0.025 / 0.975 quantiles |
+| `NO_FUPH_003` | Vegetasjonsindikator for pH | two-sided, limits = 0.025 / 0.975 quantiles |
+| `NO_FUNI_003` | Vegetasjonsindikator for nitrogen | one-sided (enrichment only), limit = 0.95 quantile |
+
+- Each plot is scaled per side (scale end -> 0, limit -> 0.6, reference
+  median -> 1, truncated), and a two-sided indicator is the product of its
+  two sides, as in NINA's code. The scaling function reproduces
+  `ec_normalise()` from **current** eaTools: the eaTools version pinned in
+  this repository (needed by NO_GJEN_001/002) has a bug in the decreasing
+  direction that NINA fixed in May 2026 (eaTools commit `ca7bc797`).
+- National and regional values come from NINA's model: an ordered beta
+  regression (`glmmTMB`, family `ordbeta`) with ANO site as a random effect.
+  `i` = model mean, `sd` = SD of 1000 draws, `ci_low` / `ci_high` = 95 %
+  interval; `mean_lower` / `mean_upper` with `n_lower` / `n_upper` show the
+  direction of the deviations.
+- File sets `<ID>_*` (3-year periods) and `<ID>_cycle1_2019to2024_*`
+  (first survey per point), as for the combined index. Results table:
+  `Results/NO_FUNC_003_factor_indicators.csv`.
+- Kept from this reconstruction: reference values per NiN main type
+  (V1/V2/V3) from Artsdatabanken's B12 lists, not per mapping unit. pH has
+  no NINA counterpart; it is included because it was selected for wetland.
+- The combined index `NO_FUNC_003` (worst-rule over the eight sides,
+  0.25 / 0.75 limits, median aggregation) is unchanged and kept as a
+  supplementary product.
+- Report maps for the four indicators (ANO cycle 1, same style as the
+  other wetland indicators): `Main/make_factor_report_maps.R` ->
+  `Results/<ID>_wetland_map_report.png`.
+- Needs the R package `glmmTMB` (CRAN).
+
 ## Known limitations
 
 - **V4 (Kilde) and V8 (Strandsumpskogsmark) wetland types are not

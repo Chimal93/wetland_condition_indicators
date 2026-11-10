@@ -259,8 +259,13 @@ cat("  took", round(as.numeric(Sys.time() - t0, units = "secs"), 1), "sec\n")
 
 # ===========================================================
 # STAGE 5: Pool each hovedtype's lists' 1000-iteration draws together,
-# compute reference quantiles (0.25/0.5/0.75) - the deliberate coarsening
-# vs. NINA's fine per-subtype columns (see header).
+# compute reference quantiles - the deliberate coarsening vs. NINA's fine
+# per-subtype columns (see header).
+#   q25 / q75   - limit values of the original combined index (NINA's
+#                 NO_FUNC_001-004 code)
+#   q025 / q975 - limit values of NINA's split two-sided indicators
+#                 (NO_FULI / NO_FUMO, ecRxiv 2026)
+#   q95         - upper limit of the one-sided nitrogen indicator (NO_FUNI)
 # ===========================================================
 
 indicators <- c("Light","Moisture","Soil_reaction_pH","Nitrogen")
@@ -273,9 +278,10 @@ for (ind in indicators) {
     ht_lists <- intersect(paste0(ht, "_L", sprintf("%02d", def_rows$label_num[def_rows$hovedtype == ht])), names(df))
     pooled <- unlist(df[, ht_lists], use.names = FALSE)
     pooled <- pooled[!is.na(pooled)]
-    q <- quantile(pooled, c(0.25, 0.5, 0.75), na.rm = TRUE)
+    q <- quantile(pooled, c(0.025, 0.25, 0.5, 0.75, 0.95, 0.975), na.rm = TRUE)
     our_ref <- rbind(our_ref, data.frame(
-      hovedtype = ht, indicator = ind, q25 = q[1], median = q[2], q75 = q[3],
+      hovedtype = ht, indicator = ind, q25 = q[[2]], median = q[[3]], q75 = q[[4]],
+      q025 = q[[1]], q95 = q[[5]], q975 = q[[6]],
       n_pooled_draws = length(pooled), n_lists = length(ht_lists)
     ))
   }

@@ -630,6 +630,80 @@ res.wet <- res.wet |>
 # Warnings expected at this stage due to plots with no species recorded (NA for all indicators → Inf → NA for fpci.min).
 
 # ===========================================================
+# STAGE 8b: The four vegetation indicators as SEPARATE indicators
+# (NO_FULI_003 light, NO_FUMO_003 moisture, NO_FUPH_003 pH, NO_FUNI_003
+# nitrogen), following NINA's split functional plant indicators on ecRxiv
+# (NO_FULI_002, NO_FUMO_004, NO_FUNI_002/004; accepted 2026):
+#   - each side scaled as eaTools::ec_normalise(fun = "linear") does, i.e.
+#     scale end -> 0, limit -> 0.6, reference median -> 1, truncated 0-1;
+#   - two-sided factors (light, moisture, pH): limits = 0.025 / 0.975
+#     quantiles of the bootstrapped reference CWMs; indicator = lower side
+#     x upper side (the side without deviation is 1, so this is the
+#     deviating side's score);
+#   - nitrogen is ONE-sided (only enrichment counts): limit = 0.95
+#     quantile, indicator = upper side only.
+# Deviations from NINA, kept from this reconstruction: reference values
+# per NiN main type (V1/V2/V3) from Artsdatabanken's B12 lists, not per
+# mapping unit; and pH is included because it was selected for wetland.
+# The combined index above (fpci.min, original 0.25/0.75 limits) is kept
+# as a supplementary product.
+# ===========================================================
+
+# Piece-wise linear normalisation, identical to ec_normalise(fun = "linear")
+# in CURRENT eaTools (NINAnor/eaTools, R/ec_normalise.R after commit
+# ca7bc797 "Fixes #26", May 2026). Not called from the package because this
+# repo pins eaTools at e9480b4 (NO_GJEN_001/002 need its ea_spread()), and
+# that older version has a bug in the decreasing direction: a value at the
+# reference (x100) does not score 1 and x0 scores 0.2 instead of 0. NINA's
+# split indicators use the fixed version.
+ec_normalise_fixed <- function(variable, x0, x60, x100) {
+  ind <- if (x0 < x100) {
+    ifelse(variable < x60, (variable - x0) / (x60 - x0) * 0.6,
+           (variable - x60) / (x100 - x60) * 0.4 + 0.6)
+  } else {
+    ifelse(variable > x60, (x0 - variable) / (x0 - x60) * 0.6,
+           (x60 - variable) / (x60 - x100) * 0.4 + 0.6)
+  }
+  pmin(pmax(ind, 0), 1)
+}
+stopifnot(isTRUE(all.equal(ec_normalise_fixed(c(5, 6.5, 8), x0 = 8, x60 = 6.5, x100 = 5), c(1, 0.6, 0))),
+          isTRUE(all.equal(ec_normalise_fixed(c(1, 3, 5), x0 = 1, x60 = 3, x100 = 5), c(0, 0.6, 1))))
+
+factor_spec <- list(
+  Light    = list(id = "NO_FULI_003", cwm = "Light1",    trait = "Light",            lo = 1, hi = 7,  two_sided = TRUE),
+  Moisture = list(id = "NO_FUMO_003", cwm = "Moist1",    trait = "Moisture",         lo = 1, hi = 12, two_sided = TRUE),
+  pH       = list(id = "NO_FUPH_003", cwm = "pH1",       trait = "Soil_reaction_pH", lo = 1, hi = 8,  two_sided = TRUE),
+  Nitrogen = list(id = "NO_FUNI_003", cwm = "Nitrogen1", trait = "Nitrogen",         lo = 1, hi = 9,  two_sided = FALSE)
+)
+
+# results.wet[["original"]] holds each plot's raw CWM (Light1 = Light2 =
+# the light CWM, etc.) and is row-aligned with res.wet.
+plot_type <- sub("-.*", "", as.character(results.wet[["original"]]$kartleggingsenhet_1m2))
+
+for (f in names(factor_spec)) {
+  sp  <- factor_spec[[f]]
+  cwm <- results.wet[["original"]][[sp$cwm]]
+  lower <- upper <- rep(NA_real_, length(cwm))
+  for (ht in unique(wet_ref_openS$hovedtype)) {
+    r <- wet_ref_openS[wet_ref_openS$hovedtype == ht & wet_ref_openS$indicator == sp$trait, ]
+    k <- which(plot_type == ht & !is.na(cwm))
+    if (length(k) == 0) next
+    upper_lim <- if (sp$two_sided) r$q975 else r$q95
+    upper[k] <- ec_normalise_fixed(cwm[k], x0 = sp$hi, x60 = upper_lim, x100 = r$median)
+    if (sp$two_sided)
+      lower[k] <- ec_normalise_fixed(cwm[k], x0 = sp$lo, x60 = r$q025, x100 = r$median)
+  }
+  res.wet[[paste0("fac_", f)]] <- if (sp$two_sided) lower * upper else upper
+  # Side values for the supplementary "which direction" tables; a side that
+  # shows no deviation (= 1) is set to NA, as in NINA's code.
+  res.wet[[paste0("fac_", f, "_lower")]] <- ifelse(lower == 1, NA_real_, lower)
+  res.wet[[paste0("fac_", f, "_upper")]] <- ifelse(upper == 1, NA_real_, upper)
+}
+factor_indicators <- paste0("fac_", names(factor_spec))
+cat("Separate factor indicators scored per plot:\n")
+print(sapply(factor_indicators, function(v) sum(!is.na(res.wet[[v]]))))
+
+# ===========================================================
 # STAGE 9: Add spatial region information
 # Joins each ANO plot to one of the five Norwegian regions
 # so that regional indices can be computed alongside the
@@ -671,7 +745,7 @@ res.wet  <- st_join(res.wet, regnor, left = TRUE)
 # Pivot to long format for easy aggregation
 res.wet.long <- res.wet |>
   pivot_longer(
-    cols          = all_of(c(wet_indicators, "fpci.min")),
+    cols          = all_of(c(wet_indicators, factor_indicators, "fpci.min")),
     names_to      = "fp_ind",
     values_to     = "scaled_value",
     values_drop_na = FALSE
@@ -786,6 +860,8 @@ boot_median_ci <- function(x, n = boot.n, probs = boot.probs) {
   quantile(boot_medians, probs, na.rm = TRUE)
 }
 
+# The separate factor indicators (Stage 8b) are aggregated with their own
+# model below, not here.
 all_indicators <- c("fpci.min", wet_indicators)
 regions        <- c("Norway", "Northern.Norway", "Central.Norway",
                     "Western.Norway", "Eastern.Norway", "Southern.Norway")
@@ -898,6 +974,91 @@ NO_FUNC_003_supp <- NO_FUNC_003_full |>
 # Inspect
 print(NO_FUNC_003)
 print(NO_FUNC_003_supp)
+
+# ===========================================================
+# Separate factor indicators (Stage 8b): national and regional values
+# with NINA's model for the split functional indicators - an ordered beta
+# regression (glmmTMB, family ordbeta) with ANO site as a random effect,
+# because the ~5 plots per site are not independent. Intercept-only model
+# for Norway, `0 + region` for the regions; 1000 draws from the fitted
+# coefficients (normal / multivariate normal on the logit scale), back-
+# transformed with plogis: value = mean of draws, sd = their SD, 95 % CI =
+# their 2.5/97.5 % quantiles. Same periods as above. The lower and upper
+# sides of the two-sided factors are modelled the same way (plots with a
+# deviation on that side only), to show the direction of the deviation.
+# ===========================================================
+set.seed(1)
+region_levels <- c("Northern.Norway", "Central.Norway", "Western.Norway",
+                   "Eastern.Norway", "Southern.Norway")
+plot_df <- sf::st_drop_geometry(res.wet) |>
+  mutate(region = factor(as.character(region), levels = region_levels))
+
+ordbeta_draws <- function(dat, yvar, n_draws = 1000) {
+  dat <- dat[!is.na(dat[[yvar]]) & !is.na(dat$region), ]
+  out <- data.frame(region = c("Norway", region_levels), mean = NA_real_, sd = NA_real_,
+                    ci_low = NA_real_, ci_high = NA_real_,
+                    n = c(nrow(dat), as.vector(table(dat$region))))
+  if (nrow(dat) < 10) return(out)
+  dat$y <- dat[[yvar]]
+  m0 <- tryCatch(glmmTMB::glmmTMB(y ~ 1 + (1 | ano_flate_id), data = dat, family = glmmTMB::ordbeta()),
+                 error = function(e) NULL)
+  if (!is.null(m0)) {
+    b0 <- glmmTMB::fixef(m0)$cond[["(Intercept)"]]
+    se <- sqrt(vcov(m0)$cond[1, 1])
+    mu <- plogis(rnorm(n_draws, b0, se))
+    out[1, c("mean", "sd", "ci_low", "ci_high")] <- c(mean(mu), sd(mu), quantile(mu, c(0.025, 0.975)))
+  }
+  present <- region_levels[table(dat$region)[region_levels] >= 10]
+  if (length(present) >= 1) {
+    dat_r <- droplevels(dat[dat$region %in% present, ])
+    m1 <- tryCatch(glmmTMB::glmmTMB(y ~ 0 + region + (1 | ano_flate_id), data = dat_r, family = glmmTMB::ordbeta()),
+                   error = function(e) NULL)
+    if (!is.null(m1)) {
+      b <- glmmTMB::fixef(m1)$cond
+      mu_r <- plogis(MASS::mvrnorm(n_draws, mu = b, Sigma = vcov(m1)$cond))
+      if (is.null(dim(mu_r))) mu_r <- matrix(mu_r, ncol = 1)
+      for (j in seq_along(b)) {
+        reg <- sub("^region", "", names(b)[j])
+        out[out$region == reg, c("mean", "sd", "ci_low", "ci_high")] <-
+          c(mean(mu_r[, j]), sd(mu_r[, j]), quantile(mu_r[, j], c(0.025, 0.975)))
+      }
+    }
+  }
+  out
+}
+
+factor_rows <- list()
+for (period_name in names(periods)) {
+  pdat <- plot_df[in_period(plot_df, periods[[period_name]]), ]
+  for (f in names(factor_spec)) {
+    sp  <- factor_spec[[f]]
+    est <- ordbeta_draws(pdat, paste0("fac_", f))
+    if (sp$two_sided) {
+      lo <- ordbeta_draws(pdat, paste0("fac_", f, "_lower"))
+      hi <- ordbeta_draws(pdat, paste0("fac_", f, "_upper"))
+      est$mean_lower <- lo$mean; est$n_lower <- lo$n
+      est$mean_upper <- hi$mean; est$n_upper <- hi$n
+    } else {
+      # One-sided (nitrogen): the indicator IS the upper side, so NINA fits
+      # no side models (NO_FUNI_002/004). Only the number of plots showing
+      # enrichment (score < 1) is reported, per region.
+      enr <- pdat[!is.na(pdat[[paste0("fac_", f, "_upper")]]) & !is.na(pdat$region), ]
+      est$mean_lower <- NA_real_; est$n_lower <- NA_integer_
+      est$mean_upper <- NA_real_
+      est$n_upper    <- c(nrow(enr), as.vector(table(enr$region)[region_levels]))
+    }
+    factor_rows[[paste(period_name, f)]] <- cbind(ecosystem = "wetland", period = period_name,
+                                                  indicator_id = sp$id, factor = f, est)
+  }
+  cat("  factor indicators aggregated:", period_name, "\n")
+}
+NO_FUNC_003_factors <- do.call(rbind, factor_rows) |>
+  mutate(region = str_remove(region, "\\.Norway$"))
+rownames(NO_FUNC_003_factors) <- NULL
+
+cat("\n=== Separate factor indicators (ordered beta, site random effect) ===\n")
+print(NO_FUNC_003_factors |> filter(region == "Norway") |>
+        select(period, indicator_id, mean, ci_low, ci_high, n, n_lower, n_upper))
 
 # ===========================================================
 # Round-based breakdown (round1 = first-ever visit to a flate, round2 =
@@ -1073,6 +1234,8 @@ print(wetland_map)
 #   Results/NO_FUNC_003_index_by_region_period.csv   (NO_FUNC_003)
 #   Results/NO_FUNC_003_supp_indicators.csv          (NO_FUNC_003_supp)
 #   Results/NO_FUNC_003_by_round.csv                 (NO_FUNC_003_by_round)
+#   Results/NO_FUNC_003_factor_indicators.csv        (NO_FUNC_003_factors: the four
+#     separate indicators NO_FULI/FUMO/FUPH/FUNI_003 per period x region)
 #   Results/NO_FUNC_003_plots.gpkg / .csv            one row per ANO plot
 #     visit: identifiers (site, point), year, visit number/round, region,
 #     NiN unit, the 8 scaled
@@ -1087,6 +1250,7 @@ if (!dir.exists(results_dir)) dir.create(results_dir, recursive = TRUE)
 readr::write_csv(NO_FUNC_003,          file.path(results_dir, "NO_FUNC_003_index_by_region_period.csv"))
 readr::write_csv(NO_FUNC_003_supp,     file.path(results_dir, "NO_FUNC_003_supp_indicators.csv"))
 readr::write_csv(NO_FUNC_003_by_round, file.path(results_dir, "NO_FUNC_003_by_round.csv"))
+readr::write_csv(NO_FUNC_003_factors,  file.path(results_dir, "NO_FUNC_003_factor_indicators.csv"))
 
 # results.wet[["original"]] and res.wet are row-aligned copies of ANO.wet
 # (Stage 7/8), so the raw CWMs are attached by position - NOT joined on
@@ -1099,7 +1263,8 @@ stopifnot(nrow(raw_cwm) == nrow(res.wet))
 plots_out <- res.wet |>
   mutate(GlobalID = as.character(GlobalID), region = str_remove(region, "\\.Norway$")) |>
   select(GlobalID, ano_flate_id, ano_punkt_id, aar, ano_visit, ano_round, region, kartleggingsenhet_1m2,
-         all_of(wet_indicators), fpci.min) |>
+         all_of(wet_indicators), fpci.min,
+         starts_with("fac_")) |>
   bind_cols(raw_cwm) |>
   filter(!is.na(aar))   # drop rows that never had a survey record
 

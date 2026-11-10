@@ -245,3 +245,106 @@ for (p in grep("^cycle", names(period_defs), value = TRUE)) {
                          " (", min(d$years), "-", max(d$years), ")")
   )
 }
+
+# ============================================================
+# The four vegetation indicators as SEPARATE indicators (pipeline Stage 8b),
+# following NINA's split functional plant indicators on ecRxiv
+# (NO_FULI_002 / NO_FUMO_004 / NO_FUNI_002, 004). One file set per factor
+# and reporting set:
+#   <ID>_*                        3-year periods (v_2021, v_2024)
+#   <ID>_cycle1_2019to2024_*      ANO cycle 1, first survey per point (v_2024)
+# Values come from the pipeline's ordered-beta model (Results/
+# NO_FUNC_003_factor_indicators.csv): i = model mean, sd = SD of the 1000
+# model draws, ci_low / ci_high = their 2.5 / 97.5 % quantiles.
+# IDs are provisional (agreed internally 2026-11-09), pending Miljødirektoratet.
+# ============================================================
+factors <- read_csv(file.path(results_dir, "NO_FUNC_003_factor_indicators.csv"), show_col_types = FALSE)
+
+factor_meta <- list(
+  Light = list(id = "NO_FULI_003", public = "Vegetasjonsindikator for lys",
+               technical = "Light impact on wetland vegetation - community-weighted mean of Tyler et al. (2021) light values, scaled two-sided against the reference distribution of the plot's NiN main type",
+               ect = "A1 - Physical State Characteristics", sided = "two-sided",
+               lims = "0.025 / 0.975 quantiles", nina = "NO_FULI_002 (mountain)"),
+  Moisture = list(id = "NO_FUMO_003", public = "Vegetasjonsindikator for fuktighet",
+               technical = "Moisture impact on wetland vegetation - community-weighted mean of Tyler et al. (2021) moisture values, scaled two-sided against the reference distribution of the plot's NiN main type",
+               ect = "A1 - Physical State Characteristics", sided = "two-sided",
+               lims = "0.025 / 0.975 quantiles", nina = "NO_FUMO_004 (forest)"),
+  pH = list(id = "NO_FUPH_003", public = "Vegetasjonsindikator for pH",
+               technical = "Soil reaction (pH) impact on wetland vegetation - community-weighted mean of Tyler et al. (2021) soil-reaction values, scaled two-sided against the reference distribution of the plot's NiN main type",
+               ect = "A2 - Chemical State Characteristics", sided = "two-sided",
+               lims = "0.025 / 0.975 quantiles", nina = "none - NINA has no pH indicator; included because it was selected for wetland"),
+  Nitrogen = list(id = "NO_FUNI_003", public = "Vegetasjonsindikator for nitrogen",
+               technical = "Nitrogen impact on wetland vegetation - community-weighted mean of Tyler et al. (2021) nitrogen values, scaled one-sided (enrichment only) against the reference distribution of the plot's NiN main type",
+               ect = "A2 - Chemical State Characteristics", sided = "one-sided (only higher nitrogen counts as deviation)",
+               lims = "0.95 quantile (upper limit only)", nina = "NO_FUNI_002 (mountain), NO_FUNI_004 (forest)")
+)
+
+export_factor_set <- function(f, set_id, pnames, period_text) {
+  fm   <- factor_meta[[f]]
+  col  <- paste0("fac_", f)
+  defs <- period_defs[pnames]
+  yr   <- vapply(defs, `[[`, integer(1), "year")
+
+  agg <- factors %>%
+    filter(factor == f, period %in% pnames) %>%
+    transmute(region, year = unname(yr[period]), v = mean, sd = sd, i = mean,
+              reference_high = 1, reference_low = 0, thr = THR,
+              n, ci_low, ci_high, mean_lower, n_lower, mean_upper, n_upper)
+
+  region_long <- regions %>%
+    inner_join(agg %>% filter(region != "Norway") %>%
+                 mutate(area = unname(region_names[region])) %>% select(-region), by = "area") %>%
+    arrange(areaId, year)
+  national <- agg %>% filter(region == "Norway") %>%
+    transmute(area = "Norge", areaId = 0L, year, v, sd, i, reference_high, reference_low, thr,
+              n, ci_low, ci_high, mean_lower, n_lower, mean_upper, n_upper)
+
+  plot_long <- plots %>%
+    filter(!is.na(.data[[col]])) %>%
+    { bind_rows(lapply(pnames, function(p) .[in_period(., defs[[p]]), ] %>% mutate(period = p))) } %>%
+    group_by(ano_punkt_id, period) %>% slice_max(aar, n = 1, with_ties = FALSE) %>% ungroup() %>%
+    transmute(area = region, areaId = as.character(ano_punkt_id), year = unname(yr[period]),
+              v = .data[[col]], sd = NA_real_, i = .data[[col]],
+              reference_high = 1, reference_low = 0, thr = THR,
+              ano_flate_id = ano_flate_id, nin_unit = kartleggingsenhet_1m2,
+              survey_year = aar, ano_visit = ano_visit)
+
+  metadata <- base_metadata
+  metadata[["Indicator ID"]]               <- fm$id
+  metadata[["Indicator name (public)"]]    <- fm$public
+  metadata[["Indicator name (technical)"]] <- fm$technical
+  metadata[["ECT class"]]                  <- fm$ect
+  metadata[["Time periods"]]               <- period_text
+  metadata[["Variable (v)"]]               <- "Set equal to the indicator value (scaled 0-1), as for NINA's split functional indicators; the plot-level community-weighted means are in the plot table of the pipeline results"
+  metadata[["Indicator (i)"]]              <- "Mean of plot scores from an ordered beta regression (glmmTMB, family ordbeta) with ANO site as a random effect, as in NINA's NO_FULI/NO_FUMO/NO_FUNI; 1 = reference condition, 0.6 = limit of good condition"
+  metadata[["Scaling function"]]           <- paste0("Piecewise linear, ", fm$sided, ": reference median -> 1, ", fm$lims, " of the reference distribution -> 0.6, end of the trait scale -> 0, truncated to 0-1 (eaTools ec_normalise, linear, as corrected in eaTools commit ca7bc797). Two-sided: indicator = lower side x upper side")
+  metadata[["Threshold (thr)"]]            <- paste0("0.6, corresponding to the ", fm$lims, " of the reference distribution")
+  metadata[["Uncertainty (sd)"]]           <- "SD of 1000 draws from the model's coefficient distribution (back-transformed from the logit scale). Supplementary: ci_low / ci_high = 95 % interval of the draws; mean_lower / mean_upper and n_lower / n_upper = model means and plot counts for deviations towards lower and higher values"
+  if (grepl("^one-sided", fm$sided))
+    metadata[["Uncertainty (sd)"]] <- "SD of 1000 draws from the model's coefficient distribution (back-transformed from the logit scale). Supplementary: ci_low / ci_high = 95 % interval of the draws; n_upper = number of plots showing enrichment (score < 1). One-sided indicator, so no separate side models (mean_lower / mean_upper / n_lower empty), as in NINA's NO_FUNI_002/004"
+  metadata[["Number of observations"]]     <- paste0("ANO wetland plot surveys with a value: ",
+                                                     paste(sprintf("%s: %d", pnames, agg$n[agg$region == "Norway"]), collapse = ", "))
+  metadata[["Method note"]]                <- paste0("Follows NINA's split functional plant indicators (", fm$nina, "). Deviations: reference values per NiN main type (V1/V2/V3) rebuilt from Artsdatabanken's B12 lists rather than per mapping unit; plot types V4-V8 not scored")
+
+  export_platform_indicator(
+    id = set_id, units = list(region = region_long, plot = plot_long), national = national,
+    metadata = metadata, out_dir = out_dir, png_title = paste0(fm$id, " - ", fm$public)
+  )
+  writexl::write_xlsx(list(
+    values   = read_csv(file.path(out_dir, paste0(set_id, "_values.csv")), show_col_types = FALSE),
+    metadata = tibble(field = names(metadata), value = unname(metadata)),
+    plot     = readRDS(file.path(out_dir, paste0(set_id, "_indicatorMap_plot.rds"))) %>% st_drop_geometry()
+  ), file.path(out_dir, paste0(set_id, "_values.xlsx")))
+}
+
+for (f in names(factor_meta)) {
+  id <- factor_meta[[f]]$id
+  export_factor_set(f, id, c("2019to2021", "2022to2024"),
+                    "Two 3-year ANO reporting periods: 2019-2021 (column suffix 2021) and 2022-2024 (suffix 2024), every plot survey in those years")
+  for (p in grep("^cycle", names(period_defs), value = TRUE)) {
+    d <- period_defs[[p]]
+    export_factor_set(f, paste0(id, "_", p), p,
+                      paste0("ANO monitoring cycle ", d$visit, ": ", min(d$years), "-", max(d$years),
+                             " (column suffix ", d$year, "), each plot point's survey number ", d$visit, " only"))
+  }
+}
