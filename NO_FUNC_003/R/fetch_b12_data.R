@@ -42,7 +42,7 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 
 b12_url <- "https://artsdatabanken.no/Files/29643/Datasett_B12__Planter_og_lav_p__myr"
 
-out_dir     <- file.path("..", "Data", "OpenS_data")
+out_dir     <- file.path("..", "data", "OpenS_data")
 xlsx_path   <- file.path(out_dir, "B12_planter_og_lav_pa_myr.xlsx")
 force_fetch <- FALSE
 

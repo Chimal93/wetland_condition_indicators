@@ -9,8 +9,8 @@
 # INPUTS
 #
 #   1. ANO (Arealrepresentativ naturovervåking) field monitoring data
-#      -> Fetch/fetch_ano_data.R. Public, no login (Miljødirektoratet
-#      Kartkatalog dataset 2054). Produces Data/OpenS_data/ano_data/
+#      -> R/fetch_ano_data.R. Public, no login (Miljødirektoratet
+#      Kartkatalog dataset 2054). Produces data/OpenS_data/ano_data/
 #      naturovervaking_eksport.gpkg, read directly by Stage 2. Covers
 #      2019-2024; NINA's own cached export went to 2021, so this
 #      also adds a full second reporting period the original never had
@@ -24,14 +24,14 @@
 #      ScienceDirect/ResearchGate/DOAJ all block scripted fetches, so no
 #      fetch script exists. Download the "Taxa" sheet from the article's
 #      Supplementary content and place it at
-#      Data/OpenS_data/Tyler_data_raw.xlsx. Grime (1974) CSR values are
+#      data/OpenS_data/Tyler_data_raw.xlsx. Grime (1974) CSR values are
 #      not used - a different plant-strategy axis, no overlap with the
 #      Light/Moisture/pH/Nitrogen indicators this pipeline needs.
 #
 #   3. Bootstrapped CWM reference distributions (X0/X100-style reference
 #      levels per NiN wetland type x indicator)
-#      -> Fetch/fetch_b12_data.R + Fetch/build_wet_ref_openS.R, producing
-#      Data/OpenS_data/wet_ref_openS.csv, read by Stage 2. Reimplements
+#      -> R/fetch_b12_data.R + R/build_wet_ref_openS.R, producing
+#      data/OpenS_data/wet_ref_openS.csv, read by Stage 2. Reimplements
 #      NINA's own indBoot.freq() bootstrap (documented, plain R code) on
 #      Artsdatabanken's public "B12" generalized species-list dataset,
 #      validated within ~7-15% of NINA's cached values. Covers NiN types
@@ -46,7 +46,7 @@
 #      see build_wet_ref_openS.R's header for how to extend it.
 #
 #   4. Five-region delineation for Norway (regions.shp) and the national
-#      coastline outline (outlineOfNorway_EPSG25833.shp), Data/NINA/
+#      coastline outline (outlineOfNorway_EPSG25833.shp), data/NINA/
 #      spatial/ - reused as-is, shared across this project's indicators;
 #      no fetch script written for either yet.
 # ------------------------------------------------------------------
@@ -86,10 +86,10 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   }, error = function(e) FALSE)
   if (!tried) message("Note: keeping current working directory (", getwd(), ").")
 }
-# All relative paths below are anchored to: NO_FUNC_003_Migration/Main/
+# All relative paths below are anchored to: NO_FUNC_003_Migration/R/
 
-ano_dir    <- file.path("..", "Data", "OpenS_data", "ano_data") # input 1, fetch_ano_data.R's output
-tyler_path <- file.path("..", "Data", "OpenS_data", "Tyler_data_raw.xlsx")  # input 2, manually downloaded
+ano_dir    <- file.path("..", "data", "OpenS_data", "ano_data") # input 1, fetch_ano_data.R's output
+tyler_path <- file.path("..", "data", "OpenS_data", "Tyler_data_raw.xlsx")  # input 2, manually downloaded
 
 
 # ===========================================================
@@ -149,7 +149,7 @@ ind.Tyler <- read_excel(tyler_path, sheet = "Taxa") |>
 # gap). HOVEDTYPE granularity (V1/V2/V3), coarser than NINA's original
 # per-subtype columns (e.g. "V1-C4h") - Stage 7's matching key uses the
 # hovedtype prefix accordingly, not the exact subtype code.
-wet_ref_path <- file.path("..", "Data", "OpenS_data", "wet_ref_openS.csv")
+wet_ref_path <- file.path("..", "data", "OpenS_data", "wet_ref_openS.csv")
 if (!file.exists(wet_ref_path)) {
   stop("Missing required file: ", wet_ref_path, "\n",
        "Run fetch_b12_data.R then build_wet_ref_openS.R first to produce it ",
@@ -713,7 +713,7 @@ print(sapply(factor_indicators, function(v) sum(!is.na(res.wet[[v]]))))
 # Restore geometry for spatial join
 st_geometry(res.wet) <- st_geometry(ANO.wet)
 
-spatial_dir <- file.path("..", "Data", "NINA", "spatial")
+spatial_dir <- file.path("..", "data", "NINA", "spatial")
 
 nor <- st_read(
   file.path(spatial_dir, "outlineOfNorway_EPSG25833.shp"),
@@ -1131,7 +1131,7 @@ print(NO_FUNC_003_by_round |> filter(Indicator == "fpci.min"))
 # "God" (good condition) starts at l.s = 0.6, the same
 # limit-value constant used in Stage 6's scal(); a.s = 0 and
 # r.s = 1 anchor the floor and reference ends of the scale.
-# Saved to ../img (sibling of R/ and Data/).
+# Saved to ../img (sibling of R/ and data/).
 # -----------------------------------------------------------
 
 # One map per reporting period (see `periods` in Stage 10).
@@ -1213,10 +1213,10 @@ wetland_map <- ggplot() +
     legend.position = "right"
   )
 
-# [MIGRATION] Points at the Results/ folder (sibling of Main/), matching
-# this repo's Main/Data/Results/Fetch/Docs layout, instead of the
+# [MIGRATION] Points at the outputs/results/ folder (sibling of R/), matching
+# this repo's R/data/outputs/results/R/Docs layout, instead of the
 # original ../img convention used in the non-migrated NO_FUNC_003 folder.
-img_dir <- file.path("..", "Results")
+img_dir <- file.path("..", "outputs", "results")
 if (!dir.exists(img_dir)) dir.create(img_dir, recursive = TRUE)
 
 ggsave(
@@ -1231,20 +1231,20 @@ print(wetland_map)
 
 # ===========================================================
 # STAGE 11: Write the final tables to disk (no computation happens here).
-#   Results/NO_FUNC_003_index_by_region_period.csv   (NO_FUNC_003)
-#   Results/NO_FUNC_003_supp_indicators.csv          (NO_FUNC_003_supp)
-#   Results/NO_FUNC_003_by_round.csv                 (NO_FUNC_003_by_round)
-#   Results/NO_FUNC_003_factor_indicators.csv        (NO_FUNC_003_factors: the four
+#   outputs/results/NO_FUNC_003_index_by_region_period.csv   (NO_FUNC_003)
+#   outputs/results/NO_FUNC_003_supp_indicators.csv          (NO_FUNC_003_supp)
+#   outputs/results/NO_FUNC_003_by_round.csv                 (NO_FUNC_003_by_round)
+#   outputs/results/NO_FUNC_003_factor_indicators.csv        (NO_FUNC_003_factors: the four
 #     separate indicators NO_FULI/FUMO/FUPH/FUNI_003 per period x region)
-#   Results/NO_FUNC_003_plots.gpkg / .csv            one row per ANO plot
+#   outputs/results/NO_FUNC_003_plots.gpkg / .csv            one row per ANO plot
 #     visit: identifiers (site, point), year, visit number/round, region,
 #     NiN unit, the 8 scaled
 #     indicators, fpci.min, and the 4 raw CWM values (native trait units).
-# Main/export_deliverables.R reads these and produces the platform-format
-# files under Deliverables/.
+# R/export_deliverables.R reads these and produces the platform-format
+# files under outputs/deliverables/.
 # ===========================================================
 
-results_dir <- file.path("..", "Results")
+results_dir <- file.path("..", "outputs", "results")
 if (!dir.exists(results_dir)) dir.create(results_dir, recursive = TRUE)
 
 readr::write_csv(NO_FUNC_003,          file.path(results_dir, "NO_FUNC_003_index_by_region_period.csv"))

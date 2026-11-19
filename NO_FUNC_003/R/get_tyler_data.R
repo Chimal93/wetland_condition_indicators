@@ -34,7 +34,7 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   if (!tried) message("Note: keeping current working directory (", getwd(), ").")
 }
 
-target_dir  <- file.path("..", "Data", "OpenS_data")
+target_dir  <- file.path("..", "data", "OpenS_data")
 target_file <- file.path(target_dir, "Tyler_data_raw.xlsx")
 
 instructions <- paste0(

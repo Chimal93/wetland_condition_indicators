@@ -5,9 +5,9 @@
 # style as the other wetland indicators' regional maps (5-class condition
 # scale, value / n labels).
 #
-# Reads Results/NO_FUNC_003_factor_indicators.csv (written by the pipeline).
+# Reads outputs/results/NO_FUNC_003_factor_indicators.csv (written by the pipeline).
 # No computation here.
-# Output: Results/<ID>_wetland_map_report.png
+# Output: outputs/results/<ID>_wetland_map_report.png
 # ============================================================
 
 suppressPackageStartupMessages({ library(sf); library(dplyr); library(ggplot2); library(readr) })
@@ -19,8 +19,8 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   if (length(fm)) setwd(dirname(normalizePath(sub("^--file=", "", cmd_args[fm]))))
 }
 
-spatial_dir <- file.path("..", "Data", "NINA", "spatial")
-out_dir     <- file.path("..", "Results")
+spatial_dir <- file.path("..", "data", "NINA", "spatial")
+out_dir     <- file.path("..", "outputs", "results")
 
 factors <- read_csv(file.path(out_dir, "NO_FUNC_003_factor_indicators.csv"), show_col_types = FALSE)
 region_ids <- c("Northern" = 1L, "Central" = 2L, "Eastern" = 3L, "Western" = 4L, "Southern" = 5L)

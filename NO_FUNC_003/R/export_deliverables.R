@@ -2,7 +2,7 @@
 # NO_FUNC_003 - final export stage: platform-format indicator maps +
 # delivery tables (see the repository README, "Delivery format").
 #
-# Reads Stage 11's tables (../Results/) and writes, to ../Deliverables/,
+# Reads Stage 11's tables (../outputs/results/) and writes, to ../outputs/deliverables/,
 # one file set per reporting set:
 #
 #   NO_FUNC_003_*                          the original indicator's two
@@ -60,9 +60,9 @@ ID      <- "NO_FUNC_003"
 VERSION <- Sys.getenv("FUNC003_DELIVERY_VERSION", "000.003")
 THR     <- 0.6
 
-results_dir <- file.path("..", "Results")
-spatial_dir <- file.path("..", "Data", "NINA", "spatial")
-out_dir     <- file.path("..", "Deliverables")
+results_dir <- file.path("..", "outputs", "results")
+spatial_dir <- file.path("..", "data", "NINA", "spatial")
+out_dir     <- file.path("..", "outputs", "deliverables")
 
 region_names <- c("Northern" = "Nord-Norge", "Central" = "Midt-Norge", "Eastern" = "Østlandet",
                   "Western" = "Vestlandet", "Southern" = "Sørlandet")
@@ -121,7 +121,7 @@ base_metadata <- c(
   "Variable (v)"                = "Set equal to the indicator value: the FPCI has no single unscaled variable (it is the minimum over eight scaled indicators, each scaling the community-weighted mean of a Tyler et al. 2021 trait value against the reference distribution of the plot's NiN main type). Underlying CWMs (native trait units) and the eight scaled indicators are in the supp sheets",
   "Indicator (i)"               = "Median over ANO wetland plot surveys in the period of fpci.min; 1 = reference condition, 0.6 = limit of good condition",
   "Scaling function"            = "Two-sided piecewise linear per indicator: reference median -> 1, reference 0.25/0.75 quantile -> 0.6, theoretical scale extreme -> 0; deviation beyond the reference on the 'wrong' side only; values > 1 set to NA (2-sided variant). Index = minimum over the eight indicators (worst-rule). Same as the original indicator",
-  "reference_high (X100)"       = "1 on the scaled axis. On the variable axis: the median of the reference CWM distribution per NiN main type (V1, V3, ...), from generalised species lists (Tyler et al. traits x NiN reference species lists) - see Fetch/build_wet_ref_openS.R",
+  "reference_high (X100)"       = "1 on the scaled axis. On the variable axis: the median of the reference CWM distribution per NiN main type (V1, V3, ...), from generalised species lists (Tyler et al. traits x NiN reference species lists) - see R/build_wet_ref_openS.R",
   "reference_low (X0)"          = "0 on the scaled axis; on the variable axis the theoretical minimum/maximum of the trait scale",
   "Threshold (thr)"             = "0.6 on the indicator scale, corresponding to the 0.25 / 0.75 quantile of the reference distribution (X60 as defined in the original indicator)",
   "Uncertainty (sd)"            = "Bootstrap standard deviation (R = 1000) of the median over plot surveys. Supplementary: q25/q75 = spread of plot values; boot_low/boot_high = 95 % bootstrap CI of the median (the pipeline's own CI)",
@@ -253,7 +253,7 @@ for (p in grep("^cycle", names(period_defs), value = TRUE)) {
 # and reporting set:
 #   <ID>_*                        3-year periods (v_2021, v_2024)
 #   <ID>_cycle1_2019to2024_*      ANO cycle 1, first survey per point (v_2024)
-# Values come from the pipeline's ordered-beta model (Results/
+# Values come from the pipeline's ordered-beta model (outputs/results/
 # NO_FUNC_003_factor_indicators.csv): i = model mean, sd = SD of the 1000
 # model draws, ci_low / ci_high = their 2.5 / 97.5 % quantiles.
 # IDs are provisional (agreed internally 2026-11-09), pending Miljødirektoratet.

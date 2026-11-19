@@ -42,7 +42,7 @@
 # indicators (Light, Moisture, Soil_reaction_pH, Nitrogen) are computed -
 # Grime's CC/SS/RR are a separate plant-strategy axis, unused here.
 #
-# Output: ../Data/OpenS_data/wet_ref_openS.csv
+# Output: ../data/OpenS_data/wet_ref_openS.csv
 #   Columns: hovedtype (V1/V2/V3), indicator, q25, median, q75,
 #   n_pooled_draws, n_lists.
 # ============================================================
@@ -67,7 +67,7 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   if (!tried) message("Note: keeping current working directory (", getwd(), ").")
 }
 
-data_dir   <- file.path("..", "Data", "OpenS_data")
+data_dir   <- file.path("..", "data", "OpenS_data")
 b12_path   <- file.path(data_dir, "B12_planter_og_lav_pa_myr.xlsx")
 tyler_path <- file.path(data_dir, "Tyler_data_raw.xlsx")
 out_path   <- file.path(data_dir, "wet_ref_openS.csv")

@@ -3,7 +3,7 @@
 # works, using one small real region instead of the full national ANO
 # dataset - runs in under a minute instead of several.
 #
-# COMPLETELY INDEPENDENT FROM Main/ - Main/NO_FUNC_003_wetland_pipeline_
+# COMPLETELY INDEPENDENT FROM R/ - R/NO_FUNC_003_wetland_pipeline_
 # OpenSource.R is never edited and has zero awareness this script
 # exists. Instead, this script:
 #   1. Temporarily swaps the real national ANO gpkg for a small-region
@@ -20,19 +20,19 @@
 #      the input side instead of the output side.
 #
 # Needs the real ANO data fetched at least once already
-# (Fetch/fetch_ano_data.R) - this only FILTERS an existing national
+# (R/fetch_ano_data.R) - this only FILTERS an existing national
 # export down to one region, it doesn't fetch anything itself.
 #
-# Output: Results/NO_FUNC_003_wetland_map_2019to2021_TEST_AOI.png - a
+# Output: outputs/results/NO_FUNC_003_wetland_map_2019to2021_TEST_AOI.png - a
 # clearly-marked test artifact. The real
-# Results/NO_FUNC_003_wetland_map_2019to2021.png is left exactly as it
+# outputs/results/NO_FUNC_003_wetland_map_2019to2021.png is left exactly as it
 # was before this script ran.
 #
 # Usage: Rscript quick_test_small_aoi.R
 #   Set FUNC003_TEST_REGION to pick a different region (default
 #   "Nord-Norge" - typically the fastest, since it's the smallest).
 #   Real region names: Nord-Norge, Midt-Norge, Vestlandet, Østlandet,
-#   Sørlandet (see Data/NINA/spatial/regions.shp).
+#   Sørlandet (see data/NINA/spatial/regions.shp).
 # ============================================================
 
 library(sf)
@@ -53,17 +53,17 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   }, error = function(e) FALSE)
   if (!tried) message("Note: keeping current working directory (", getwd(), ").")
 }
-# Anchored to NO_FUNC_003_Migration/Fetch/ - Data/ and Results/ (below)
-# are siblings of this folder, same as they are for Main/.
+# Anchored to NO_FUNC_003_Migration/R/ - data/ and outputs/results/ (below)
+# are siblings of this folder, same as they are for R/.
 
 test_region <- Sys.getenv("FUNC003_TEST_REGION", unset = "Nord-Norge")
 
-ano_dir      <- file.path("..", "Data", "OpenS_data", "ano_data")
+ano_dir      <- file.path("..", "data", "OpenS_data", "ano_data")
 real_gpkg    <- file.path(ano_dir, "naturovervaking_eksport.gpkg")
 backup_gpkg  <- file.path(ano_dir, "naturovervaking_eksport.gpkg.real_backup")
-real_map     <- file.path("..", "Results", "NO_FUNC_003_wetland_map_2019to2021.png")
-backup_map   <- file.path("..", "Results", "NO_FUNC_003_wetland_map_2019to2021.png.real_backup")
-test_map_out <- file.path("..", "Results", "NO_FUNC_003_wetland_map_2019to2021_TEST_AOI.png")
+real_map     <- file.path("..", "outputs", "results", "NO_FUNC_003_wetland_map_2019to2021.png")
+backup_map   <- file.path("..", "outputs", "results", "NO_FUNC_003_wetland_map_2019to2021.png.real_backup")
+test_map_out <- file.path("..", "outputs", "results", "NO_FUNC_003_wetland_map_2019to2021_TEST_AOI.png")
 
 # Recover automatically if a previous run of this script crashed
 # mid-swap and never restored the real data - detectable because the
@@ -75,7 +75,7 @@ if (!file.exists(real_gpkg) && file.exists(backup_gpkg)) {
 
 if (!file.exists(real_gpkg)) {
   stop("Missing ", real_gpkg, "\n",
-       "Run Fetch/fetch_ano_data.R first - this script only filters the\n",
+       "Run R/fetch_ano_data.R first - this script only filters the\n",
        "real national export down to one region, it doesn't fetch anything.")
 }
 
@@ -84,7 +84,7 @@ if (!file.exists(real_gpkg)) {
 # ---------------------------------------------------------------
 cat("Building a small test subset (region:", test_region, ")...\n")
 
-regions <- st_read(file.path("..", "Data", "NINA", "spatial", "regions.shp"), quiet = TRUE)
+regions <- st_read(file.path("..", "data", "NINA", "spatial", "regions.shp"), quiet = TRUE)
 # regions.shp's own "region" column has a real encoding corruption for
 # 2 of 5 rows (Ø/Ø as mojibake) - fixed by id, same as Main's own Stage
 # 9 has to work around (there, by overwriting all 5 names outright).
@@ -119,10 +119,10 @@ st_write(pts_test, real_gpkg, layer = "ANO_SurveyPoint", quiet = TRUE, append = 
 st_write(sp_test,  real_gpkg, layer = "ANO_Art",         quiet = TRUE, append = FALSE)
 
 rscript_bin <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
-main_script <- file.path("..", "Main", "NO_FUNC_003_wetland_pipeline_OpenSource.R")
+main_script <- file.path("..", "R", "NO_FUNC_003_wetland_pipeline_OpenSource.R")
 
 tryCatch({
-  cat("\nRunning Main/NO_FUNC_003_wetland_pipeline_OpenSource.R as a real subprocess",
+  cat("\nRunning R/NO_FUNC_003_wetland_pipeline_OpenSource.R as a real subprocess",
       "(unmodified, unaware this is a test)...\n\n")
   status <- system2(rscript_bin, shQuote(main_script))
   if (!is.null(status) && status != 0) {

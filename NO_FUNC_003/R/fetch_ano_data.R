@@ -13,7 +13,7 @@
 #   this script uses the GeoPackage instead: a single self-contained file,
 #   no need to unzip into a .gdb directory, and it matches the format of
 #   the already-present (older, manually-downloaded) reference copy at
-#   Data/NINA/Raw_Data/naturovervaking_eksport.gpkg.zip, making a direct
+#   data/NINA/Raw_Data/naturovervaking_eksport.gpkg.zip, making a direct
 #   layer-for-layer comparison straightforward.
 #   Layers: ANO_SurveyPoint (points), ANO_Flate (survey plot polygons),
 #   ANO_Art (species records), ANO_FremmedArt (alien species),
@@ -40,7 +40,7 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 
 ano_url <- "https://nedlasting.miljodirektoratet.no/naturovervaking/naturovervaking_eksport.gpkg.zip"
 
-out_dir     <- file.path("..", "Data", "OpenS_data", "ano_data")
+out_dir     <- file.path("..", "data", "OpenS_data", "ano_data")
 zip_path    <- file.path(out_dir, "naturovervaking_eksport.gpkg.zip")
 gpkg_path   <- file.path(out_dir, "naturovervaking_eksport.gpkg")
 force_fetch <- FALSE
