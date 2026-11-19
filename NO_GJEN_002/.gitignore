@@ -28,6 +28,7 @@ chm_model/__pycache__/
 chm_model/*.pth
 chm_model/*.ckpt
 .venv_chm/
+chm_model/.venv/
 *.pyc
 
 # ----------------------------------------------------------------------

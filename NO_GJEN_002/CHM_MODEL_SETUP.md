@@ -54,7 +54,27 @@ CPU inference - confirmed directly in the repo's own `inference.py`:
 install path in the repo's README (`pytorch-cuda=11.7`) is for the
 *uncompressed* checkpoints only and was deliberately skipped here.
 
-## Setup commands actually used (via `uv`, not conda)
+## Setup from the lockfile (recommended)
+
+The environment is pinned in `chm_model/pyproject.toml` and `chm_model/uv.lock`.
+With [`uv`](https://docs.astral.sh/uv/) installed:
+
+```powershell
+cd NO_GJEN_002/chm_model
+uv sync --frozen
+uv run --frozen python smoke_test.py
+```
+
+`uv` fetches Python 3.9 itself if it is missing. Verified 2026-11-19: a fresh
+environment built this way passes the smoke test below.
+
+Python 3.9 is older than the Python > 3.11 that Miljødirektoratet's README
+template asks for. It is the version the model's own repository documents,
+and the one the published national predictions were made with. torch 2.0.1
+also has builds for Python 3.10 and 3.11, so a move to 3.11 is possible but
+has not been tested.
+
+## Setup commands originally used (via `uv`, not conda)
 
 `uv` was already installed on this machine and can manage isolated Python
 versions itself, avoiding a conda install entirely:
