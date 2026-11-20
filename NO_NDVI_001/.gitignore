@@ -1,0 +1,32 @@
+# ----------------------------------------------------------------------
+# Credentials. fetch_modis_ndvi.R reads EARTHDATA_TOKEN from .Renviron;
+# the Sentinel-2 scripts log in interactively. Never commit either.
+# ----------------------------------------------------------------------
+.Renviron
+.env
+*credential*
+*password*
+*token*
+
+# ----------------------------------------------------------------------
+# Large, re-fetchable data. The MODIS NDVI series IS committed, gzipped
+# (data/NDVI_MODIS/modis_ndvi_ts_national.csv.gz, 33 MB); the plain csv a
+# fresh fetch writes (169 MB) is over GitHub's file limit.
+# ----------------------------------------------------------------------
+data/nin_data/
+data/*.zip
+data/OpenS_data/
+data/NDVI_MODIS/*.csv
+data/NDVI_Sentinel/
+data/NDVI_Sentinel_raster/
+data/NDVI_Landsat/
+
+# R / OS junk
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+*.Rout
+Rplots.pdf
+.DS_Store
+Thumbs.db
