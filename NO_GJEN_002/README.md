@@ -30,14 +30,14 @@ $env:ORTHOPHOTO_SOURCE_PATH    = "/vsicurl/https://your.host/ortho.tif" # remote
 $env:ORTHOPHOTO_SOURCE_USERPWD = "user:password"                       # only if it needs auth
 
 # 2. or copy the template and fill it in (the filled file is gitignored)
-copy orthophoto_access.template.txt orthophoto_access.txt
+copy config\orthophoto_access.template.txt config\orthophoto_access.txt
 ```
 
 What the imagery has to satisfy: 3-band RGB 8-bit, **0.5 m per pixel or
 finer**, a projected CRS (EPSG:25833 for Norway), as GeoTIFF, COG or VRT.
 A remote COG must support HTTP range requests — the mosaic is never
 downloaded, only the byte ranges covering each tile window are read.
-Details in [`METHODOLOGY_CANOPY_HEIGHT.md`](METHODOLOGY_CANOPY_HEIGHT.md).
+Details in [`METHODOLOGY_CANOPY_HEIGHT.md`](docs/METHODOLOGY_CANOPY_HEIGHT.md).
 
 ## You do not need imagery to reproduce the results
 
@@ -47,7 +47,7 @@ model inference on CPU). Its output — one canopy height per polygon — is
 committed here:
 
 ```
-Data/OpenS_data/meta_chm_national_RAW_2026-09-17/
+data/OpenS_data/meta_chm_national_RAW_2026-09-17/
 ```
 
 15 MB, checksummed, with the run logs. Everything downstream (scaling,
@@ -60,35 +60,36 @@ run the indicator for a new year.
 
 | Folder | Contents |
 |---|---|
-| `Fetch/` | Input fetchers and the imagery interface (`orthophoto_source.R`), the per-polygon model runner, and the validation scripts. |
-| `chm_model/` | Our wrapper around the canopy-height model (`predict_tiles.py`) and its smoke test. The model itself is fetched, not vendored — see `CHM_MODEL_SETUP.md`. |
-| `Main/` | `NO_GJEN_002_national_pipeline.R` (indicator) and `export_deliverables.R` (platform format). |
-| `Data/OpenS_data/` | The frozen per-polygon predictions, and the two reference tables borrowed from NO_GJEN_001. Large inputs (NiN, bioclim) are fetched. |
-| `Results/` | Maps and the pipeline's tables. |
-| `Deliverables/` | The indicator in the ecosystemCondition platform format. |
+| `R/` | All R code: input fetchers, the imagery interface (`orthophoto_source.R`), the per-polygon model runner, the validation scripts, the indicator (`NO_GJEN_002_national_pipeline.R`), the export (`export_deliverables.R`) and the report map. |
+| `src/` | `run_national_by_region.ps1` (the national model run) and `chm_model/`: our wrapper around the canopy-height model (`predict_tiles.py`), its smoke test and the Python environment (`pyproject.toml`, `uv.lock`). The model itself is fetched, not vendored — see `docs/CHM_MODEL_SETUP.md`. |
+| `config/` | `orthophoto_access.template.txt`; copy it to `orthophoto_access.txt` (gitignored) to point the model run at your imagery. |
+| `docs/` | `METHODOLOGY_CANOPY_HEIGHT.md` and `CHM_MODEL_SETUP.md`. |
+| `data/OpenS_data/` | The frozen per-polygon predictions, and the two reference tables borrowed from NO_GJEN_001. Large inputs (NiN, bioclim) are fetched. |
+| `outputs/results/` | Maps and the pipeline's tables. |
+| `outputs/deliverables/` | The indicator in the ecosystemCondition platform format. |
 
 ## How to run it
 
 **From the frozen predictions (minutes, no imagery):**
 
-1. `Fetch/fetch_nin_data.R` — the national NiN nature-type dataset.
-2. `Fetch/fetch_bioclim_zones.R` — Moen bioclimatic zones.
+1. `R/fetch_nin_data.R` — the national NiN nature-type dataset.
+2. `R/fetch_bioclim_zones.R` — Moen bioclimatic zones.
 3. Two inputs come from the sibling indicator, which builds them:
-   `NO_GJEN_001/Fetch/build_ssb_grids.R` → `ssb50km.shp` (aggregation grid),
+   `NO_GJEN_001/R/build_ssb_grids.R` → `ssb50km.shp` (aggregation grid),
    and the two reference tables (`refvaatmark_openS_30m.csv`,
    `vegHeights_skog_climZoneRegion_openS_20m.csv`, both committed here).
-4. `Main/NO_GJEN_002_national_pipeline.R` — index, aggregation, map.
-5. `Main/export_deliverables.R` — the delivery files.
+4. `R/NO_GJEN_002_national_pipeline.R` — index, aggregation, map.
+5. `R/export_deliverables.R` — the delivery files.
 
 **Regenerating the predictions (needs imagery, ~90 h nationally):**
 
-1. Set up the model once: [`CHM_MODEL_SETUP.md`](CHM_MODEL_SETUP.md).
+1. Set up the model once: [`docs/CHM_MODEL_SETUP.md`](docs/CHM_MODEL_SETUP.md).
 2. Configure imagery access (above).
-3. `run_national_by_region.ps1` — runs region by region, checkpointed and
+3. `src/run_national_by_region.ps1` — runs region by region, checkpointed and
    resumable; a closed laptop lid or a restart costs only the batch in
    flight. Set `$env:RSCRIPT` if R is not at the default path.
 
-Validate before trusting a new run: `Fetch/validate_meta_chm_orthophoto.R`
+Validate before trusting a new run: `R/validate_meta_chm_orthophoto.R`
 compares predictions against LiDAR canopy height on the test polygons.
 
 ## Method in brief

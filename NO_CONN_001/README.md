@@ -41,7 +41,7 @@ population** differs.
 | Polygons scored | 722,567 | 1,151,903 |
 | Nord-Norge polygons | 127,464 | 4,917 |
 | Index by region | NN 0.855, MN 0.911, VL 0.825, OL 0.917, SL 0.908; **Norge 0.898** | NN 0.648, MN 0.974, VL 0.958, OL 0.971, SL 0.976; Norge 0.967 |
-| Deliverables folder | `Deliverables/` | `Deliverables_MireModel/` |
+| Deliverables folder | `outputs/deliverables/` | `outputs/deliverables_MireModel/` |
 
 **Why the mire-model variant is deprecated:** its coverage gap makes the
 northern value describe a different population from the other four
@@ -53,11 +53,11 @@ documented rather than deleted.
 
 **The two variants are not on a common scale.** The scaling anchors are
 percentiles of each run's own distribution. A side-check
-(`Fetch/compare_ar5_vs_model_anchors.R`) rescores the AR5 polygons with
+(`R/compare_ar5_vs_model_anchors.R`) rescores the AR5 polygons with
 the mire-model anchors and separates the effects: the anchor change is
 small and uniform (-0.017 to -0.034 per region), the population change
 dominates (+0.233 in Nord-Norge, -0.03 to -0.10 elsewhere). Full detail:
-`Data/connectivity_scored/README_variants.md`.
+`data/connectivity_scored/README_variants.md`.
 
 ## Data licensing - read before redistributing anything derived
 
@@ -65,15 +65,15 @@ dominates (+0.233 in Nord-Norge, -0.03 to -0.10 elsewhere). Full detail:
   data begrenset til Norge Digitalt avtaleparter"* - download is
   restricted to Norge digitalt parties, under the Norge digitalt licence
   (Geovekst). If you have that access, place `ar5_myr_national.gpkg` in
-  `Data/OpenS_data/` and the pipeline uses it.
+  `data/OpenS_data/` and the pipeline uses it.
 - **Consequently, AR5-derived wetland geometry is not published here.**
   The AR5 outputs in this repository are the aggregated results - region
   and national indicator values, the region-level map, the tables and the
   metadata. The per-polygon outlines, the prepared patches and the
   distance caches are gitignored with the reason stated in `.gitignore`.
-  Regenerate them locally with `run_connectivity_ar5.ps1`.
+  Regenerate them locally with `src/run_connectivity_ar5.ps1`.
 - **AR50 is open data** (NIBIO, Norsk lisens for offentlige data, NLOD)
-  and also national, just coarser. `Fetch/prepare_ar5_mire_regions.R`
+  and also national, just coarser. `R/prepare_ar5_mire_regions.R`
   falls back to it automatically when AR5 is absent, and records which
   source was used in the `source` column of every output. AR50-derived
   outputs carry no redistribution restriction.
@@ -89,8 +89,8 @@ the ~2GB of derived outputs are **published as GitHub Release assets**
 
 They are not committed to the repository: several exceed GitHub's 100MB
 per-file limit, and keeping them out of git history keeps the repo
-small enough to clone quickly. Run **`Fetch/download_caches.R` once**
-to retrieve them into `Data/`.
+small enough to clone quickly. Run **`R/download_caches.R` once**
+to retrieve them into `data/`.
 
 > **While this repository is private, that script needs a GitHub token.**
 > Release assets on a private repo are not served without authentication,
@@ -104,7 +104,7 @@ to retrieve them into `Data/`.
 > Or set `GITHUB_TOKEN` to a fine-grained personal access token with read
 > access to this repository. No token is needed once the repo is public.
 
-**With the caches in place, `Main/NO_CONN_001_wetland_pipeline.R`
+**With the caches in place, `R/NO_CONN_001_wetland_pipeline.R`
 finishes in a few minutes**, not hours - because almost every stage
 finds its cache and prints `"already present on disk - SKIPPING
 (reading published cache, not recomputing)"`. **That is not the
@@ -116,30 +116,31 @@ run - never judge this from elapsed time alone.
 result): delete the specific cached file/folder for the stage you want
 to re-run. Main's own header comments name exactly which path gates
 which stage. The big one: delete the whole
-`Data/connectivity_output_simplified/` folder to force a genuine
+`data/connectivity_output_simplified/` folder to force a genuine
 national distance recomputation - budget the full 20+ hours if you do.
 
 ## Folder structure
 
 | Folder | Contents |
 |---|---|
-| `Main/` | The orchestrator, `NO_CONN_001_wetland_pipeline.R` - runs all 9 stages in order, skip-if-cached throughout. |
-| `Fetch/` | The 12 scripts Main actually calls (fetch/build/compute, one per stage). |
-| `Data/spatial/` | Small, essential, reused reference data (regions.shp, national outline) - no fetch script. |
-| `Data/LUI_output/`, `Data/wetland_map_simplified/`, `Data/connectivity_output_simplified/` | **Published derived caches** (~2GB total), retrieved by `Fetch/download_caches.R` - see "Cache vs. real compute" above. |
-| `Results/` | The final map + the mean-distance-ratio diagnostic side-check. |
-| `Data/connectivity_scored/` | Every mire polygon with its 0-1 index (450 MB, gitignored; stage 8 regenerates it in minutes). |
-| `Deliverables/` | The **AR5 variant** in the ecosystemCondition platform format - region map (`.rds`, EPSG:25833), values table (csv/xlsx with metadata), figure. The polygon-level map is not published (AR5 licence, see above); `Main/export_deliverables.R` regenerates it locally. |
-| `Deliverables_MireModel/` | The same files for the deprecated mire-model variant. Its polygon-level map is gitignored for size only, and may be redistributed. |
-| `Data/wetland_map_ar5/`, `Data/connectivity_output_ar5/` | AR5 variant intermediates - gitignored (licence), rebuilt by `run_connectivity_ar5.ps1`. |
+| `R/` | All R code: the orchestrator `NO_CONN_001_wetland_pipeline.R` (runs all 9 stages in order, skip-if-cached throughout), the scripts it calls (fetch/build/compute, one per stage), the export and the report map. |
+| `src/` | `run_connectivity_ar5.ps1`, which chains the AR5 variant region by region. |
+| `docs/` | Methodology and documentation (empty for now). |
+| `data/spatial/` | Small, essential, reused reference data (regions.shp, national outline) - no fetch script. |
+| `data/LUI_output/`, `data/wetland_map_simplified/`, `data/connectivity_output_simplified/` | **Published derived caches** (~2GB total), retrieved by `R/download_caches.R` - see "Cache vs. real compute" above. |
+| `outputs/results/` | The final map + the mean-distance-ratio diagnostic side-check. |
+| `data/connectivity_scored/` | Every mire polygon with its 0-1 index (450 MB, gitignored; stage 8 regenerates it in minutes). |
+| `outputs/deliverables/` | The **AR5 variant** in the ecosystemCondition platform format - region map (`.rds`, EPSG:25833), values table (csv/xlsx with metadata), figure. The polygon-level map is not published (AR5 licence, see above); `R/export_deliverables.R` regenerates it locally. |
+| `outputs/deliverables_MireModel/` | The same files for the deprecated mire-model variant. Its polygon-level map is gitignored for size only, and may be redistributed. |
+| `data/wetland_map_ar5/`, `data/connectivity_output_ar5/` | AR5 variant intermediates - gitignored (licence), rebuilt by `src/run_connectivity_ar5.ps1`. |
 
-Not in the repository, fetched or rebuilt on demand by `Fetch/`:
-`Data/infra_index_source/` (29GB raw N50/NVE), `Data/wetland_map_source/`
-(8GB raw Bakkestuen tif), `Data/nin_data/` (fast to refetch).
+Not in the repository, fetched or rebuilt on demand by `R/`:
+`data/infra_index_source/` (29GB raw N50/NVE), `data/wetland_map_source/`
+(8GB raw Bakkestuen tif), `data/nin_data/` (fast to refetch).
 
 ## How to run it
 
-Just run `Main/NO_CONN_001_wetland_pipeline.R`. It is resumable/idempotent
+Just run `R/NO_CONN_001_wetland_pipeline.R`. It is resumable/idempotent
 by design - every stage checks its own output before running, so it's
 safe to stop and restart across multiple sessions. With the published
 caches downloaded, this finishes in a few minutes (see above). The
@@ -148,36 +149,36 @@ caches downloaded, this finishes in a few minutes (see above). The
 national LUI index, (5) fetch the wetland map, (6) fetch NiN fallback
 data, (7) per-region simplify → certified distance → infra-distance ×5
 regions, (8) 0-1 scaling + regional map + bootstrap CIs (also writes the
-scored polygons and the regional table to `Data/connectivity_scored/`),
+scored polygons and the regional table to `data/connectivity_scored/`),
 (9) diagnostic mean-distance-ratio side-check.
 
 That sequence produces the **deprecated mire-model variant**, because
 those are the defaults.
 
 To produce the **AR5 variant** (the default deliverable) run, from this
-folder:
+indicator's folder:
 
 ```
-powershell -ExecutionPolicy Bypass -File .\run_connectivity_ar5.ps1
+powershell -ExecutionPolicy Bypass -File .\src\run_connectivity_ar5.ps1
 ```
 
 Before the first AR5 run you need the wetland population layer. The
 pipeline looks for it in this order: `$AR5_MYR_GPKG`, then
-`Data/wetland_population/`, then the sibling `NO_GJEN_001/Data/OpenS_data/`
+`data/wetland_population/`, then the sibling `NO_GJEN_001/data/OpenS_data/`
 - the monorepo already builds it there, so there is no reason to keep a
 second 2.4 GB copy. Produce it with either:
 
 | | Script | Access |
 |---|---|---|
-| AR5 (preferred) | `NO_GJEN_001/Fetch/extract_ar5_skog_myr.R` -> `ar5_myr_national.gpkg` | Norge digitalt parties only |
-| AR50 (fallback) | `NO_GJEN_001/Fetch/build_ar50_wetland_lidar_coverage.R` -> `ar50_myr_national.gpkg` | open (NLOD) |
+| AR5 (preferred) | `NO_GJEN_001/R/extract_ar5_skog_myr.R` -> `ar5_myr_national.gpkg` | Norge digitalt parties only |
+| AR50 (fallback) | `NO_GJEN_001/R/build_ar50_wetland_lidar_coverage.R` -> `ar50_myr_national.gpkg` | open (NLOD) |
 
 If neither is present the script stops with those instructions rather
 than failing later.
 
 It chains: prepare the per-region wetland patches -> certified
 nearest-mire distance -> infrastructure distance -> scaling, writing into
-`Data/wetland_map_ar5/`, `Data/connectivity_output_ar5/` and the
+`data/wetland_map_ar5/`, `data/connectivity_output_ar5/` and the
 `national_2023_AR5` label, so the mire-model outputs are never touched.
 **24.8 hours end to end** on a laptop (Midt-Norge 10.0 h and Østlandet
 9.7 h of certified distance computation dominate; preparation 48 min).
@@ -185,8 +186,8 @@ It is resumable - each step skips a region whose output already exists -
 and it needs stages 1-6 of Main to have run first, since it reuses the
 infrastructure layers. Set `$env:RSCRIPT` if R is not at the default path.
 
-Then `Main/export_deliverables.R` writes the finished indicator in the
-ecosystemCondition platform format to `Deliverables/` - a few minutes,
+Then `R/export_deliverables.R` writes the finished indicator in the
+ecosystemCondition platform format to `outputs/deliverables/` - a few minutes,
 most of it bootstrapping. It picks the variant from
 `CONNECTIVITY_SCORE_LABEL` (`national_2023_AR5` or `national_2023`) and
 writes variant-specific metadata; `CONN001_OUT_DIR` redirects the output
@@ -201,10 +202,10 @@ way from RStudio, `Rscript script.R`, or `source("script.R")`.
   for Stage 2 (2006's N50 archive is SOSI-only, and SOSI support isn't
   in the GDAL build bundled with R's own `sf` package - it IS in QGIS's
   own bundled GDAL). Fully automated via `system2()` - nobody opens
-  QGIS's own interface. `Fetch/convert_n50_2006_sosi_to_gpkg.R` hardcodes
+  QGIS's own interface. `R/convert_n50_2006_sosi_to_gpkg.R` hardcodes
   `qgis_root <- "C:/Program Files/QGIS 3.44.12"` - edit this if your
   install is elsewhere or a different version. You only hit this
-  requirement if you delete `Data/LUI_output/` and rebuild the
+  requirement if you delete `data/LUI_output/` and rebuild the
   infrastructure index from scratch. If QGIS truly isn't available, the
   documented fallback is a 2013/2023-only 2-point time series instead
   of the full 3-point series (not automated - needs manual script
@@ -212,14 +213,14 @@ way from RStudio, `Rscript script.R`, or `source("script.R")`.
 - **Windows + PowerShell**: Stage 5 (fetching the ~8.1GB wetland map)
   extracts its zip via PowerShell's .NET `ZipFile` class, because R's
   own `unzip()` hits a real ZIP64 limitation at this file size (confirmed,
-  not a precaution). This means `Fetch/fetch_wetland_map.R`, as written,
+  not a precaution). This means `R/fetch_wetland_map.R`, as written,
   only runs on Windows. You only hit this if you delete
-  `Data/wetland_map_simplified/` and need to rebuild it from the raw
+  `data/wetland_map_simplified/` and need to rebuild it from the raw
   raster on a non-Windows machine.
 
 ## Quick test
 
-`Fetch/compute_lui_infrastructure_index.R` already has a built-in
+`R/compute_lui_infrastructure_index.R` already has a built-in
 `LUI_TEST_AOI` environment-variable hook (set to `"oslo"` for a small
 10km×10km test box instead of the full national grid) - used during
 original development to sanity-check the LUI algorithm cheaply. Nord-Norge
@@ -227,9 +228,9 @@ is also already the fastest of the 5 regions for Stage 7b (~7 seconds,
 vs. hours for the others, since it's NiN-only) - if you want to exercise
 the real per-region compute path without committing to a multi-hour run,
 delete only Nord-Norge's 3 cached files
-(`Data/wetland_map_simplified/wetland_simplified_Nord-Norge.gpkg`,
-`Data/connectivity_output_simplified/nord_norge_min_myr_distance_certified.gpkg`,
-`Data/connectivity_output_simplified/nord_norge_connectivity_full_2023.gpkg`)
+(`data/wetland_map_simplified/wetland_simplified_Nord-Norge.gpkg`,
+`data/connectivity_output_simplified/nord_norge_min_myr_distance_certified.gpkg`,
+`data/connectivity_output_simplified/nord_norge_connectivity_full_2023.gpkg`)
 before running Main - the other 4 regions' caches stay intact, so only
 Nord-Norge's fast path actually recomputes. **Actually verified, not just
 described**: doing exactly this reproduced the region's known result to
@@ -269,12 +270,12 @@ below - the earlier all-cache runs couldn't have found either one.
 
 ## Deliverables (platform format)
 
-`Main/export_deliverables.R` maps the results onto the ecosystemCondition
+`R/export_deliverables.R` maps the results onto the ecosystemCondition
 platform schema (`area, areaId, v_YYYY, sd_YYYY, i_YYYY, reference_high,
 reference_low, thr`; see the repository README). Points specific to this
 indicator:
 
-- The published set is the **AR5 variant**; `Deliverables_MireModel/`
+- The published set is the **AR5 variant**; `outputs/deliverables_MireModel/`
   holds the deprecated one. The metadata sheet names the variant, the
   wetland population and the coverage caveat in each case.
 - Year label `2023` (N50 vintage of the run).
@@ -331,8 +332,8 @@ indicator:
   broke when sourced from Main** (though not when run standalone): the
   standard 3-tier working-directory pattern relies on `commandArgs()`,
   which reflects the outermost Rscript invocation's own path regardless
-  of nesting depth - harmless everywhere else in this codebase (`Main/`
-  and `Fetch/` are siblings, so `"../Data/..."` resolves identically from
+  of nesting depth - harmless everywhere else in this codebase (`R/`
+  and `R/` are siblings, so `"../data/..."` resolves identically from
   either), but fatal for this one script's own further `source()` call,
   which needs to find a sibling file next to *itself*, not next to
   whatever originally launched Rscript. **Fixed** by locating the file
@@ -357,7 +358,7 @@ indicator:
   only ever computes the literal `kvotient` used here; a second,
   structurally-inverted reading (aggregate-then-ratio, vs. this
   pipeline's normalise-then-aggregate) is computed separately as a
-  diagnostic side-check only (`Fetch/national_mean-distance_ratio.R`,
+  diagnostic side-check only (`R/national_mean-distance_ratio.R`,
   Stage 9) - not part of the real indicator output.
 - **Residual `Inf` kvotient values from touching mire polygons** are
   excluded (topology artifact, not an ecological signal) rather than

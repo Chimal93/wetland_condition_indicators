@@ -10,35 +10,35 @@ Rplots.pdf
 # scripts in Fetch/ instead of committing. AR5 additionally requires
 # personal/organizational access (see README) - AR50 is the fully
 # public fallback either way.
-Data/OpenS_data/ar5_skog_national.gpkg
-Data/OpenS_data/ar5_myr_national.gpkg
-Data/OpenS_data/ar50_skog_national.gpkg
-Data/OpenS_data/ar50_myr_national.gpkg
-Data/OpenS_data/osm_buildings_national.gpkg
-Data/OpenS_data/nin_data/
-Data/OpenS_data/disturbance/
-Data/OpenS_data/bioclim/
-Data/OpenS_data/dtm1_coverage_union.gpkg
+data/OpenS_data/ar5_skog_national.gpkg
+data/OpenS_data/ar5_myr_national.gpkg
+data/OpenS_data/ar50_skog_national.gpkg
+data/OpenS_data/ar50_myr_national.gpkg
+data/OpenS_data/osm_buildings_national.gpkg
+data/OpenS_data/nin_data/
+data/OpenS_data/disturbance/
+data/OpenS_data/bioclim/
+data/OpenS_data/dtm1_coverage_union.gpkg
 
 # Intermediate caches derived from the above - small themselves, but
 # only meaningful alongside whichever source (AR5/AR50) built them
 # (see the population_source column/tag). Not real deliverables; the
 # actual results are the final index/map exports in Results/.
-Data/OpenS_data/vegHeights_skog_climZoneRegion_openS*.csv
-Data/OpenS_data/vaatmark_pop_openS*.gpkg
+data/OpenS_data/vegHeights_skog_climZoneRegion_openS*.csv
+data/OpenS_data/vaatmark_pop_openS*.gpkg
 
 # Wetland reference heights - regenerate with Fetch/build_refvaatmark_30m.R
 # (default, ~40 min) or Main's legacy 1m variant. The published reference
 # table the build script optionally downloads for comparison is not ours
 # to redistribute; it is re-fetched on demand.
-Data/OpenS_data/refvaatmark_30m/
-Data/OpenS_data/refvaatmark_1m/
-Data/OpenS_data/refvaatmark_published.csv
+data/OpenS_data/refvaatmark_30m/
+data/OpenS_data/refvaatmark_1m/
+data/OpenS_data/refvaatmark_published.csv
 
 # Quick-test artifacts - not real results, and *.real_backup files are
 # only ever transient (created and removed within a single run of
 # quick_test_small_aoi.R; only survive if that script crashed mid-swap).
-Results_TEST_AOI/
+outputs/results_TEST_AOI/
 *.real_backup
 
 # OS junk
