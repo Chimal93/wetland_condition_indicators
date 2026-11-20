@@ -1,24 +1,24 @@
-# Experimental: Sentinel-2 NDVI
+# Eksperimentelt: NDVI fra Sentinel-2
 
-Not part of the delivered indicator. These scripts fetch Sentinel-2 NDVI
-for the NiN wetland polygons through the Copernicus Data Space Ecosystem
-(CDSE) openEO service, without Google Earth Engine. They work on small
-test areas, but no national fetch has completed: CDSE's batch jobs
-reduced a whole growing season in one job, which failed repeatedly and
-used up processing credits.
+Ikke en del av den leverte indikatoren. Skriptene henter NDVI fra
+Sentinel-2 for NiN-våtmarkspolygonene gjennom openEO-tjenesten i
+Copernicus Data Space Ecosystem (CDSE), uten Google Earth Engine. De
+virker på små testområder, men ingen nasjonal henting er fullført:
+CDSE-jobbene reduserte en hel vekstsesong i én jobb, som feilet gjentatte
+ganger og brukte opp prosesseringskreditter.
 
-NINA's original extracted NDVI per image as a zonal mean and reduced the
-time series afterwards in R, never in one server-side reduction. A
-rework should follow that pattern.
+NINAs original hentet NDVI som sonalt gjennomsnitt per bilde og reduserte
+tidsserien etterpå i R, aldri i én reduksjon på serveren. En ny versjon
+bør følge det mønsteret.
 
-| File | Contents |
+| Fil | Innhold |
 |---|---|
-| `fetch_sentinel2_ndvi.R` | Per-polygon NDVI time series via openEO (`aggregate_spatial`). |
-| `fetch_sentinel2_ndvi_raster.R` | Variant that downloads NDVI rasters per period and extracts locally. |
-| `manual_test_*.json` | openEO process graphs used to test jobs by hand in the CDSE web editor. |
+| `fetch_sentinel2_ndvi.R` | NDVI-tidsserie per polygon via openEO (`aggregate_spatial`). |
+| `fetch_sentinel2_ndvi_raster.R` | Variant som laster ned NDVI-raster per periode og trekker ut verdiene lokalt. |
+| `manual_test_*.json` | openEO-prosessgrafer brukt til å teste jobber manuelt i CDSEs webredigerer. |
 
-Login is CDSE's device-code flow, so a person has to approve it in a
-browser while the script waits. `R/NO_NDVI_001_MASTER_PIPELINE.R` calls
-`fetch_sentinel2_ndvi.R` as its optional stage 2 and continues without it.
-Once `data/NDVI_Sentinel/ndvi_national_clean.csv` exists,
-`R/NO_NDVI_001_trend_scaling.R` includes it automatically.
+Innloggingen er CDSEs «device code»-flyt, så noen må godkjenne den i
+nettleseren mens skriptet venter. `R/NO_NDVI_001_MASTER_PIPELINE.R` kaller
+`fetch_sentinel2_ndvi.R` som valgfritt steg 2 og fortsetter uten.
+Når `data/NDVI_Sentinel/ndvi_national_clean.csv` finnes, tar
+`R/NO_NDVI_001_trend_scaling.R` den med automatisk.

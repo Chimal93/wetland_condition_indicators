@@ -13,11 +13,9 @@
 # It is idempotent: files already present with the right size are skipped,
 # so re-running after an interrupted download resumes sensibly.
 #
-# PRIVATE REPOSITORY: while the repo is private, GitHub requires
-# authentication to download release assets. Set a token with
-# `repo` scope first:
-#     Sys.setenv(GITHUB_TOKEN = "ghp_...")     # or set it in the shell
-# Once the repository is public no token is needed.
+# The repository is public, so no token is needed. If the caches are
+# moved to a private repository, set GITHUB_TOKEN to a token with read
+# access to it, and CONN001_REPO to its owner/name.
 # ============================================================
 
 # ---- where the caches live ----------------------------------

@@ -434,9 +434,10 @@ ANO.wet$hovedtype_rute        <- as.factor(ANO.wet$hovedtype_rute)
 # `grunn` is a HOVEDTYPE (V1/V2/V3) here, not NINA's original exact NiN
 # sub-code (e.g. "V1-C4h") - a deliberate coarsening (see Stage 2).
 # Stage 7's matching key uses the hovedtype prefix accordingly, not the
-# exact subtype code. Plots typed V4/V8 (no reference available) or V5-
-# V7 (never covered by this indicator at all) get no match and are
-# skipped - see Stage 7.
+# exact subtype code. Plots typed V4/V8 (no open reference available) or
+# V6 (no reference in NINA's original either) get no match and are
+# skipped - see Stage 7. In the 2019-2024 ANO export: V4 24, V6 66, V8 3
+# of 3,083 wetland plot visits; V5 and V7 do not occur.
 # ===========================================================
 
 get_q <- function(ht, ind, q) wet_ref_openS[[q]][wet_ref_openS$hovedtype == ht & wet_ref_openS$indicator == ind]
