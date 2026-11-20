@@ -36,7 +36,7 @@ scaling; the per-pixel distribution is right-skewed), `meta_chm_n`
   `compressed_SSLhuge_aerial.pth`, CPU inference, 256 x 256 px tiles at
   0.5 m/px (128 m ground), Maxar normalisation skipped for the aerial
   checkpoint (auto-detected), fixed ImageNet-style normalisation applied.
-  Script: `chm_model/predict_tiles.py`.
+  Script: `src/chm_model/predict_tiles.py`.
 - Input: a national 50 cm RGB orthophoto (2025 mosaic, EPSG:25833), read as
   HTTP range requests from a Cloud-Optimised GeoTIFF under a commercial
   licence that does not permit redistribution; polygons buffered, tiled,
