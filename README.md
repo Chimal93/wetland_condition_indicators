@@ -196,8 +196,10 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 | `NO_NDVI_001` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-05 | `R/fetch_nin_data.R` |
 
 **Lisensbegrensninger.** AR5 er bare tilgjengelig for parter i Norge
-digitalt. Derfor publiseres ikke polygongeometri avledet av AR5; den
-genereres lokalt av den som har tilgang. Ortofotoet til `NO_GJEN_002` er
+digitalt. Derfor publiseres ikke AR5-polygoner eller myrflater avledet av
+dem; de genereres lokalt av den som har tilgang. Unntaket er polygonkartet
+for `NO_GJEN_001`, som viser 20 × 20 m-cellen rundt hvert utvalgspunkt
+trukket i AR5 myr. Ingen AR5-polygongrenser er med. Ortofotoet til `NO_GJEN_002` er
 kommersielt og kan ikke deles. Prediksjonene per polygon ligger i repoet,
 slik at indikatoren kan beregnes på nytt uten bildene.
 
