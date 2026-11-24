@@ -185,7 +185,7 @@ export_set <- function(set_id, pnames, period_text, png_title) {
     filter(!is.na(fpci.min)) %>%
     { bind_rows(lapply(pnames, function(p) .[in_period(., defs[[p]]), ] %>% mutate(period = p))) } %>%
     group_by(ano_punkt_id, period) %>% slice_max(aar, n = 1, with_ties = FALSE) %>% ungroup() %>%
-    transmute(area = region, areaId = as.character(ano_punkt_id), year = unname(yr[period]),
+    transmute(area = unname(region_names[region]), areaId = as.character(ano_punkt_id), year = unname(yr[period]),
               v = fpci.min, sd = NA_real_, i = fpci.min,
               reference_high = 1, reference_low = 0, thr = THR,
               ano_flate_id = ano_flate_id, nin_unit = kartleggingsenhet_1m2,
@@ -311,7 +311,7 @@ export_factor_set <- function(f, set_id, pnames, period_text) {
     filter(!is.na(.data[[col]])) %>%
     { bind_rows(lapply(pnames, function(p) .[in_period(., defs[[p]]), ] %>% mutate(period = p))) } %>%
     group_by(ano_punkt_id, period) %>% slice_max(aar, n = 1, with_ties = FALSE) %>% ungroup() %>%
-    transmute(area = region, areaId = as.character(ano_punkt_id), year = unname(yr[period]),
+    transmute(area = unname(region_names[region]), areaId = as.character(ano_punkt_id), year = unname(yr[period]),
               v = .data[[col]], sd = NA_real_, i = .data[[col]],
               reference_high = 1, reference_low = 0, thr = THR,
               ano_flate_id = ano_flate_id, nin_unit = kartleggingsenhet_1m2,
@@ -325,13 +325,15 @@ export_factor_set <- function(f, set_id, pnames, period_text) {
   metadata[["Time periods"]]               <- period_text
   metadata[["Variable (v)"]]               <- "Set equal to the indicator value (scaled 0-1), as for NINA's split functional indicators; the plot-level community-weighted means are in the plot table of the pipeline results"
   metadata[["Indicator (i)"]]              <- "Mean of plot scores from an ordered beta regression (glmmTMB, family ordbeta) with ANO site as a random effect, as in NINA's NO_FULI/NO_FUMO/NO_FUNI; 1 = reference condition, 0.6 = limit of good condition"
-  metadata[["Scaling function"]]           <- paste0("Piecewise linear, ", fm$sided, ": reference median -> 1, ", fm$lims, " of the reference distribution -> 0.6, end of the trait scale -> 0, truncated to 0-1 (eaTools ec_normalise, linear, as corrected in eaTools commit ca7bc797). Two-sided: indicator = lower side x upper side")
+  metadata[["Scaling function"]]           <- paste0("Piecewise linear, ", fm$sided, ": reference median -> 1, ", fm$lims, " of the reference distribution -> 0.6, end of the trait scale -> 0, truncated to 0-1 (eaTools ec_normalise, linear, as corrected in eaTools commit ca7bc797).",
+                                                     if (grepl("^one-sided", fm$sided)) "" else " Two-sided: indicator = lower side x upper side")
   metadata[["Threshold (thr)"]]            <- paste0("0.6, corresponding to the ", fm$lims, " of the reference distribution")
   metadata[["Uncertainty (sd)"]]           <- "SD of 1000 draws from the model's coefficient distribution (back-transformed from the logit scale). Supplementary: ci_low / ci_high = 95 % interval of the draws; mean_lower / mean_upper and n_lower / n_upper = model means and plot counts for deviations towards lower and higher values"
   if (grepl("^one-sided", fm$sided))
     metadata[["Uncertainty (sd)"]] <- "SD of 1000 draws from the model's coefficient distribution (back-transformed from the logit scale). Supplementary: ci_low / ci_high = 95 % interval of the draws; n_upper = number of plots showing enrichment (score < 1). One-sided indicator, so no separate side models (mean_lower / mean_upper / n_lower empty), as in NINA's NO_FUNI_002/004"
   metadata[["Number of observations"]]     <- paste0("ANO wetland plot surveys with a value: ",
-                                                     paste(sprintf("%s: %d", pnames, agg$n[agg$region == "Norway"]), collapse = ", "))
+                                                     paste(sprintf("%s: %d", pnames, agg$n[agg$region == "Norway"]), collapse = ", "),
+                                                     ". Three plot points are registered twice in the same year in the ANO export; both registrations are used in the values, while the plot map shows one per point")
   metadata[["Method note"]]                <- paste0("Follows NINA's split functional plant indicators (", fm$nina, "). Deviations: reference values per NiN main type (V1/V2/V3) rebuilt from Artsdatabanken's B12 lists rather than per mapping unit; plot types V4, V6 and V8 not scored")
 
   export_platform_indicator(

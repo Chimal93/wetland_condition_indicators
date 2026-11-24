@@ -135,7 +135,7 @@ metadata <- c(
   "Justification of references"  = "Adapted from the trend-based NDVI scaling of NINA's mountain condition assessment (Framstad et al., 2022), since no scaling was defined for the wetland NDVI indicator in the original work",
   "Data sources"                 = "MODIS/Terra Vegetation Indices 16-Day L3 Global 250 m (MOD13Q1 v6.1), NASA LP DAAC, doi:10.5067/MODIS/MOD13Q1.061, via NASA Earthdata (no restrictions on reuse); NiN nature-type dataset, Miljødirektoratet (downloaded 2026-08-05)",
   "Method note"                  = "Reconstruction of the wetland NDVI indicator in NINA's ecosystemCondition documentation (chapter 15), which defined no scaling. The original extracted NDVI with Google Earth Engine scripts; here MODIS is fetched directly from NASA without Earth Engine. The original exploratory analysis is kept in R/NO_NDVI_001_wetland_pipeline.R",
-  "Documentation"                = "https://github.com/Chimal93/wetland_condition_indicators ; original: https://ninanor.github.io/ecosystemCondition/NDVI-indicator-wetland.html",
+  "Documentation"                = "https://github.com/Chimal93/wetland_condition_indicators/tree/main/NO_NDVI_001 ; original: https://ninanor.github.io/ecosystemCondition/NDVI-indicator-wetland.html",
   "Column spelling note"         = "reference_high / reference_low as in the platform's example file; the platform docs and the contract text spell them referance_*",
   "Produced by"                  = "Sállir Natur AS",
   "Generated"                    = format(Sys.time(), "%Y-%m-%d %H:%M")
