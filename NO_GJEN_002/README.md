@@ -130,7 +130,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 
 | Datasett | Kilde og versjon | Lastet ned | Hentes med |
 |---|---|---|---|
-| Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk, produktår 2025; flyvningene spenner over flere år | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde, se under |
+| Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025; flyvningene spenner over flere år | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde, se under |
 | Høydemodell for trær | Meta HighResCanopyHeight, sjekkpunkt `compressed_SSLhuge_aerial.pth` (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
 | Prediksjoner per polygon | Egen kjøring, frosset 2026-09-17 (15 MB, med sjekksummer og logger) | – | Ligger i repoet: `data/OpenS_data/meta_chm_national_RAW_2026-09-17/` |
 | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
@@ -140,7 +140,8 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 
 **Egne bilder.** Bildene bak de publiserte tallene er kommersielle data
 med en lisens som ikke tillater videreformidling av bildene eller
-tilgangsinformasjonen. Ingenting i repoet identifiserer leverandøren.
+tilgangsinformasjonen. Bildene er levert av Field Geospatial AS.
+Tilgangsinformasjon ligger ikke i repoet.
 Bildene må være 3-bånds RGB, 8 bit, **0,5 m eller finere**, i projisert
 koordinatsystem (EPSG:25833 for Norge), som GeoTIFF, COG eller VRT. En
 COG over nett må støtte HTTP range-forespørsler; mosaikken lastes aldri

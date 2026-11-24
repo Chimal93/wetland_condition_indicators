@@ -61,11 +61,21 @@ format:
 execute:
   cache: false
 author:
-  - name: "[TO BE FILLED IN]"
+  - name: Bendik Sivertsen
+    email: bendik@sallirnatur.no
     affiliations:
       - id: sallir
         name: Sállir Natur AS
-AuthorList: "[TO BE FILLED IN]"
+  - name: Jesus Adrian Chimal-Ballesteros
+    email: adrian@sallirnatur.no
+    affiliations:
+      - ref: sallir
+  - name: Lasse Keetz
+    email: lasse.keetz@fieldgeo.no
+    affiliations:
+      - id: field
+        name: Field Geospatial AS
+AuthorList: "Sivertsen, B., Chimal-Ballesteros, J. A., and Keetz, L."
 date: 2026-11-24
 date-format: long
 data_availability: none
@@ -497,7 +507,13 @@ The results are written to disk by the code below and converted to the ecosystem
 
 ## 12. Author contributions
 
-**[TO BE FILLED IN]** (CRediT and MeRIT statements)
+**CRediT statement**
+
+* Software (code development): JACB, LK
+* Validation (assessment): JACB, LK
+* Writing of the project report: BS, JACB
+
+BS: Bendik Sivertsen. JACB: Jesus Adrian Chimal-Ballesteros. LK: Lasse Keetz.
 
 AI tools: Claude (Anthropic) was used for code development and review, for running and checking analyses, and for drafting this document. The use is described in the [repository README](../../README.md).
 

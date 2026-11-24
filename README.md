@@ -18,10 +18,13 @@ våtmark, levert i dataformatet til ecosystemCondition-plattformen.
 
 ## 1. Bidragsytere / Kontakt
 
-- **Navn**: **[FYLLES INN]**
-- **Organisasjon**: Sállir Natur AS
-- **Epost**: **[FYLLES INN]**
-- **Eventuelle eksterne samarbeidspartnere:** Ingen. Metodene bygger på
+| Navn | Organisasjon | Epost | Bidrag |
+|---|---|---|---|
+| Bendik Sivertsen (BS) | Sállir Natur AS | bendik@sallirnatur.no | Rapportskriving |
+| Jesus Adrian Chimal-Ballesteros (JACB) | Sállir Natur AS | adrian@sallirnatur.no | Rapportskriving, kodeutvikling og vurdering |
+| Lasse Keetz (LK) | Field Geospatial AS | lasse.keetz@fieldgeo.no | Kodeutvikling og vurdering |
+
+- **Eventuelle eksterne samarbeidspartnere:** Field Geospatial AS (Lasse Keetz). Metodene bygger på
   publisert arbeid fra Norsk institutt for naturforskning (NINA), men NINA
   har ikke deltatt i prosjektet.
 
@@ -181,7 +184,7 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 | `NO_GJEN_001` | Skogforstyrrelser 1986–2020 | Senf og Seidl (2021), Zenodo-post 7080016 | 2026-07-22 | `R/fetch_disturbance.R` |
 | `NO_GJEN_001` | Bygninger | OpenStreetMap | 2026-07-23 | `R/fetch_osm_buildings.R` |
 | `NO_GJEN_001`, `NO_GJEN_002` | SSB-rutenett 10 og 50 km | SSB via Kartverket | 2026-07-21 | `R/build_ssb_grids.R` |
-| `NO_GJEN_002` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk, produktår 2025 (kan ikke deles, se indikatorens README) | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde |
+| `NO_GJEN_002` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025 (kan ikke deles, se indikatorens README) | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde |
 | `NO_GJEN_002` | Høydemodell for trær | Meta HighResCanopyHeight, «aerial»-sjekkpunkt (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
 | `NO_CONN_001` | N50 Kartdata, historiske data 2023 og 2013 | Kartverket via Geonorge, FGDB | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
 | `NO_CONN_001` | N50 Kartdata, historiske data 2006 | Kartverket via Geonorge, SOSI | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` + QGIS |

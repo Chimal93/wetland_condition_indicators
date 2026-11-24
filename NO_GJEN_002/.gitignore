@@ -3,8 +3,7 @@
 #
 # This indicator reads an orthophoto that the user supplies. The imagery
 # behind the published results is commercial, licensed data: neither it
-# nor the access details may be redistributed, and nothing identifying a
-# particular provider belongs in this repository.
+# nor the access details (hosts, URLs, credentials) may be redistributed.
 #
 # Configure your own source with $ORTHOPHOTO_SOURCE_PATH (and
 # $ORTHOPHOTO_SOURCE_USERPWD if it needs authentication), or by copying

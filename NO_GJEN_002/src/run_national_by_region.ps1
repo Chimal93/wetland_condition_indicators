@@ -43,7 +43,7 @@ $rscript = if ($env:RSCRIPT) { $env:RSCRIPT } else { "C:\Program Files\R\R-4.6.1
 if (-not (Test-Path $rscript)) { throw "Rscript not found at $rscript - edit this script." }
 
 # ---------------------------------------------------------------------
-# Imagery access. Nothing about any particular provider lives in this
+# Imagery access. No hosts, URLs or credentials live in this
 # repository. Supply your own source either way:
 #
 #   1. environment variables (take precedence):
