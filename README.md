@@ -96,6 +96,7 @@ oppdateres hyppigere.
   - QGIS 3.44.12 – bare for `NO_CONN_001`, steg 2 (konvertering av N50 2006
     fra SOSI-format).
   - uv 0.11.29 – bare for Python-miljøet til `NO_GJEN_002`.
+  - Quarto 1.9.38 – bare for å lage indikatordokumentene i `docs/` på nytt.
 - **KI-verktøy:**
   - Claude Code (Anthropic), kommandolinjeverktøy og VS Code-utvidelse,
     med språkmodellen Claude Opus (versjon 5.5 i sluttfasen; tidligere
@@ -144,14 +145,16 @@ indikatormappe følger standardstrukturen:
   region, og Python-kode (`NO_GJEN_002`).
 - _/data_ – Små inndata og metadata. Store inndata lastes ned av skriptene
   og ligger ikke i repoet.
-- _/docs_ – Metodikk og dokumentasjon.
+- _/docs_ – Indikatordokument på engelsk (Quarto, `.qmd` og `.html`) etter
+  NINAs ecRxiv-mal, og annen metodikk.
 - _/outputs/results_ – Kart og tabeller fra beregningen.
 - _/outputs/deliverables_ – Indikatoren i plattformformatet.
 
 I tillegg:
 
 - _/Tools_ (rotmappen) – felles eksportskript (`export_platform_format.R`)
-  som alle indikatorene bruker for å skrive leveransefilene.
+  som alle indikatorene bruker for å skrive leveransefilene, og
+  hjelpefunksjoner for indikatordokumentene (`quarto_helpers.R`).
 - _NO_NDVI_001/experimental_ – uferdig henting av Sentinel-2-data. Ikke
   del av den leverte indikatoren.
 
@@ -186,7 +189,7 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 | `NO_CONN_001` | Myrmodell (MyrMod2Rv) | «Våtmark basert på NiN» (Bakkestuen m.fl.), GeoTIFF via Geonorge, fil datert 2023-06-19 | 2026-08-07 | `R/fetch_wetland_map.R` |
 | `NO_CONN_001` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-27 | `R/fetch_nin_data.R` |
 | `NO_CONN_001` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `NO_GJEN_001` |
-| `NO_NDVI_001` | NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), 2000–2026, juni–september | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
+| `NO_NDVI_001` | NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), 2000–2026, slutten av mai til september | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
 | `NO_NDVI_001` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-05 | `R/fetch_nin_data.R` |
 
 **Lisensbegrensninger.** AR5 er bare tilgjengelig for parter i Norge

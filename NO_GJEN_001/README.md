@@ -96,7 +96,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 |---|---|
 | `R/` | All kode: nedlasting og bygging av inndata, beregningen (`NO_GJEN_001_wetland_pipeline_OpenSource.R`), eksport og kart. |
 | `data/OpenS_data/` | Inndata og mellomlager. Store filer er gitignored og lages av skriptene i `R/`. |
-| `docs/` | Tom foreløpig. |
+| `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_GJEN_001.qmd` (kilde) og `NO_GJEN_001.html`. Lages på nytt med `quarto render docs/NO_GJEN_001.qmd`. Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `outputs/results/` | Kart, tabeller og shapefiler fra beregningen. |
 | `outputs/deliverables/` | Indikatoren i plattformformatet. |
 | `outputs/results_TEST_AOI/` | Resultat av hurtigtesten (gitignored). |
@@ -197,8 +197,16 @@ To kjøringer etter hverandre gir identiske resultater.
   sumpskogsmark fra skog, men AR5 og AR50 har bare skog og myr. Tresatt
   våtmark kan derfor havne i skogreferansen, eller utenfor populasjonen.
 - **Strata uten referanse for god tilstand får ingen verdi.**
-  Referansetabellen har verdier for 21 strata. I de leverte resultatene
-  har 3 av 25 strata (region × bioklimatisk sone) ingen verdi.
+  Referansetabellen har verdier for 21 av 25 strata (region ×
+  bioklimatisk sone). Utvalgsceller i de fire andre utelates.
+- **Høyder under referansen settes lik referansen**, som i originalen. Det
+  gjelder 77 % av utvalgscellene, som dermed får verdien 1. `v` er derfor
+  gjennomsnittet etter denne justeringen, og 87 % av cellene har
+  indikatorverdi over 0,99.
+- **`vaatmarkIndexStrata_OpenSource.csv` og stratakartet bør ikke brukes.**
+  Koblingen fra originalen (`st_join(largest = TRUE)` fra stratum til
+  celler) beholder bare én celle per stratum. Det påvirker ikke region-,
+  rutenett- eller nasjonale verdier.
 - **`regions.shp` har en tegnkodingsfeil** i kolonnen `region` for
   Østlandet og Sørlandet. Skriptene bruker `id` (3 og 5).
 

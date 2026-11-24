@@ -70,10 +70,13 @@ originalens egen validering på alle mål.
 | Sørlandet | 0,802 | 3,89 m | 2 726 |
 | **Norge** | **0,957** | 0,68 m | 24 026 |
 
-Der de to gjengroingsindikatorene kan sammenlignes, er de nær hverandre
-(Nord-Norge, Vestlandet og Østlandet innenfor 0,03 av `NO_GJEN_001`),
-fordi de bruker de samme referansene. Sørlandet skiller seg ut (0,80 mot
-0,95); der er de kartlagte våtmarkspolygonene oftest omkranset av trær.
+Gjennomsnittlig høyde er uvektet per region, men arealvektet for Norge.
+Derfor er den nasjonale høyden lavere enn i noen av regionene.
+
+De to gjengroingsindikatorene er nær hverandre i fire regioner (forskjell
+på 0,005–0,03 fra `NO_GJEN_001`), der de bruker de samme referansene. Sørlandet skiller seg ut (0,80 mot
+0,95); der er 69 % av polygonene naturlig tresatt våtmark, se kjente
+begrensninger.
 
 **Referanser**
 
@@ -110,7 +113,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | `R/` | All R-kode: nedlasting, kobling mot ortofoto (`orthophoto_source.R`), kjøring av modellen per polygon, validering, beregningen (`NO_GJEN_002_national_pipeline.R`), eksport og kart. `fetch_eth_canopy_height.R` og `validate_eth_canopy_height.R` hører til en tidligere, forkastet midlertidig løsning med satellittbasert kronehøyde (ETH, Sentinel-2), beholdt for dokumentasjon; se metodedokumentet. |
 | `src/` | `run_national_by_region.ps1` (den nasjonale modellkjøringen) og `chm_model/`: vår innpakning av modellen (`predict_tiles.py`), røyktest og Python-miljøet. Selve modellen lastes ned, se `docs/CHM_MODEL_SETUP.md`. |
 | `config/` | `orthophoto_access.template.txt`. Kopieres til `orthophoto_access.txt` (gitignored) for å peke på egne bilder. |
-| `docs/` | `METHODOLOGY_CANOPY_HEIGHT.md` (hvorfor metoden er som den er) og `CHM_MODEL_SETUP.md`. |
+| `docs/` | `METHODOLOGY_CANOPY_HEIGHT.md` (hvorfor metoden er som den er) og `CHM_MODEL_SETUP.md`. Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_GJEN_002.qmd` (kilde) og `NO_GJEN_002.html`. Lages på nytt med `quarto render docs/NO_GJEN_002.qmd`. Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `data/OpenS_data/` | De lagrede prediksjonene per polygon og referansetabellene fra `NO_GJEN_001`. Store inndata (NiN, bioklimatiske soner) lastes ned. |
 | `outputs/results/` | Kart og tabeller fra beregningen. |
 | `outputs/deliverables/` | Indikatoren i plattformformatet. |
@@ -208,9 +211,15 @@ hverandre gir identiske resultater.
 - **Populasjonen er en annen enn i `NO_GJEN_001`:** her alle kartlagte
   NiN-våtmarkspolygoner, der et stratifisert utvalg av AR5 myr. De to
   indikatorene kan ikke byttes om.
+- **Naturlig tresatt våtmark trekker ned verdiene i sør.** Populasjonen
+  omfatter tresatte naturtyper (særlig sumpskog), som referansen for god
+  tilstand utelater. De utgjør 69 % av polygonene på Sørlandet og 72 % på
+  Østlandet, og skåres som gjengrodd fordi de sammenlignes med åpen
+  våtmark. Uten dem ville verdiene vært 0,98 på både Sørlandet (levert:
+  0,80) og Østlandet (levert: 0,88), og 0,99 for Norge (levert: 0,96).
 - **Predikerte høyder er mye høyere i sør** (median 2,5–3,5 m) enn ellers
-  (under 0,2 m). Retningen stemmer med referansene, men størrelsen bør
-  kontrolleres mot årstid og flyår for bildene før den tolkes økologisk.
+  (under 0,2 m). Det skyldes i hovedsak de tresatte typene. Årstid og
+  flyår for bildene kan også spille inn.
 
 ## 7. Lisens / Rettigheter
 

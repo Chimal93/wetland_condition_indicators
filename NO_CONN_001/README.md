@@ -32,15 +32,16 @@ etter originalens oppskrift, ikke en overføring av et ferdig produkt.
 **Metode.**
 
 1. **Infrastruktur.** En indeks for arealbruksintensitet (LUI; Erikstad
-   et al., 2023) bygges fra N50 Kartdata 2006, 2013 og 2023 og NVEs
-   regulerte innsjøer. Som i originalen regnes celler med indeks over 2 som
-   infrastruktur.
+   et al., 2023) bygges fra N50 Kartdata og NVEs regulerte innsjøer, for
+   2006, 2013 og 2023. Indikatoren bruker bare 2023. Som i originalen
+   regnes celler med indeks over 2 som infrastruktur.
 2. **Våtmark.** Myrpolygoner slås sammen til sammenhengende flater og
    forenkles (toleranse 2 m, arealet bevares eksakt), slik at et eksakt
    nærmeste-nabo-søk blant om lag én million polygoner er gjennomførbart.
 3. **Kvotient.** For hver myr: avstand til nærmeste infrastruktur delt på
-   avstand til nærmeste andre myr, innenfor 1000 m. Høyere kvotient betyr
-   at infrastrukturen ligger relativt langt unna, altså bedre tilstand.
+   avstand til nærmeste andre myr. Infrastruktur søkes innenfor 1000 m,
+   nærmeste myr uten avstandsgrense. Høyere kvotient betyr at
+   infrastrukturen ligger relativt langt unna, altså bedre tilstand.
 4. **Skalering.** Lineær på logaritmen til kvotienten mellom 1- og
    99-persentilen i kjøringens egen fordeling. To faste ankere: ingen
    infrastruktur innen 1000 m gir 1, infrastruktur som berører myra gir 0.
@@ -125,7 +126,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | `data/LUI_output/`, `data/wetland_map_simplified/`, `data/connectivity_output_simplified/` | Mellomlager (ca. 2 GB), hentes med `R/download_caches.R`. |
 | `data/connectivity_scored/` | Hver myr med indikatorverdi (gitignored, lages på nytt på minutter). |
 | `data/wetland_map_ar5/`, `data/connectivity_output_ar5/` | Mellomresultater for AR5-varianten (gitignored på grunn av AR5-lisensen). |
-| `docs/` | Tom foreløpig. |
+| `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_CONN_001.qmd` (kilde) og `NO_CONN_001.html`. Lages på nytt med `quarto render docs/NO_CONN_001.qmd`. Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `outputs/results/` | Kart og kontrollberegningen av gjennomsnittlig avstandsforhold. |
 | `outputs/deliverables/` | AR5-varianten i plattformformatet. |
 | `outputs/deliverables_MireModel/` | Myrmodell-varianten i plattformformatet. |
@@ -256,8 +257,8 @@ regionen tar sekunder i myrmodell-varianten.
 - **Myrflater som krysser en regiongrense telles i begge regionene.**
   Regiontilordningen skjer ved overlapp, som i beregningsskriptet. Det
   gjelder 234 av 720 226 flater (0,03 %), og de telles også to ganger i
-  den nasjonale verdien. Effekten på verdiene er ubetydelig, men n er
-  derfor litt høyere enn antall flater.
+  den nasjonale verdien. Regnet uten dobbelttelling endres
+  regionverdiene med under 0,0004 og den nasjonale med under 0,0001.
 - **Originalens tekst og kode er ikke enige** om hvordan den skalerte
   verdien skal regnes. Koden regner bare kvotienten, som her. Den andre
   lesningen (aggregere først, så dele) regnes bare som kontroll i steg 9

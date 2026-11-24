@@ -37,9 +37,11 @@ NDVI i stedet for nivået, etter metoden NINA brukte for NDVI i fjell
 **Metode.**
 
 1. **NDVI per polygon.** MODIS MOD13Q1 v6.1 (250 m, 16-dagers
-   sammenstillinger), juni–september 2000–2026, sonalt gjennomsnitt per
-   NiN-våtmarkspolygon, hentet direkte fra NASA Earthdata
-   (`R/fetch_modis_ndvi.R`). Originalen brukte Google Earth Engine.
+   sammenstillinger), slutten av mai til september 2000–2026. Verdien
+   leses i pikselen ved polygonets midtpunkt (sentroide), hentet direkte
+   fra NASA Earthdata (`R/fetch_modis_ndvi.R`). Kvalitetslaget i MODIS
+   brukes ikke. Originalen brukte sonalt gjennomsnitt i Google Earth
+   Engine.
 2. **Høyeste verdi per år.** Den høyeste sammenstillingen per polygon og
    vekstsesong.
 3. **Trend.** Helningen (minste kvadraters metode) av høyeste NDVI mot år,
@@ -101,7 +103,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | `experimental/` | Henting av Sentinel-2 via Copernicus openEO. Virker på testområder, men ingen nasjonal kjøring er fullført. Se egen README. |
 | `data/NDVI_MODIS/` | Den nasjonale MODIS-serien, gzip-komprimert (33 MB). |
 | `data/spatial/` | Regioner og kystlinje. |
-| `docs/` | Flytdiagram for arbeidsflyten. |
+| `docs/` | Flytdiagram for arbeidsflyten. Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_NDVI_001.qmd` (kilde) og `NO_NDVI_001.html`. Lages på nytt med `quarto render docs/NO_NDVI_001.qmd`. Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `outputs/results/` | Tabeller per polygon og region, skaleringsankrene og kart. |
 | `outputs/deliverables/` | Indikatoren i plattformformatet. |
 
@@ -111,7 +113,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 
 | Datasett | Kilde og versjon | Lastet ned | Hentes med |
 |---|---|---|---|
-| NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), juni–september 2000–2026 | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
+| NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), slutten av mai til september 2000–2026 | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
 | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-05 | `R/fetch_nin_data.R` |
 | Regioner og kystlinje | NINAnor/ecosystemCondition | 2026-06-23 | Ligger i repoet |
 
@@ -175,6 +177,8 @@ for byte likt den opprinnelige kjøringen.
   våtmarkspolygonene store nok til å skåres, og Sørlandet har bare 10.
   Sentinel-2 (10 m) ville gitt langt flere og ligger i `experimental/`.
   Landsat er ikke påbegynt.
+- **Én piksel per polygon.** NDVI leses ved polygonets sentroide, ikke
+  som gjennomsnitt over polygonet, og kvalitetslaget i MODIS brukes ikke.
 - **Ingen usikkerhet.** `sd` er tom i leveransefilene.
 - **Vekstsesongen 2026 er ufullstendig** (hentet til juli), men inngår i
   trendene som et helt år.

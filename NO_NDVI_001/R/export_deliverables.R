@@ -125,7 +125,7 @@ metadata <- c(
   "Spatial units delivered"      = "landsdel (5 regions, primary map), individual NiN wetland polygons; national value in the values table (area = Norge)",
   "CRS"                          = "EPSG:25833 (ETRS89 / UTM 33N)",
   "Data year label"              = paste0(DATA_YEAR, " - last year of the trend window ", anch$year_min, "-", anch$year_max, ". The ", DATA_YEAR, " growing season was fetched up to July and is partial"),
-  "Variable (v)"                 = "Slope (NDVI units per year) of an ordinary least-squares line through each polygon's peak (maximum) growing-season NDVI per year, MODIS MOD13Q1 v6.1 (250 m, 16-day composites, June-September). Region / national value = area-weighted mean slope over polygons",
+  "Variable (v)"                 = "Slope (NDVI units per year) of an ordinary least-squares line through each polygon's peak (maximum) growing-season NDVI per year, MODIS MOD13Q1 v6.1 (250 m, 16-day composites, late May to September; value of the pixel at the polygon centroid). Region / national value = area-weighted mean slope over polygons",
   "Indicator (i)"                = "Two-sided piecewise-linear scaling of |slope|: 0 -> 1, threshold -> 0.6, extreme -> 0, clamped at 0. Greening and browning both count as deviation. Aggregated as the area-weighted mean of polygon values",
   "reference_high (X100)"        = "0 - no trend. Reference condition is a stable NDVI over time",
   "reference_low (X0)"           = paste0(signif(anch$extreme, 4), " NDVI/yr (|slope|) - the maximum of a permutation null distribution: each polygon's year labels shuffled once and the slope refitted (n = ", anch$n_null, ")"),
