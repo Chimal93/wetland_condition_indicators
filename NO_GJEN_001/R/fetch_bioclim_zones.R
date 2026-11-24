@@ -12,6 +12,10 @@
 #   351,402 features nationwide (1km x 1km tiles), so this pages through
 #   the query endpoint (max 1000 records/request) - takes a few minutes.
 #
+# AVAILABILITY: open when downloaded (2026-07-20). On 2026-11-24 the service
+# answered "Service not found", so this script cannot fetch the file at present.
+# If soner2017.shp is already in place, the script does nothing.
+#
 # NOTE: st_read() reading directly from the query URL silently drops
 # attribute fields for this service (a GDAL/vsicurl quirk with this
 # server's response) - each page is downloaded to a local temp file first,
@@ -24,11 +28,16 @@ library(dplyr)
 if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
   setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 } else {
-  # sys.frame(1)$ofile only resolves when this script is source()'d (as in
-  # NO_GJEN_001_wetland_pipeline.R's convention). When run directly via
-  # `Rscript fetch_bioclim_zones.R`, there's no source() frame to read, so
-  # fall back to leaving the working directory as-is (assumed already ..R/).
-  tried <- tryCatch({ setwd(dirname(sys.frame(1)$ofile)); TRUE }, error = function(e) FALSE)
+  cmd_args   <- commandArgs(trailingOnly = FALSE)
+  file_match <- grep("^--file=", cmd_args)
+  tried <- tryCatch({
+    if (length(file_match) > 0) {
+      setwd(dirname(normalizePath(sub("^--file=", "", cmd_args[file_match]))))
+    } else {
+      setwd(dirname(sys.frame(1)$ofile))
+    }
+    TRUE
+  }, error = function(e) FALSE)
   if (!tried) message("Note: keeping current working directory (", getwd(), ").")
 }
 
@@ -39,6 +48,15 @@ out_dir  <- file.path("..", "data", "OpenS_data", "bioclim")
 out_path <- file.path(out_dir, "soner2017.shp")
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
+if (file.exists(out_path)) {
+  cat("Already present:", normalizePath(out_path), "
+")
+  cat("Delete the file to download again.
+")
+  if (!interactive()) quit(save = "no", status = 0)
+  stop("Nothing to download.", call. = FALSE)
+}
+
 base_url <- paste0(
   "https://arcgis06.miljodirektoratet.no/arcgis/rest/services/",
   "NIN_hjelpelag/BioklimatiskeSoner/MapServer/0/query"
@@ -47,7 +65,16 @@ base_url <- paste0(
 page_size <- 1000
 
 count_url <- paste0(base_url, "?where=1%3D1&returnCountOnly=true&f=json")
-total_n <- jsonlite::fromJSON(count_url)$count
+total_n <- tryCatch(jsonlite::fromJSON(count_url)$count, error = function(e) NULL)
+if (is.null(total_n)) {
+  stop("The map service does not answer with data. It was open when the data were
+",
+       "downloaded (2026-07-20), but was gone on 2026-11-24 (\"Service not found\").
+",
+       "Place the zones (polygons, EPSG:25833, fields Sone_navn and Sone_kode) here:
+  ",
+       file.path(normalizePath(out_dir, winslash = "/"), "soner2017.shp"), call. = FALSE)
+}
 cat("Total features to fetch:", total_n, "\n")
 
 n_pages <- ceiling(total_n / page_size)

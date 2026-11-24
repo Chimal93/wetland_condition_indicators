@@ -174,13 +174,13 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 |---|---|---|---|---|
 | Alle | Regioner (5 landsdeler) og kystlinje | NINAnor/ecosystemCondition, CC BY 4.0 | 2026-06-23 | Ligger i repoet |
 | `NO_FUNC_003` | ANO – arealrepresentativ naturovervåking | Miljødirektoratet, nasjonal eksport (GeoPackage) | 2026-07-30 | `R/fetch_ano_data.R` |
-| `NO_FUNC_003` | B12, plante- og lavarter på myr | Artsdatabanken | 2026-08-03 | `R/fetch_b12_data.R` |
+| `NO_FUNC_003` | B12, plante- og lavarter på myr | Artsdatabanken. Åpen, men må nå lastes ned i nettleser (403 for skript, 2026-11-24) | 2026-08-03 | `R/fetch_b12_data.R` |
 | `NO_FUNC_003` | Indikatorverdier for svenske karplanter | Tyler et al. (2021), tilleggsmateriale | 2026-07-30 | Manuelt, se `R/get_tyler_data.R` |
 | `NO_GJEN_001`, `NO_GJEN_002` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
 | `NO_GJEN_001` | Terreng- og overflatemodell, DTM1/DOM1 | Kartverket, Nasjonal detaljert høydemodell, lest direkte over nett | 2026-07-28 til 2026-09-17 (under kjøring) | Leses av beregningsskriptene |
 | `NO_GJEN_001` | AR5 skog og myr | NIBIO, FKB-AR5 (begrenset lisens, se under) | 2026-07-28 | `R/extract_ar5_skog_myr.R` |
 | `NO_GJEN_001` | AR50 skog og myr (åpen reserveløsning) | NIBIO, AR50 | 2026-07-21 | `R/build_ar50_*.R` |
-| `NO_GJEN_001`, `NO_GJEN_002` | Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017») | 2026-07-20 | `R/fetch_bioclim_zones.R` |
+| `NO_GJEN_001`, `NO_GJEN_002` | Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Åpen ved nedlasting, men tjenesten er borte (2026-11-24) | 2026-07-20 | `R/fetch_bioclim_zones.R` |
 | `NO_GJEN_001` | Skogforstyrrelser 1986–2020 | Senf og Seidl (2021), Zenodo-post 7080016 | 2026-07-22 | `R/fetch_disturbance.R` |
 | `NO_GJEN_001` | Bygninger | OpenStreetMap | 2026-07-23 | `R/fetch_osm_buildings.R` |
 | `NO_GJEN_001`, `NO_GJEN_002` | SSB-rutenett 10 og 50 km | SSB via Kartverket | 2026-07-21 | `R/build_ssb_grids.R` |

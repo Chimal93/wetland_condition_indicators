@@ -11,6 +11,8 @@
 #   wet_mount_forest_seminat.ref.cov - see build_wet_ref_openS.R)
 #   Direct URL (used below):
 #     https://artsdatabanken.no/Files/29643/Datasett_B12__Planter_og_lav_p__myr
+#   AVAILABILITY: downloaded with this script 2026-08-03. On 2026-11-24 the
+#   site answered 403 to scripts; download it in a web browser instead.
 #   File is served as a .xlsx despite having no extension in the URL -
 #   confirmed via magic-byte inspection (PK\x03\x04 = zip/xlsx signature).
 #
@@ -54,7 +56,24 @@ if (file.exists(xlsx_path) && !force_fetch) {
 } else {
   cat("Downloading B12 (Planter og lav på myr)...\n")
   t0 <- Sys.time()
-  download.file(b12_url, destfile = xlsx_path, mode = "wb")
+  ok <- tryCatch(download.file(b12_url, destfile = xlsx_path, mode = "wb") == 0,
+                 error = function(e) FALSE, warning = function(w) FALSE)
+  if (!ok) {
+    unlink(xlsx_path)   # never leave a partial file behind
+    stop("Artsdatabanken did not serve the file to this script (HTTP 403 since
+",
+         "2026-11-24 at the latest; the site filters automated downloads).
+",
+         "Download it in a web browser instead:
+",
+         "  1. Open ", b12_url, "
+",
+         "     (listed on https://artsdatabanken.no/Pages/281569/)
+",
+         "  2. Save it as ", file.path(normalizePath(out_dir, winslash = "/"), basename(xlsx_path)), "
+",
+         "  3. Run this script again to check the file.", call. = FALSE)
+  }
   cat("  download took", round(as.numeric(Sys.time() - t0), 1), "sec\n")
 }
 

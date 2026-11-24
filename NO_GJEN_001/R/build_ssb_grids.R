@@ -38,7 +38,16 @@ library(dplyr)
 if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
   setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 } else {
-  tried <- tryCatch({ setwd(dirname(sys.frame(1)$ofile)); TRUE }, error = function(e) FALSE)
+  cmd_args   <- commandArgs(trailingOnly = FALSE)
+  file_match <- grep("^--file=", cmd_args)
+  tried <- tryCatch({
+    if (length(file_match) > 0) {
+      setwd(dirname(normalizePath(sub("^--file=", "", cmd_args[file_match]))))
+    } else {
+      setwd(dirname(sys.frame(1)$ofile))
+    }
+    TRUE
+  }, error = function(e) FALSE)
   if (!tried) message("Note: keeping current working directory (", getwd(), ").")
 }
 

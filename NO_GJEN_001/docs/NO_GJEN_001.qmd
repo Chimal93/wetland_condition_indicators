@@ -127,7 +127,7 @@ The national value is `r num(nor$i_2024, 3)` (n = `r cnt(nor$n)` sample cells). 
 - **Population**: AR5 *myr* (mire).
 - **Good-condition reference**: NiN nature-type polygons mapped in wetland with condition "god" (good).
 - **Forest reference**: AR5 *skog* (forest), without areas disturbed 1986–2020 (Senf & Seidl, 2021).
-- **Other**: bioclimatic zones, building footprints (OpenStreetMap), the SSB 50 km grid, and five regions.
+- **Other**: bioclimatic zones (open when downloaded 2026-07-20, but the map service was gone on 2026-11-24), building footprints (OpenStreetMap), the SSB 50 km grid, and five regions.
 
 ### 2.1 Spatial and temporal resolution and extent
 Mainland Norway. The laser scanning was flown between 2010 and 2024, varying by area, and the indicator is a single snapshot. The year label 2024 is the last flight year.

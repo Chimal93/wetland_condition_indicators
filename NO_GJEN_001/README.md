@@ -111,7 +111,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
 | AR5 skog og myr | NIBIO, FKB-AR5 (krever tilgang via Norge digitalt) | 2026-07-28 | `R/extract_ar5_skog_myr.R` |
 | AR50 skog og myr (åpen reserveløsning) | NIBIO, AR50 | 2026-07-21 | `R/build_ar50_wetland_lidar_coverage.R`, `R/build_ar50_skog.R` |
-| Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017») | 2026-07-20 | `R/fetch_bioclim_zones.R` |
+| Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Tjenesten var åpen da dataene ble lastet ned, men svarte «Service not found» 2026-11-24. Filen må da skaffes på annen måte og legges i `data/OpenS_data/bioclim/`. | 2026-07-20 | `R/fetch_bioclim_zones.R` |
 | Skogforstyrrelser 1986–2020 | Senf og Seidl (2021), Zenodo-post 7080016 | 2026-07-22 | `R/fetch_disturbance.R` |
 | Bygninger | OpenStreetMap, nasjonalt uttrekk | 2026-07-23 | `R/fetch_osm_buildings.R` |
 | SSB-rutenett 10 og 50 km | Bygget fra Kartverkets åpne 1 km-rutenett | 2026-07-21 | `R/build_ssb_grids.R` |

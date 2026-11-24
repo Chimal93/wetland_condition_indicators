@@ -131,7 +131,7 @@ The national value is `r num(nor$i_2025, 3)` (n = `r cnt(nor$n)` polygons). It i
 - **Model**: Meta HighResCanopyHeight, aerial checkpoint (open weights).
 - **Population**: wetland polygons in the NiN nature-type dataset, without 24 nature types (see 4.2).
 - **Reference heights**: from NO_GJEN_001.
-- **Other**: bioclimatic zones, the SSB 50 km grid, and five regions.
+- **Other**: bioclimatic zones (open when downloaded 2026-07-20, but the map service was gone on 2026-11-24), the SSB 50 km grid, and five regions.
 
 ### 2.1 Spatial and temporal resolution and extent
 Mainland Norway, wherever NiN wetland has been mapped. The mosaic has product year 2025, but the flights span several years. The year label is therefore 2025.

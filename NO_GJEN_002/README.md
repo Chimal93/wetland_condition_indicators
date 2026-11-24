@@ -134,7 +134,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | Høydemodell for trær | Meta HighResCanopyHeight, sjekkpunkt `compressed_SSLhuge_aerial.pth` (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
 | Prediksjoner per polygon | Egen kjøring, frosset 2026-09-17 (15 MB, med sjekksummer og logger) | – | Ligger i repoet: `data/OpenS_data/meta_chm_national_RAW_2026-09-17/` |
 | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
-| Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017») | 2026-07-20 | `R/fetch_bioclim_zones.R` |
+| Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Tjenesten var åpen da dataene ble lastet ned, men svarte «Service not found» 2026-11-24. Filen må da skaffes på annen måte og legges i `data/OpenS_data/bioclim/`. | 2026-07-20 | `R/fetch_bioclim_zones.R` |
 | Referanse for god tilstand (30 m) og skogreferanse (20 m) | Fra `NO_GJEN_001` | – | Ligger i repoet |
 | SSB 50 km-rutenett | Fra `NO_GJEN_001` (`R/build_ssb_grids.R`) | 2026-07-21 | Ligger i repoet |
 

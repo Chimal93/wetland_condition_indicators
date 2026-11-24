@@ -166,7 +166,11 @@ Sett opp R-miljøet som beskrevet i [hoved-README](../README.md#6-installasjon--
 Kjør deretter, i rekkefølge:
 
 1. `R/fetch_ano_data.R` – ANO-eksporten.
-2. `R/fetch_b12_data.R` – B12-artslistene.
+2. `R/fetch_b12_data.R` – B12-artslistene. Artsdatabanken avviser
+   for tiden nedlasting fra skript (403, kontrollert 2026-11-24). Skriptet
+   sier da hvordan filen lastes ned i nettleser. Referansetabellen som
+   bygges av B12 (`wet_ref_openS.csv`), ligger i repoet, så steg 2 og 4 kan
+   hoppes over.
 3. `R/get_tyler_data.R` – manuelt steg, se over.
 4. `R/build_wet_ref_openS.R` – bygger referansetabellen fra steg 2–3.
 5. `R/NO_FUNC_003_wetland_pipeline_OpenSource.R` – beregningen. Skriver

@@ -208,7 +208,7 @@ Cover is recorded in per cent per 1 m² plot. The indicator values are ordinal: 
 ### 2.4 Instructions for citing, using and accessing data
 
 - **ANO**: open, [Miljødirektoratet dataset 2054](https://kartkatalog.miljodirektoratet.no/Dataset/Details/2054). Downloaded 2026-07-30 with `R/fetch_ano_data.R`.
-- **B12**: open, [Artsdatabanken](https://artsdatabanken.no/Pages/281569/Generaliserte_artslistedatasett_til_artikkel_2). Downloaded 2026-08-03 with `R/fetch_b12_data.R`.
+- **B12**: open, [Artsdatabanken](https://artsdatabanken.no/Pages/281569/Generaliserte_artslistedatasett_til_artikkel_2). Downloaded 2026-08-03 with `R/fetch_b12_data.R`. On 2026-11-24 the site rejected downloads from scripts (HTTP 403), so the file must be downloaded in a web browser.
 - **Tyler et al. (2021)**: supplementary material to the article. It must be downloaded by hand (2026-07-30) and is not redistributed here.
 
 ### 2.5 Additional comments about the dataset
