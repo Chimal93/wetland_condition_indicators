@@ -9,10 +9,10 @@
 Åpne og reproduserbare beregninger av indikatorer for økologisk tilstand i
 våtmark, levert i dataformatet til ecosystemCondition-plattformen.
 
-- **English**: Open, reproducible reconstructions of five indicators of
+- **English**: Open, reproducible reconstructions of indicators of
   ecological condition for Norwegian wetlands, with delivery files in the
   ecosystemCondition platform format.
-- **Norwegian**: Åpne, reproduserbare rekonstruksjoner av fem indikatorer
+- **Norwegian**: Åpne, reproduserbare rekonstruksjoner av indikatorer
   for økologisk tilstand i norsk våtmark, med leveransefiler i formatet til
   ecosystemCondition-plattformen.
 
@@ -49,7 +49,7 @@ dokumentert i indikatorens README.
 | Indikator | Måler | Status |
 |---|---|---|
 | [`NO_FUNC_003`](NO_FUNC_003/) | Funksjonell plantesammensetning: artsvektede indikatorverdier for lys, fuktighet, pH og nitrogen i ANO-flater, mot referansefordelinger. Leveres som fire indikatorer (`NO_FULI_003`, `NO_FUMO_003`, `NO_FUPH_003`, `NO_FUNI_003`). | Ferdig |
-| [`NO_CONN_001`](NO_CONN_001/) | Strukturell konnektivitet: avstand fra hver myr til nærmeste infrastruktur, sett mot avstand til nærmeste nabomyr. | Ferdig |
+| [`NO_CONN_003`](NO_CONN_003/) | Strukturell konnektivitet: avstand fra hver myr til nærmeste infrastruktur, sett mot avstand til nærmeste nabomyr. | Ferdig |
 | [`NO_GJEN_001`](NO_GJEN_001/) | Gjengroing: vegetasjonshøyde fra laserdata (LiDAR) mot referansenivåer for god tilstand og for skog. | Ferdig |
 | [`NO_GJEN_002`](NO_GJEN_002/) | Gjengroing fra flyfoto: vegetasjonshøyde predikert med en dyplæringsmodell, mot de samme referansenivåene som `NO_GJEN_001`. | Ferdig |
 | [`NO_NDVI_001`](NO_NDVI_001/) | Primærproduksjon: trend i NDVI (MODIS) per myrpolygon, skalert mot ingen trend. | **Foreløpig** – kun MODIS, uten usikkerhetsestimat |
@@ -74,7 +74,7 @@ oppdateres hyppigere.
   - **CPU:** AMD Ryzen AI 7 PRO 350, 8 kjerner / 16 tråder
   - **GPU:** AMD Radeon 860M (integrert). Brukes ikke; ingen analyser krever GPU.
   - **Storage:** 954 GB SSD. En full nyberegning av alle indikatorer krever
-    rundt 200 GB ledig plass, mest til rådata for `NO_CONN_001` (N50 og
+    rundt 200 GB ledig plass, mest til rådata for `NO_CONN_003` (N50 og
     myrmodell, ca. 37 GB) og MODIS-fliser for `NO_NDVI_001` (ca. 100 GB).
     Beregning fra mellomlagrede data krever langt mindre.
   - **Ytelse:** Se tabellen under. «Fra mellomlager» betyr fra data som
@@ -85,7 +85,7 @@ oppdateres hyppigere.
     | `NO_FUNC_003` | ca. 3 min | ca. 3 min + nedlasting (ca. 115 MB) |
     | `NO_GJEN_001` | under 1 min | over 2 timer |
     | `NO_GJEN_002` | noen minutter | ca. 90 timer (modellkjøring på flyfoto) |
-    | `NO_CONN_001` | noen minutter | over 20 timer |
+    | `NO_CONN_003` | noen minutter | over 20 timer |
     | `NO_NDVI_001` | ca. 2 min | flere timer (MODIS-nedlasting) |
 
 - **Kjøringsmiljø:**
@@ -96,7 +96,7 @@ oppdateres hyppigere.
     `curl.exe`, som følger med Windows.
 - **Programvare:**
   - R 4.6.1
-  - QGIS 3.44.12 – bare for `NO_CONN_001`, steg 2 (konvertering av N50 2006
+  - QGIS 3.44.12 – bare for `NO_CONN_003`, steg 2 (konvertering av N50 2006
     fra SOSI-format).
   - uv 0.11.29 – bare for Python-miljøet til `NO_GJEN_002`.
   - Quarto 1.9.38 – bare for å lage indikatordokumentene i `docs/` på nytt.
@@ -186,12 +186,12 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 | `NO_GJEN_001`, `NO_GJEN_002` | SSB-rutenett 10 og 50 km | SSB via Kartverket | 2026-07-21 | `R/build_ssb_grids.R` |
 | `NO_GJEN_002` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025 (kan ikke deles, se indikatorens README) | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde |
 | `NO_GJEN_002` | Høydemodell for trær | Meta HighResCanopyHeight, «aerial»-sjekkpunkt (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
-| `NO_CONN_001` | N50 Kartdata, historiske data 2023 og 2013 | Kartverket via Geonorge, FGDB | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
-| `NO_CONN_001` | N50 Kartdata, historiske data 2006 | Kartverket via Geonorge, SOSI | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` + QGIS |
-| `NO_CONN_001` | Regulerte innsjøer | NVE, Vannkraft, via Geonorge (FGDB) | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
-| `NO_CONN_001` | Myrmodell (MyrMod2Rv) | «Våtmark basert på NiN» (Bakkestuen m.fl.), GeoTIFF via Geonorge, fil datert 2023-06-19 | 2026-08-07 | `R/fetch_wetland_map.R` |
-| `NO_CONN_001` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-27 | `R/fetch_nin_data.R` |
-| `NO_CONN_001` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `NO_GJEN_001` |
+| `NO_CONN_003` | N50 Kartdata, historiske data 2023 og 2013 | Kartverket via Geonorge, FGDB | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
+| `NO_CONN_003` | N50 Kartdata, historiske data 2006 | Kartverket via Geonorge, SOSI | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` + QGIS |
+| `NO_CONN_003` | Regulerte innsjøer | NVE, Vannkraft, via Geonorge (FGDB) | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
+| `NO_CONN_003` | Myrmodell (MyrMod2Rv) | «Våtmark basert på NiN» (Bakkestuen m.fl.), GeoTIFF via Geonorge, fil datert 2023-06-19 | 2026-08-07 | `R/fetch_wetland_map.R` |
+| `NO_CONN_003` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-27 | `R/fetch_nin_data.R` |
+| `NO_CONN_003` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `NO_GJEN_001` |
 | `NO_NDVI_001` | NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), 2000–2026, slutten av mai til september | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
 | `NO_NDVI_001` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-05 | `R/fetch_nin_data.R` |
 
@@ -201,9 +201,9 @@ genereres lokalt av den som har tilgang. Ortofotoet til `NO_GJEN_002` er
 kommersielt og kan ikke deles. Prediksjonene per polygon ligger i repoet,
 slik at indikatoren kan beregnes på nytt uten bildene.
 
-**Mellomlager for `NO_CONN_001`.** Avledede data som tar over 20 timer å
+**Mellomlager for `NO_CONN_003`.** Avledede data som tar over 20 timer å
 beregne (ca. 2 GB) publiseres som Release-filer på GitHub og hentes med
-`NO_CONN_001/R/download_caches.R`.
+`NO_CONN_003/R/download_caches.R`.
 
 - Didan, K. (2021). *MODIS/Terra vegetation indices 16-day L3 global 250m
   SIN grid V061* [Datasett]. NASA EOSDIS Land Processes Distributed Active

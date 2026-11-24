@@ -64,9 +64,9 @@ versjon av eaTools. Versjonen som er låst i dette repoet (nødvendig for
 `NO_GJEN_001/002`) har en feil i synkende retning som NINA rettet i mai
 2026 (eaTools-commit `ca7bc797`).
 
-Den samlede indeksen `NO_FUNC_003` (laveste av de åtte skalerte sidene,
-grenser 0,25/0,75, aggregert med median og bootstrap) er beholdt som et
-tilleggsprodukt.
+Den samlede indeksen (laveste av de åtte skalerte sidene, grenser
+0,25/0,75, aggregert med median og bootstrap) er **ikke** en del av
+leveransen. Den beregnes fortsatt og ligger i `outputs/supplementary/`.
 
 **Resultater, nasjonalt (ANO-syklus 1, 2019–2024, første besøk per punkt, n = 2 778 flater):**
 
@@ -107,7 +107,8 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | `data/NINA/spatial/` | Regioner og kystlinje fra NINAnor/ecosystemCondition (CC BY 4.0). |
 | `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_FUNC_003.qmd` (kilde) og `NO_FUNC_003.html`. Lages på nytt med `quarto render docs/NO_FUNC_003.qmd` (Quarto 1.9). Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `outputs/results/` | Kart og tabeller fra beregningen, inkludert verdier per flate (`NO_FUNC_003_plots.gpkg`/`.csv`). |
-| `outputs/deliverables/` | De fem indikatorene i plattformformatet. |
+| `outputs/deliverables/` | De fire indikatorene i plattformformatet. |
+| `outputs/supplementary/` | Den samlede indeksen `NO_FUNC_003` i samme format (ikke levert). |
 
 ## 5. Input / Output
 
@@ -129,7 +130,7 @@ filen mangler, og kontrollerer at arket `"Taxa"` finnes.
 ### Output
 
 I `outputs/deliverables/`, for hver av `NO_FULI_003`, `NO_FUMO_003`,
-`NO_FUPH_003`, `NO_FUNI_003` og `NO_FUNC_003`:
+`NO_FUPH_003` og `NO_FUNI_003`:
 
 - `<ID>_*` – de to treårsperiodene i originalen, alle registreringer i
   periodene: `_2021` (ANO 2019–2021) og `_2024` (ANO 2022–2024).
@@ -140,9 +141,8 @@ Hvert sett har kart per landsdel og per ANO-punkt (`.rds`), verditabell
 (`.csv`/`.xlsx` med metadata) og figur (`.png`). Særskilt for denne
 indikatoren:
 
-- Den samlede indeksen har ingen enkelt uskalert variabel, så `v = i` for
-  `NO_FUNC_003` (som i plattformens eksempel med Naturindeks). De rå
-  artsvektede gjennomsnittene ligger i arkene `supp_*` i regnearket.
+- `v = i`, som i NINAs delte indikatorer. De artsvektede gjennomsnittene per
+  flate ligger i `outputs/results/NO_FUNC_003_plots.csv`.
 - `thr = 0,6` er en reell X60: grenseverdien i referansefordelingen er
   satt til 0,6 av skaleringsfunksjonen.
 - Enheter: landsdel (primær) og hvert ANO-punkt i våtmark (`areaId` =

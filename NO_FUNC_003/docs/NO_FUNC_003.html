@@ -2251,7 +2251,7 @@ vertical-align: -.125em;
   <li><a href="#analyses" id="toc-analyses" class="nav-link" data-scroll-target="#analyses">9. Analyses</a>
   <ul class="collapse">
   <li><a href="#scaling-values-and-functions" id="toc-scaling-values-and-functions" class="nav-link" data-scroll-target="#scaling-values-and-functions">9.1 Scaling values and functions</a></li>
-  <li><a href="#community-weighted-means-and-the-combined-index" id="toc-community-weighted-means-and-the-combined-index" class="nav-link" data-scroll-target="#community-weighted-means-and-the-combined-index">9.2 Community-weighted means and the combined index</a></li>
+  <li><a href="#community-weighted-means" id="toc-community-weighted-means" class="nav-link" data-scroll-target="#community-weighted-means">9.2 Community-weighted means</a></li>
   <li><a href="#the-four-separate-indicators" id="toc-the-four-separate-indicators" class="nav-link" data-scroll-target="#the-four-separate-indicators">9.3 The four separate indicators</a></li>
   <li><a href="#regions" id="toc-regions" class="nav-link" data-scroll-target="#regions">9.4 Regions</a></li>
   <li><a href="#aggregation" id="toc-aggregation" class="nav-link" data-scroll-target="#aggregation">9.5 Aggregation</a></li>
@@ -2260,7 +2260,7 @@ vertical-align: -.125em;
   <ul class="collapse">
   <li><a href="#the-four-indicators" id="toc-the-four-indicators" class="nav-link" data-scroll-target="#the-four-indicators">10.1 The four indicators</a></li>
   <li><a href="#distribution-of-plot-values" id="toc-distribution-of-plot-values" class="nav-link" data-scroll-target="#distribution-of-plot-values">10.2 Distribution of plot values</a></li>
-  <li><a href="#combined-index-supplementary" id="toc-combined-index-supplementary" class="nav-link" data-scroll-target="#combined-index-supplementary">10.3 Combined index (supplementary)</a></li>
+  <li><a href="#combined-index-not-delivered" id="toc-combined-index-not-delivered" class="nav-link" data-scroll-target="#combined-index-not-delivered">10.3 Combined index (not delivered)</a></li>
   </ul></li>
   <li><a href="#export-file" id="toc-export-file" class="nav-link" data-scroll-target="#export-file">11. Export file</a></li>
   <li><a href="#author-contributions" id="toc-author-contributions" class="nav-link" data-scroll-target="#author-contributions">12. Author contributions</a></li>
@@ -2275,8 +2275,7 @@ vertical-align: -.125em;
 <p class="subtitle lead">[NO_FULI_003] (light)<br>
 [NO_FUMO_003] (moisture)<br>
 [NO_FUPH_003] (pH)<br>
-[NO_FUNI_003] (nitrogen)<br>
-[NO_FUNC_003] (combined index, supplementary)</p>
+[NO_FUNI_003] (nitrogen)</p>
 </div>
 
 
@@ -2363,8 +2362,8 @@ Table 1: Indicator metadata
 <div class="cell-output-display">
 <table class="cell caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 15%">
-<col style="width: 84%">
+<col style="width: 19%">
+<col style="width: 80%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -2375,15 +2374,15 @@ Table 1: Indicator metadata
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Indicator ID</td>
-<td style="text-align: left;">NO_FULI_003; NO_FUMO_003; NO_FUPH_003; NO_FUNI_003; NO_FUNC_003</td>
+<td style="text-align: left;">NO_FULI_003; NO_FUMO_003; NO_FUPH_003; NO_FUNI_003</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Indicator name</td>
-<td style="text-align: left;">Light impact on vegetation; Moisture impact on vegetation; Soil reaction (pH) impact on vegetation; Nitrogen impact on vegetation; Functional plant community index</td>
+<td style="text-align: left;">Light impact on vegetation; Moisture impact on vegetation; Soil reaction (pH) impact on vegetation; Nitrogen impact on vegetation</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Norwegian name</td>
-<td style="text-align: left;">Vegetasjonsindikator for lys; Vegetasjonsindikator for fuktighet; Vegetasjonsindikator for pH; Vegetasjonsindikator for nitrogen; Funksjonell plantesammensetning</td>
+<td style="text-align: left;">Vegetasjonsindikator for lys; Vegetasjonsindikator for fuktighet; Vegetasjonsindikator for pH; Vegetasjonsindikator for nitrogen</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Continent</td>
@@ -2395,7 +2394,7 @@ Table 1: Indicator metadata
 </tr>
 <tr class="even">
 <td style="text-align: left;">Ecosystem Condition Typology class</td>
-<td style="text-align: left;">A1 - Physical State characteristics; A1 - Physical State characteristics; A2 - Chemical State characteristics; A2 - Chemical State characteristics; B1 - Compositional State characteristics</td>
+<td style="text-align: left;">A1 - Physical State characteristics; A1 - Physical State characteristics; A2 - Chemical State characteristics; A2 - Chemical State characteristics</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Realm</td>
@@ -2427,7 +2426,7 @@ Table 1: Indicator metadata
 </tr>
 <tr class="even">
 <td style="text-align: left;">Version comment</td>
-<td style="text-align: left;">Four separate indicators in addition to the combined index. IDs are provisional.</td>
+<td style="text-align: left;">Four separate indicators. IDs are provisional.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Normalised</td>
@@ -2435,11 +2434,11 @@ Table 1: Indicator metadata
 </tr>
 <tr class="even">
 <td style="text-align: left;">Spatial aggregation pathway</td>
-<td style="text-align: left;">Scale/Truncate - Aggregate (ordered beta regression; combined index: median)</td>
+<td style="text-align: left;">Scale/Truncate - Aggregate (ordered beta regression)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Precision</td>
-<td style="text-align: left;">95% intervals and standard deviation from 1000 draws of the model coefficients (combined index: 95% bootstrap interval of the median)</td>
+<td style="text-align: left;">95% intervals and standard deviation from 1000 draws of the model coefficients</td>
 </tr>
 </tbody>
 </table>
@@ -2482,7 +2481,7 @@ Table 1: Indicator metadata
 <li>Regional and national values come from an ordered beta regression with ANO site as a random effect.</li>
 </ul></li>
 <li><p><strong>Interpretation</strong>: A value of 1 means that the species composition matches the reference for the wetland type. Values decreasing towards 0 reflect a shift away from it. 0.6 is the limit for good ecological condition.</p></li>
-<li><p><strong>Results and development needs</strong>: For ANO’s first cycle (2019–2024, the first survey of each point, n = 2,778 plots) the national values are: light 0.76 [95% CI: 0.76–0.77], moisture 0.79 [95% CI: 0.78–0.80], pH 0.74 [95% CI: 0.73–0.75] and nitrogen 0.84 [95% CI: 0.83–0.85]. All are above 0.6. The combined index, where the lowest of eight scaled values decides and narrower limits apply, is 0.46. The main development needs are regionalised species lists, references for the wetland types that lack them, and validation against independent data.</p></li>
+<li><p><strong>Results and development needs</strong>: For ANO’s first cycle (2019–2024, the first survey of each point, n = 2,778 plots) the national values are: light 0.76 [95% CI: 0.76–0.77], moisture 0.79 [95% CI: 0.78–0.80], pH 0.74 [95% CI: 0.73–0.75] and nitrogen 0.84 [95% CI: 0.83–0.85]. All are above 0.6. The main development needs are regionalised species lists, references for the wetland types that lack them, and validation against independent data.</p></li>
 </ol>
 </section>
 <section id="sec-about" class="level2">
@@ -2522,7 +2521,7 @@ Table 1: Indicator metadata
 <h2 class="anchored" data-anchor-id="indicator-properties">3. Indicator properties</h2>
 <section id="ecosystem-condition-typology-class-ect" class="level3">
 <h3 class="anchored" data-anchor-id="ecosystem-condition-typology-class-ect">3.1 Ecosystem Condition Typology Class (ECT)</h3>
-<p>Light and moisture are assigned to A1 (physical state), pH and nitrogen to A2 (chemical state). NINA uses the same classes for its light, moisture and nitrogen indicators. The combined index is assigned to B1 (compositional state), as in NINA’s NO_FUNC indicators.</p>
+<p>Light and moisture are assigned to A1 (physical state), pH and nitrogen to A2 (chemical state). NINA uses the same classes for its light, moisture and nitrogen indicators.</p>
 </section>
 <section id="ecosystem-condition-characteristic" class="level3">
 <h3 class="anchored" data-anchor-id="ecosystem-condition-characteristic">3.2 Ecosystem condition characteristic</h3>
@@ -2530,7 +2529,7 @@ Table 1: Indicator metadata
 </section>
 <section id="collinearities-with-other-indicators" class="level3">
 <h3 class="anchored" data-anchor-id="collinearities-with-other-indicators">3.3 Collinearities with other indicators</h3>
-<p>The four indicators are derived from the same plant records and are therefore not independent of each other. The combined index is built from the same plot data and should not be used together with the four. Light may also covary with the woody encroachment indicators NO_GJEN_001 and NO_GJEN_002.</p>
+<p>The four indicators are derived from the same plant records and are therefore not independent of each other. Light may also covary with the woody encroachment indicators NO_GJEN_001 and NO_GJEN_002.</p>
 </section>
 <section id="impact-factors" class="level3">
 <h3 class="anchored" data-anchor-id="impact-factors">3.4 Impact factors</h3>
@@ -2538,7 +2537,7 @@ Table 1: Indicator metadata
 </section>
 <section id="spatial-aggregation" class="level3">
 <h3 class="anchored" data-anchor-id="spatial-aggregation">3.5 Spatial aggregation</h3>
-<p>The variable is scaled and truncated per plot. Regional and national values are means from an ordered beta regression on the plot values, with ANO site as a random effect. The combined index is the median of the plot values. No area weighting is applied.</p>
+<p>The variable is scaled and truncated per plot. Regional and national values are means from an ordered beta regression on the plot values, with ANO site as a random effect. No area weighting is applied.</p>
 </section>
 </section>
 <section id="reference-condition-and-levels" class="level2">
@@ -2552,7 +2551,7 @@ Table 1: Indicator metadata
 <p>The reference levels are quantiles of the bootstrapped CWM distribution per NiN main type.</p>
 <ul>
 <li><strong>X<sub>100</sub></strong>: the median.</li>
-<li><strong>X<sub>60</sub></strong>: the 0.025 and 0.975 quantiles for the two-sided indicators; the 0.95 quantile for nitrogen. The combined index uses the 0.25 and 0.75 quantiles, as in NINA’s code for NO_FUNC_001–004 (the text of that document states 0.025 and 0.975).</li>
+<li><strong>X<sub>60</sub></strong>: the 0.025 and 0.975 quantiles for the two-sided indicators; the 0.95 quantile for nitrogen.</li>
 <li><strong>X<sub>0</sub></strong>: the end of the indicator value scale.</li>
 </ul>
 <p>The bootstrap uses NINA’s function and settings: 1000 iterations per list, each keeping the dominant species and a random half of the others, with the cover classes varied.</p>
@@ -2812,7 +2811,7 @@ Table 3: Wetland plot surveys in ANO 2019–2024 and how many get a value, by N
 </section>
 <section id="reported-uncertainties" class="level3">
 <h3 class="anchored" data-anchor-id="reported-uncertainties">5.2 Reported uncertainties</h3>
-<p>The reported uncertainties are inferential and refer to the estimated mean. <code>sd</code> is the standard deviation, and the 95% interval the 2.5 and 97.5 percentiles, of 1000 draws from the estimated coefficients of the regression. For the combined index, they come from 1000 bootstrap samples of the plot values. Uncertainty in the reference levels is not included.</p>
+<p>The reported uncertainties are inferential and refer to the estimated mean. <code>sd</code> is the standard deviation, and the 95% interval the 2.5 and 97.5 percentiles, of 1000 draws from the estimated coefficients of the regression. Uncertainty in the reference levels is not included.</p>
 </section>
 </section>
 <section id="references" class="level2">
@@ -3516,8 +3515,8 @@ Table 3: Wetland plot surveys in ANO 2019–2024 and how many get a value, by N
 </details>
 </div>
 </section>
-<section id="community-weighted-means-and-the-combined-index" class="level3">
-<h3 class="anchored" data-anchor-id="community-weighted-means-and-the-combined-index">9.2 Community-weighted means and the combined index</h3>
+<section id="community-weighted-means" class="level3">
+<h3 class="anchored" data-anchor-id="community-weighted-means">9.2 Community-weighted means</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -3600,30 +3599,7 @@ Table 3: Wetland plot surveys in ANO 2019–2024 and how many get a value, by N
 <span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>results.wet[[<span class="st">&quot;2-sided&quot;</span>]] <span class="ot">&lt;-</span> results.wet[[<span class="st">&quot;non-truncated&quot;</span>]]</span>
 <span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col <span class="cf">in</span> wet_indicators) {</span>
 <span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>  results.wet[[<span class="st">&quot;2-sided&quot;</span>]][[col]][results.wet[[<span class="st">&quot;2-sided&quot;</span>]][[col]] <span class="sc">&gt;</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a><span class="co"># ===========================================================</span></span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="co"># STAGE 8: Build the functional plant community index (fpci)</span></span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a><span class="co"># The index for each plot = the LOWEST scoring indicator</span></span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a><span class="co"># (&quot;worst-rule&quot; / verste-styrer principle).</span></span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a><span class="co"># For wetlands: min of Light1, Light2, Moist1, Moist2,</span></span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="co">#               pH1, pH2, Nitrogen1, Nitrogen2.</span></span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a><span class="co"># Inf (produced by pmap when all inputs are NA) → NA.</span></span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a><span class="co"># ===========================================================</span></span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>res.wet <span class="ot">&lt;-</span> results.wet[[<span class="st">&quot;2-sided&quot;</span>]]</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>res.wet <span class="ot">&lt;-</span> res.wet <span class="sc">|&gt;</span></span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>    <span class="at">fpci.min =</span> <span class="fu">as.numeric</span>(<span class="fu">pmap</span>(</span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(Light1, Light2, Moist1, Moist2, pH1, pH2, Nitrogen1, Nitrogen2),</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>      min, <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>    )),</span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">fpci.min =</span> <span class="fu">na_if</span>(fpci.min, <span class="cn">Inf</span>)</span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a><span class="co"># Warnings expected at this stage due to plots with no species recorded (NA for all indicators → Inf → NA for fpci.min).</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -4435,9 +4411,9 @@ Figure 3: Distribution of scaled plot values, all surveys 2019–2024. The dash
 </div>
 </div>
 </section>
-<section id="combined-index-supplementary" class="level3">
-<h3 class="anchored" data-anchor-id="combined-index-supplementary">10.3 Combined index (supplementary)</h3>
-<p>The combined index takes the lowest of the eight scaled sides per plot, uses the 0.25 and 0.75 quantiles as limits, and is aggregated as a median. Its values are not comparable with the four indicators above.</p>
+<section id="combined-index-not-delivered" class="level3">
+<h3 class="anchored" data-anchor-id="combined-index-not-delivered">10.3 Combined index (not delivered)</h3>
+<p>The pipeline also calculates the combined index of NINA’s NO_FUNC indicators. It is not part of the delivery, and its files are in <code>outputs/supplementary/</code>. It takes the lowest of the eight scaled sides per plot, uses the 0.25 and 0.75 quantiles as limits (as in NINA’s code for NO_FUNC_001–004; the text of that document states 0.025 and 0.975), and is aggregated as a median. Its values are not comparable with the four indicators above.</p>
 <div class="cell">
 <div id="tbl-index" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">

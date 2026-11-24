@@ -4,26 +4,22 @@ subtitle: |
   [NO_FULI_003] (light) \
   [NO_FUMO_003] (moisture) \
   [NO_FUPH_003] (pH) \
-  [NO_FUNI_003] (nitrogen) \
-  [NO_FUNC_003] (combined index, supplementary)
+  [NO_FUNI_003] (nitrogen)
 indicatorID:
   - NO_FULI_003
   - NO_FUMO_003
   - NO_FUPH_003
   - NO_FUNI_003
-  - NO_FUNC_003
 indicatorName:
   - Light impact on vegetation
   - Moisture impact on vegetation
   - Soil reaction (pH) impact on vegetation
   - Nitrogen impact on vegetation
-  - Functional plant community index
 verbatimName:
   - Vegetasjonsindikator for lys
   - Vegetasjonsindikator for fuktighet
   - Vegetasjonsindikator for pH
   - Vegetasjonsindikator for nitrogen
-  - Funksjonell plantesammensetning
 folderName: NO_FUNC_003
 country: Norway
 continent: Europe
@@ -32,7 +28,6 @@ ECT:
   - A1 - Physical State characteristics
   - A2 - Chemical State characteristics
   - A2 - Chemical State characteristics
-  - B1 - Compositional State characteristics
 Realm:
   - Freshwater-Terrestrial (TF)
 Biome:
@@ -45,11 +40,11 @@ yearAdded: 2026
 yearLastUpdate: 2026
 status: complete
 Version: "000.003"
-VersionComment: Four separate indicators in addition to the combined index. IDs are provisional.
+VersionComment: Four separate indicators. IDs are provisional.
 url: https://github.com/Chimal93/wetland_condition_indicators/tree/main/NO_FUNC_003
 Normalised: Yes
-SpatialAggregationPathway: "Scale/Truncate - Aggregate (ordered beta regression; combined index: median)"
-Precision: "95% intervals and standard deviation from 1000 draws of the model coefficients (combined index: 95% bootstrap interval of the median)"
+SpatialAggregationPathway: "Scale/Truncate - Aggregate (ordered beta regression)"
+Precision: "95% intervals and standard deviation from 1000 draws of the model coefficients"
 format:
   html:
     embed-resources: true
@@ -190,7 +185,7 @@ A value of 1 means that the species composition matches the reference for the we
 Values decreasing towards 0 reflect a shift away from it. 0.6 is the limit for good ecological condition.
 
 4. **Results and development needs**:
-For ANO's first cycle (2019–2024, the first survey of each point, n = `r cnt(nat$n[1])` plots) the national values are: light `r val("Light")`, moisture `r val("Moisture")`, pH `r val("pH")` and nitrogen `r val("Nitrogen")`. All are above 0.6. The combined index, where the lowest of eight scaled values decides and narrower limits apply, is `r num(idx_nat$median)`.
+For ANO's first cycle (2019–2024, the first survey of each point, n = `r cnt(nat$n[1])` plots) the national values are: light `r val("Light")`, moisture `r val("Moisture")`, pH `r val("pH")` and nitrogen `r val("Nitrogen")`. All are above 0.6.
 The main development needs are regionalised species lists, references for the wetland types that lack them, and validation against independent data.
 
 ## 2. About the underlying data {#sec-about}
@@ -222,19 +217,19 @@ Species without a match in Tyler et al. (2021) do not contribute to the CWM. `r 
 ## 3. Indicator properties
 
 ### 3.1 Ecosystem Condition Typology Class (ECT)
-Light and moisture are assigned to A1 (physical state), pH and nitrogen to A2 (chemical state). NINA uses the same classes for its light, moisture and nitrogen indicators. The combined index is assigned to B1 (compositional state), as in NINA's NO_FUNC indicators.
+Light and moisture are assigned to A1 (physical state), pH and nitrogen to A2 (chemical state). NINA uses the same classes for its light, moisture and nitrogen indicators.
 
 ### 3.2 Ecosystem condition characteristic
 Abiotic factors, expressed through the species composition.
 
 ### 3.3 Collinearities with other indicators
-The four indicators are derived from the same plant records and are therefore not independent of each other. The combined index is built from the same plot data and should not be used together with the four. Light may also covary with the woody encroachment indicators NO_GJEN_001 and NO_GJEN_002.
+The four indicators are derived from the same plant records and are therefore not independent of each other. Light may also covary with the woody encroachment indicators NO_GJEN_001 and NO_GJEN_002.
 
 ### 3.4 Impact factors
 Drainage and other hydrological change (moisture), woody encroachment (light), nitrogen deposition and nutrient run-off (nitrogen), acidification and liming (pH), and climate change.
 
 ### 3.5 Spatial aggregation
-The variable is scaled and truncated per plot. Regional and national values are means from an ordered beta regression on the plot values, with ANO site as a random effect. The combined index is the median of the plot values. No area weighting is applied.
+The variable is scaled and truncated per plot. Regional and national values are means from an ordered beta regression on the plot values, with ANO site as a random effect. No area weighting is applied.
 
 ## 4. Reference condition and levels
 
@@ -245,7 +240,7 @@ The reference condition is largely intact ecosystems without large-scale human m
 The reference levels are quantiles of the bootstrapped CWM distribution per NiN main type.
 
 - **X~100~**: the median.
-- **X~60~**: the 0.025 and 0.975 quantiles for the two-sided indicators; the 0.95 quantile for nitrogen. The combined index uses the 0.25 and 0.75 quantiles, as in NINA's code for NO_FUNC_001–004 (the text of that document states 0.025 and 0.975).
+- **X~60~**: the 0.025 and 0.975 quantiles for the two-sided indicators; the 0.95 quantile for nitrogen.
 - **X~0~**: the end of the indicator value scale.
 
 The bootstrap uses NINA's function and settings: 1000 iterations per list, each keeping the dominant species and a random half of the others, with the cover classes varied.
@@ -291,7 +286,7 @@ plots |>
 The `r sum(plots$nin %in% c("V1", "V2", "V3") & is.na(plots$fac_Light))` unscored surveys of types V1–V3 have no species records in the ANO export.
 
 ### 5.2 Reported uncertainties
-The reported uncertainties are inferential and refer to the estimated mean. `sd` is the standard deviation, and the 95% interval the 2.5 and 97.5 percentiles, of 1000 draws from the estimated coefficients of the regression. For the combined index, they come from 1000 bootstrap samples of the plot values. Uncertainty in the reference levels is not included.
+The reported uncertainties are inferential and refer to the estimated mean. `sd` is the standard deviation, and the 95% interval the 2.5 and 97.5 percentiles, of 1000 draws from the estimated coefficients of the regression. Uncertainty in the reference levels is not included.
 
 ## 6. References
 
@@ -354,11 +349,11 @@ The basic spatial unit (BSU) is the 1 m² ANO plot. The indicator values should 
 #| code: !expr stage(pipeline, "5", "6")
 ```
 
-### 9.2 Community-weighted means and the combined index
+### 9.2 Community-weighted means
 
 ```{r code-cwm}
 #| eval: false
-#| code: !expr stage(pipeline, "7", "8")
+#| code: !expr stage(pipeline, "7")
 ```
 
 ### 9.3 The four separate indicators
@@ -478,9 +473,9 @@ plots |>
   theme_bw()
 ```
 
-### 10.3 Combined index (supplementary)
+### 10.3 Combined index (not delivered)
 
-The combined index takes the lowest of the eight scaled sides per plot, uses the 0.25 and 0.75 quantiles as limits, and is aggregated as a median. Its values are not comparable with the four indicators above.
+The pipeline also calculates the combined index of NINA's NO_FUNC indicators. It is not part of the delivery, and its files are in `outputs/supplementary/`. It takes the lowest of the eight scaled sides per plot, uses the 0.25 and 0.75 quantiles as limits (as in NINA's code for NO_FUNC_001–004; the text of that document states 0.025 and 0.975), and is aggregated as a median. Its values are not comparable with the four indicators above.
 
 ```{r tbl-index}
 #| tbl-cap: "Combined index NO_FUNC_003: median [95% bootstrap interval], n = plots"

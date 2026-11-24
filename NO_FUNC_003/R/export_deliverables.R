@@ -2,7 +2,13 @@
 # NO_FUNC_003 - final export stage: platform-format indicator maps +
 # delivery tables (see the repository README, "Delivery format").
 #
-# Reads Stage 11's tables (../outputs/results/) and writes, to ../outputs/deliverables/,
+# The DELIVERED indicators are the four separate ones (second half of this
+# script), written to ../outputs/deliverables/. The combined index described
+# first is NOT delivered (Miljoedirektoratet's feedback, November 2026: four
+# separate indicators, no worst-rule). It is kept as a supplementary product
+# in ../outputs/supplementary/.
+#
+# Reads Stage 11's tables (../outputs/results/) and writes, to ../outputs/supplementary/,
 # one file set per reporting set:
 #
 #   NO_FUNC_003_*                          the original indicator's two
@@ -62,7 +68,9 @@ THR     <- 0.6
 
 results_dir <- file.path("..", "outputs", "results")
 spatial_dir <- file.path("..", "data", "NINA", "spatial")
-out_dir     <- file.path("..", "outputs", "deliverables")
+out_dir     <- file.path("..", "outputs", "deliverables")    # the four indicators
+supp_dir    <- file.path("..", "outputs", "supplementary")   # the combined index
+dir.create(supp_dir, showWarnings = FALSE, recursive = TRUE)
 
 region_names <- c("Northern" = "Nord-Norge", "Central" = "Midt-Norge", "Eastern" = "Østlandet",
                   "Western" = "Vestlandet", "Southern" = "Sørlandet")
@@ -206,15 +214,15 @@ export_set <- function(set_id, pnames, period_text, png_title) {
     units    = list(region = region_long, plot = plot_long),
     national = national,
     metadata = metadata,
-    out_dir  = out_dir,
+    out_dir  = supp_dir,
     png_title = png_title
   )
 
-  xlsx_path <- file.path(out_dir, paste0(set_id, "_values.xlsx"))
+  xlsx_path <- file.path(supp_dir, paste0(set_id, "_values.xlsx"))
   sheets <- list(
-    values = read_csv(file.path(out_dir, paste0(set_id, "_values.csv")), show_col_types = FALSE),
+    values = read_csv(file.path(supp_dir, paste0(set_id, "_values.csv")), show_col_types = FALSE),
     metadata = tibble(field = names(metadata), value = unname(metadata)),
-    plot = readRDS(file.path(out_dir, paste0(set_id, "_indicatorMap_plot.rds"))) %>% st_drop_geometry(),
+    plot = readRDS(file.path(supp_dir, paste0(set_id, "_indicatorMap_plot.rds"))) %>% st_drop_geometry(),
     supp_indicators = supp_wide,
     supp_cwm_medians = cwm_medians
   )
@@ -324,7 +332,7 @@ export_factor_set <- function(f, set_id, pnames, period_text) {
     metadata[["Uncertainty (sd)"]] <- "SD of 1000 draws from the model's coefficient distribution (back-transformed from the logit scale). Supplementary: ci_low / ci_high = 95 % interval of the draws; n_upper = number of plots showing enrichment (score < 1). One-sided indicator, so no separate side models (mean_lower / mean_upper / n_lower empty), as in NINA's NO_FUNI_002/004"
   metadata[["Number of observations"]]     <- paste0("ANO wetland plot surveys with a value: ",
                                                      paste(sprintf("%s: %d", pnames, agg$n[agg$region == "Norway"]), collapse = ", "))
-  metadata[["Method note"]]                <- paste0("Follows NINA's split functional plant indicators (", fm$nina, "). Deviations: reference values per NiN main type (V1/V2/V3) rebuilt from Artsdatabanken's B12 lists rather than per mapping unit; plot types V4-V8 not scored")
+  metadata[["Method note"]]                <- paste0("Follows NINA's split functional plant indicators (", fm$nina, "). Deviations: reference values per NiN main type (V1/V2/V3) rebuilt from Artsdatabanken's B12 lists rather than per mapping unit; plot types V4, V6 and V8 not scored")
 
   export_platform_indicator(
     id = set_id, units = list(region = region_long, plot = plot_long), national = national,

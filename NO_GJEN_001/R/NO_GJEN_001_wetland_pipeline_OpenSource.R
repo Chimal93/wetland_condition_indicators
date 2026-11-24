@@ -473,7 +473,7 @@ if (!file.exists(regions_path)) {
   stop(
     "Missing required file: ", regions_path, "\n",
     "Copy it from NO_FUNC_003/data/NINA/spatial/regions.shp or ",
-    "NO_CONN_001/data/spatial/regions.shp and re-run."
+    "NO_CONN_003/data/spatial/regions.shp and re-run."
   )
 }
 

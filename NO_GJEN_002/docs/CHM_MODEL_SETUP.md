@@ -3,7 +3,7 @@
 This documents the **external Python/PyTorch dependency** needed to regenerate
 NO_GJEN_002's canopy-height predictions (Meta's `HighResCanopyHeight` model, run
 on orthophoto tiles) - the same kind of "read this before running anything"
-treatment NO_CONN_001's README gives QGIS.
+treatment NO_CONN_003's README gives QGIS.
 
 **You only need this to regenerate predictions from imagery.** To reproduce the
 published indicator, use the committed per-polygon predictions in
@@ -28,7 +28,7 @@ predicted height value per input pixel, as expected.
 Meta's model is Python/PyTorch-only - there is no R package or interface, and
 no way to avoid this. The integration pattern is the same one already used
 elsewhere in this project (R calling out to an external tool via `system2()` -
-see `NO_CONN_001`'s QGIS `ogr2ogr.exe` call, or its PowerShell/.NET zip
+see `NO_CONN_003`'s QGIS `ogr2ogr.exe` call, or its PowerShell/.NET zip
 extraction) - just a heavier, more specialized external environment than
 either of those two.
 
@@ -167,7 +167,7 @@ set or (as in the smoke test) synthetic noise.
    workflow) - not yet built, since there's nothing real to test it against.
 5. An R-side `system2()` wrapper calling into `.venv_chm`'s Python, matching
    the `convert_n50_2006_sosi_to_gpkg.R` / QGIS integration pattern in
-   NO_CONN_001 - not yet built, same reason as #4.
+   NO_CONN_003 - not yet built, same reason as #4.
 
 ## To re-verify this environment still works (e.g. after a machine change)
 
