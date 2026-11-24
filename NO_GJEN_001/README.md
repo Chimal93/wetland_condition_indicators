@@ -177,7 +177,9 @@ overskriver aldri de leverte filene. Med 1 m-utvalg blir regionverdiene
 **Rask test.** Når steg 6–9 er kjørt, kjører `R/quick_test_small_aoi.R`
 den uendrede beregningen for én region (standard Nord-Norge; velg annen
 med `GJEN001_TEST_REGION`) på noen minutter. Testen ga 0,9698 for
-Nord-Norge, likt den nasjonale kjøringen med samme metode.
+Nord-Norge da den ble kjørt med det tidligere 1 m-utvalget, likt den
+nasjonale kjøringen med samme metode. Den er ikke kjørt på nytt med det
+leverte 20 m-utvalget (0,977 nasjonal kjøring).
 
 **Kontroll.** Hele kjeden er kjørt fra tomt mellomlager uten tilgang til
 NINAs filområder. Nedlastingene ga de samme objekttallene som originalen.

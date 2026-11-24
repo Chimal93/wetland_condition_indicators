@@ -105,7 +105,7 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | `R/` | All kode: nedlasting, referansetabell, beregning, eksport, kart. |
 | `data/OpenS_data/` | Nedlastede inndata (ANO, B12 og Tyler et al. er gitignored) og referansetabellen `wet_ref_openS.csv`. |
 | `data/NINA/spatial/` | Regioner og kystlinje fra NINAnor/ecosystemCondition (CC BY 4.0). |
-| `docs/` | Tom foreløpig. |
+| `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_FUNC_003.qmd` (kilde) og `NO_FUNC_003.html`. Lages på nytt med `quarto render docs/NO_FUNC_003.qmd` (Quarto 1.9). Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `outputs/results/` | Kart og tabeller fra beregningen, inkludert verdier per flate (`NO_FUNC_003_plots.gpkg`/`.csv`). |
 | `outputs/deliverables/` | De fem indikatorene i plattformformatet. |
 
@@ -196,8 +196,8 @@ Testkartet havner i `outputs/results/` og er gitignored.
     fra åpne kilder. Å utelate de 27 flatene endrer den samlede indeksen
     med under 0,003, mindre enn konfidensintervallet. Overskriften i
     `R/build_wet_ref_openS.R` beskriver hvordan typene kan legges til.
-  - **36 flater av typene V1–V3** har ingen registrerte arter med
-    indikatorverdi og får derfor ingen verdi.
+  - **36 registreringer av typene V1–V3** har ingen registrerte arter i
+    ANO-eksporten og får derfor ingen verdi.
 - **Referansen for V2 inneholder bare myrskog, ikke sumpskog.** I ANO
   kodes V2 som «myr- og sumpskogsmark», delt bare etter kalkinnhold
   (V2-C-1/2/3). Flater i sumpskog (skog på våt mineraljord) kan derfor
