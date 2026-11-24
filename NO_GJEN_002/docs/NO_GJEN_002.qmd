@@ -19,8 +19,8 @@ verbatimEcosystem: Våtmark
 yearAdded: 2026
 yearLastUpdate: 2026
 status: complete
-Version: "000.002"
-VersionComment: "First national run on orthophoto, forest reference at 20 m"
+Version: "000.003"
+VersionComment: "Nature types excluded from the good-condition reference are removed from the population"
 url: https://github.com/Chimal93/wetland_condition_indicators/tree/main/NO_GJEN_002
 Normalised: Yes
 SpatialAggregationPathway: "Truncate/Scale/Transform (sigmoid) - Aggregate (area-weighted arithmetic mean)"
@@ -70,17 +70,7 @@ lo   <- regs[1, ]; hi <- regs[nrow(regs), ]
 med  <- tapply(p$pop, p$region, median)
 raw  <- list.files(file.path("..", "data", "OpenS_data", "meta_chm_national_RAW_2026-09-17"), "csv$", full.names = TRUE)
 n_raw <- sum(vapply(raw, function(f) nrow(read_csv(f, show_col_types = FALSE)), 0L))
-# Nature types excluded from the good-condition reference (NO_GJEN_001, stage 5)
-g1 <- readLines(file.path("..", "..", "NO_GJEN_001", "R", "NO_GJEN_001_wetland_pipeline_OpenSource.R"), encoding = "UTF-8")
-i  <- grep("excluded_naturtyper <- c", g1)
-j  <- i + which(grepl("^  [)]", g1[(i + 1):length(g1)]))[1]
-wooded_types <- eval(parse(text = sub("excluded_naturtyper <- ", "", paste(g1[i:j], collapse = " ")), encoding = "UTF-8"))
-p$wooded <- p$naturtype %in% wooded_types
-a <- st_read(file.path(results, "NO_GJEN_002_wetland_index_OpenSource.shp"), quiet = TRUE)
-p$area <- as.numeric(st_area(a))[match(p$id, a$id)]
-stopifnot(!anyNA(p$area), any(p$wooded))
-wood1 <- function(d) summarise(d, share = mean(wooded), all = weighted.mean(index, area), without = weighted.mean(index[!wooded], area[!wooded]), .groups = "drop")
-wood <- bind_rows(wood1(group_by(p, region)), mutate(wood1(p), region = "Norge"))
+sens <- read_csv(file.path(results, "NO_GJEN_002_population_sensitivity.csv"), show_col_types = FALSE)
 ```
 
 ::: {.callout-note}
@@ -104,7 +94,7 @@ metadata_table("NO_GJEN_002.qmd")
 ::: {.callout-tip collapse="true"}
 ## Log
 
-- 24 Nov. 2026 - First version of this document
+- 24 Nov. 2026 - First version of this document. Population changed (version 000.003)
 :::
 
 <hr />
@@ -115,7 +105,7 @@ metadata_table("NO_GJEN_002.qmd")
 Open wetlands can become overgrown with trees and shrubs (Norwegian: *gjengroing*). NO_GJEN_001 measures this with laser scanning, which is rarely repeated nationally. This indicator measures the same characteristic from aerial photos, which are renewed more often.
 
 2. **Methods**:
-A deep-learning model (Meta HighResCanopyHeight; Tolan et al., 2024) predicts canopy height from 50 cm orthophotos for every wetland polygon in the NiN mapping. The polygon mean is scaled against the same reference heights as NO_GJEN_001.
+A deep-learning model (Meta HighResCanopyHeight; Tolan et al., 2024) predicts canopy height from 50 cm orthophotos for the wetland polygons in the NiN mapping, except nature types that can be in good condition with trees. The polygon mean is scaled against the same reference heights as NO_GJEN_001.
 
 3. **Interpretation**:
 A value of 1 means that the vegetation is no taller than in wetland in good condition.
@@ -123,13 +113,13 @@ Values decreasing towards 0 mean that the vegetation approaches the height of fo
 
 4. **Results and development needs**:
 The national value is `r num(nor$i_2025, 3)` (n = `r cnt(nor$n)` polygons). It is lowest in `r lo$area` (`r num(lo$i_2025, 3)`) and highest in `r hi$area` (`r num(hi$i_2025, 3)`).
-The references are laser-based and not calibrated for this model, naturally wooded wetland types are in the population but not in the reference and pull down the values in the south (@tbl-wooded), and no limit for good condition is defined on the height scale.
+`r pct(mean(p$index > 0.99))` of the polygons score above 0.99, so the indicator separates few polygons from the rest. Encroachment in the excluded types is not measured, the references are laser-based and not calibrated for this model, and no limit for good condition is defined on the height scale.
 
 ## 2. About the underlying data
 
 - **Imagery**: a national RGB orthophoto mosaic, 50 cm. It is commercial and cannot be redistributed.
 - **Model**: Meta HighResCanopyHeight, aerial checkpoint (open weights).
-- **Population**: all wetland polygons in the NiN nature-type dataset.
+- **Population**: wetland polygons in the NiN nature-type dataset, without 24 nature types (see 4.2).
 - **Reference heights**: from NO_GJEN_001.
 - **Other**: bioclimatic zones, the SSB 50 km grid, and five regions.
 
@@ -137,7 +127,7 @@ The references are laser-based and not calibrated for this model, naturally wood
 Mainland Norway, wherever NiN wetland has been mapped. The mosaic has product year 2025, but the flights span several years. The year label is therefore 2025.
 
 ### 2.2 Sampling design
-No sampling: every mapped wetland polygon is used (`r cnt(n_raw)` predicted). NiN mapping is not area-representative, so neither is the population.
+No sampling: every mapped wetland polygon of the included types is used (`r cnt(nrow(p))` scored of `r cnt(n_raw)` predicted). NiN mapping is not area-representative, so neither is the population.
 
 ### 2.3 Original units
 Metres (predicted canopy height).
@@ -179,6 +169,8 @@ Borrowed from NO_GJEN_001, as in NINA's original:
 
 Both are measured with laser scanning, while the population is predicted from photos.
 
+The good-condition reference excludes nature types that can be in good condition with more than 10% tree cover, mainly swamp forest (NINA's list of 24 types). The same types are removed from the population, because they would otherwise be compared with open wetland. NINA's document does not describe this for the population.
+
 ```{r tbl-strata}
 #| tbl-cap: "Reference heights per stratum, and number of scored polygons"
 #| echo: false
@@ -189,7 +181,7 @@ p |>
 ```
 
 #### 4.2.1 Spatial resolution and validity
-Reference levels vary by region and bioclimatic zone. `r cnt(n_raw - nrow(p))` polygons (`r pct((n_raw - nrow(p)) / n_raw, 1)`) are not scored; they lie in strata without a reference. NINA points out that values scaled against such large areas are not precise for a single polygon.
+Reference levels vary by region and bioclimatic zone. 388 polygons of the included types are not scored, because they lie in strata without a reference. NINA points out that values scaled against such large areas are not precise for a single polygon.
 
 ## 5. Uncertainties
 
@@ -198,7 +190,7 @@ Reference levels vary by region and bioclimatic zone. `r cnt(n_raw - nrow(p))` p
 - **Model error.** Against laser-based height on the 46 test polygons that have both, r = 0.95 and the mean absolute error is 0.31 m. The error is larger than X~100~ in many strata.
 - **Imagery.** Season, light and flight year vary across the mosaic. The median predicted height is `r num(med["Sørlandet"], 1)` m in Sørlandet and `r num(med["Østlandet"], 1)` m in Østlandet, but below 0.2 m in the other regions.
 - **The index saturates.** `r pct(mean(p$index > 0.99))` of the polygons score above 0.99, because the sigmoid is flat near the reference.
-- **Wooded wetland.** The population includes naturally wooded wetland types, such as swamp forest, which the good-condition reference excludes. They make up `r pct(mean(p$wooded))` of the polygons, and score as overgrown because they are compared with open wetland. This explains most of the low values in Sørlandet and Østlandet (@tbl-wooded). Whether these types should be part of the population must be decided.
+- **Excluded types.** 9,459 polygons are left out, and encroachment in them is not measured. The list is NINA's, and not all types on it are forest (it includes springs and reed swamp). The choice matters a great deal in the south, see @tbl-population.
 - **Two settings decide the result.** The satellite normalisation built into the model must be skipped for aerial photos, and polygon values must be means, not medians.
 
 ### 5.2 Reported uncertainties
@@ -316,16 +308,17 @@ read_csv(file.path("..", "..", "NO_GJEN_001", "outputs", "deliverables", "NO_GJE
   kable(align = "lrrr")
 ```
 
-The populations differ (a sample of AR5 mire against all mapped NiN wetland), so the difference is not only due to the measurement method. Sørlandet stands out, see @tbl-wooded.
+The populations differ (a sample of AR5 mire against mapped NiN wetland of the included types), so the difference is not only due to the measurement method. 
 
-```{r tbl-wooded}
-#| tbl-cap: "Share of naturally wooded wetland types (those excluded from the good-condition reference), and the area-weighted indicator with and without them. A sensitivity check, not part of the delivery"
+```{r tbl-population}
+#| tbl-cap: "Effect of the population rule: the delivered population against all NiN wetland polygons (version 000.002)"
 #| echo: false
-wood |>
+sens |>
   mutate(region = factor(region, reg_lv)) |>
   arrange(region) |>
-  transmute(Region = region, `Wooded types` = pct(share), `All polygons (delivered)` = num(all, 3), `Without wooded types` = num(without, 3)) |>
-  kable(align = "lrrr")
+  transmute(Region = region, `n, delivered` = cnt(n_delivered), `Indicator, delivered` = num(index_delivered, 3),
+            `n, all types` = cnt(n_all_types), `Indicator, all types` = num(index_all_types, 3), `Share removed` = pct(share_removed)) |>
+  kable(align = "lrrrrr")
 ```
 
 

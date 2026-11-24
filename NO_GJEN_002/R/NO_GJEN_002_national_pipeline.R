@@ -19,6 +19,11 @@
 #                 NO_GJEN_001's current (AR5-based) forest reference; the
 #                 2026-07-23 AR50-era copy is kept as *_SUPERSEDED_2026-07.csv.
 # Population value: meta_chm_mean (validated; not the median).
+# Population: NiN wetland polygons EXCEPT the nature types that the good-
+# condition reference excludes because they can be in good condition with
+# more than 10 % tree cover (swamp forests etc., see excluded_naturtyper).
+# Without this they are compared with open wetland and score as overgrown.
+# GJEN002_POPULATION=all reproduces the population used before 2026-11-24.
 #
 # Scaling: identical sigmoid to NO_GJEN_001 (per polygon, against its
 # region x bioclim stratum anchors), 1 = reference condition.
@@ -63,7 +68,9 @@ if (!dir.exists(img_dir)) dir.create(img_dir, recursive = TRUE)
 #                     higher; outputs suffixed "_skog1m" for comparison.
 skog_scale  <- Sys.getenv("GJEN002_SKOG_SCALE", "20m")
 if (!skog_scale %in% c("1m", "20m")) stop("GJEN002_SKOG_SCALE must be '20m' or '1m'")
-out_suffix  <- if (skog_scale == "20m") "_OpenSource" else "_OpenSource_skog1m"
+population  <- Sys.getenv("GJEN002_POPULATION", "open")
+if (!population %in% c("open", "all")) stop("GJEN002_POPULATION must be 'open' or 'all'")
+out_suffix  <- paste0("_OpenSource", if (skog_scale == "1m") "_skog1m" else "", if (population == "all") "_allTypes" else "")
 skog_file   <- if (skog_scale == "20m") "vegHeights_skog_climZoneRegion_openS_20m.csv" else "vegHeights_skog_climZoneRegion_openS.csv"
 raw_dir     <- Sys.getenv("GJEN002_META_RAW_DIR", file.path(opens_dir, "meta_chm_national_RAW_2026-09-17"))
 
@@ -93,6 +100,25 @@ wetland <- nin %>%
 
 metaChm <- wetland %>% inner_join(meta, by = "id")
 cat("  ", nrow(metaChm), "polygons with a canopy-height value (of", nrow(wetland), "national wetland polygons)\n")
+
+# Nature types excluded from the good-condition reference. Must be identical
+# to the list in NO_GJEN_001/R/build_refvaatmark_30m.R (from NINA's original).
+excluded_naturtyper <- c(
+  "Hule eiker", "Hagemark", "Lauveng",
+  "Saltpåvirket strand- og sumpskogsmark", "Flommyr, myrkant og myrskogsmark",
+  "Grankildeskog", "Sørlig kaldkilde", "Kaldkilde under skoggrensa",
+  "Svak kilde og kildeskogsmark", "Varmekjær kildelauvskog",
+  "Gammel fattig sumpskog", "Rik gransumpskog", "Rik svartorsumpskog",
+  "Kilde-edellauvskog", "Rik gråorsumpskog", "Kalkrik myr- og sumpskogsmark",
+  "Rik vierstrandskog", "Rik svartorstrandskog", "Saltpåvirket svartorstrandskog",
+  "Leirravine", "Kalkrik helofyttsump",
+  "Grotte", "Silt og leirskred", "Fossepåvirket berg"
+)
+if (population == "open") {
+  is_excluded <- metaChm$naturtype %in% excluded_naturtyper
+  cat("  ", sum(is_excluded), "polygons of nature types outside the reference removed;", sum(!is_excluded), "left\n")
+  metaChm <- metaChm[!is_excluded, ]
+}
 
 # ===========================================================
 # STAGE 2: Regions and bioclimatic strata (as in NO_GJEN_001).

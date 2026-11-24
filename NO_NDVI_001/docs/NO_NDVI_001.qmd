@@ -7,7 +7,7 @@ verbatimName: "Primærproduksjon i våtmark (NDVI-trend)"
 folderName: NO_NDVI_001
 country: Norway
 continent: Europe
-ECT: B3 - Functional State characteristics
+ECT: B2 - Structural State characteristics or B3 - Functional State characteristics
 Realm:
   - Freshwater-Terrestrial (TF)
 Biome:
@@ -133,7 +133,7 @@ The value is read from the pixel at the polygon's centroid, and the MODIS qualit
 ## 3. Indicator properties
 
 ### 3.1 Ecosystem Condition Typology Class (ECT)
-B3 - functional state: the indicator describes primary production.
+B2 (structural state) or B3 (functional state): the class has not been settled, as the indicator describes greenness as a proxy for primary production.
 
 ### 3.2 Ecosystem condition characteristic
 Primary production.

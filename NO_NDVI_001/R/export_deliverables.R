@@ -121,7 +121,7 @@ metadata <- c(
   "Indicator name (public)"      = "Primærproduksjon i våtmark (NDVI-trend)",
   "Indicator name (technical)"   = "Wetland primary production - deviation of the long-term trend in peak growing-season NDVI from no trend",
   "Ecosystem"                    = "Våtmark (wetland); IUCN GET TF1.6 Boreal/temperate bogs, TF1.7 Boreal/temperate fens",
-  "ECT class"                    = "B3 - Functional State Characteristics",
+  "ECT class"                    = "B2 - Structural State Characteristics or B3 - Functional State Characteristics",
   "Spatial units delivered"      = "landsdel (5 regions, primary map), individual NiN wetland polygons; national value in the values table (area = Norge)",
   "CRS"                          = "EPSG:25833 (ETRS89 / UTM 33N)",
   "Data year label"              = paste0(DATA_YEAR, " - last year of the trend window ", anch$year_min, "-", anch$year_max, ". The ", DATA_YEAR, " growing season was fetched up to July and is partial"),

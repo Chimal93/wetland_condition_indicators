@@ -11,11 +11,11 @@ en dyplæringsmodell, mot de samme referansenivåene som `NO_GJEN_001`.
 
 - **English**: Woody encroachment in wetlands from aerial photography:
   canopy height predicted from orthophoto by a deep-learning model for
-  every NiN wetland polygon, scaled against the reference levels of
+  every NiN wetland polygon of the open types, scaled against the reference levels of
   `NO_GJEN_001`.
 - **Norwegian**: Gjengroing i våtmark fra flyfoto: vegetasjonshøyde
   predikert fra ortofoto med en dyplæringsmodell for hvert
-  NiN-våtmarkspolygon, skalert mot referansenivåene i `NO_GJEN_001`.
+  NiN-våtmarkspolygon av åpne typer, skalert mot referansenivåene i `NO_GJEN_001`.
 
 ## 1. Bidragsytere / Kontakt
 
@@ -35,8 +35,10 @@ på 124 polygoner; dette er den første nasjonale kjøringen.
 1. **Vegetasjonshøyde.** Metas modell HighResCanopyHeight (Tolan et al.,
    2024), sjekkpunktet for flyfoto, kjøres på ortofoto med 0,5 m
    oppløsning i fliser på 256 × 256 piksler (128 m), på CPU.
-2. **Populasjon.** Alle NiN-våtmarkspolygoner, ikke et utvalg. Verdien per
-   polygon er **gjennomsnittet** av pikslene.
+2. **Populasjon.** NiN-våtmarkspolygonene, ikke et utvalg. Naturtyper som
+   kan være i god tilstand med mer enn 10 % tresjikt (særlig sumpskog), er
+   utelatt. Det er de samme 24 typene som er utelatt fra referansen for god
+   tilstand. Verdien per polygon er **gjennomsnittet** av pikslene.
 3. **Referanser.** Lånt uendret fra `NO_GJEN_001`, som i originalen:
    referansen for god tilstand evaluert på 30 m (X100), og skogreferansen
    på 20 m (X0).
@@ -59,24 +61,28 @@ Feil på ett av punktene endrer resultatet vesentlig.
 har begge: r = 0,95, MAE = 0,31 m. Det er like godt som eller bedre enn
 originalens egen validering på alle mål.
 
-**Resultater (n = 24 026 polygoner):**
+**Resultater (n = 14 674 polygoner, versjon 000.003):**
 
 | Region | Indikator | Gjennomsnittlig høyde | n |
 |---|---|---|---|
-| Midt-Norge | 0,988 | 0,80 m | 6 754 |
-| Nord-Norge | 0,972 | 0,75 m | 5 642 |
-| Vestlandet | 0,971 | 1,15 m | 2 618 |
-| Østlandet | 0,877 | 3,01 m | 6 286 |
-| Sørlandet | 0,802 | 3,89 m | 2 726 |
-| **Norge** | **0,957** | 0,68 m | 24 026 |
+| Nord-Norge | 0,989 | 0,38 m | 4 495 |
+| Midt-Norge | 0,995 | 0,45 m | 5 851 |
+| Vestlandet | 0,995 | 0,43 m | 1 721 |
+| Østlandet | 0,984 | 0,95 m | 1 756 |
+| Sørlandet | 0,983 | 0,96 m | 851 |
+| **Norge** | **0,992** | 0,28 m | 14 674 |
 
 Gjennomsnittlig høyde er uvektet per region, men arealvektet for Norge.
 Derfor er den nasjonale høyden lavere enn i noen av regionene.
 
-De to gjengroingsindikatorene er nær hverandre i fire regioner (forskjell
-på 0,005–0,03 fra `NO_GJEN_001`), der de bruker de samme referansene. Sørlandet skiller seg ut (0,80 mot
-0,95); der er 69 % av polygonene naturlig tresatt våtmark, se kjente
-begrensninger.
+Verdiene ligger 0,01–0,08 over `NO_GJEN_001`. Populasjonene er
+forskjellige, så forskjellen skyldes ikke bare målemetoden.
+
+**Endring fra versjon 000.002.** Den forrige versjonen hadde med alle
+NiN-våtmarkspolygoner (n = 24 026). Tresatte typer ble da sammenlignet med
+åpen våtmark og skåret som gjengrodd: Sørlandet 0,802, Østlandet 0,877,
+Norge 0,957. `GJEN002_POPULATION=all` gjenskaper den versjonen, og
+`outputs/results/NO_GJEN_002_population_sensitivity.csv` sammenligner de to.
 
 **Referanser**
 
@@ -191,7 +197,9 @@ Sett opp R-miljøet som beskrevet i [hoved-README](../README.md#6-installasjon--
 4. Valider før resultatene tas i bruk: `R/validate_meta_chm_orthophoto.R`
    sammenligner med kronehøyde fra laserdata på testpolygonene.
 
-**Variant.** `GJEN002_SKOG_SCALE=1m` bruker den eldre skogreferansen på
+**Varianter.** `GJEN002_POPULATION=all` tar med alle naturtyper (utdata med
+suffiks `_allTypes`); `R/population_sensitivity.R` sammenligner deretter de
+to. `GJEN002_SKOG_SCALE=1m` bruker den eldre skogreferansen på
 1 m til sammenligning (utdata med suffiks `_skog1m`).
 
 **Kontroll.** Den nasjonale kjøringen ble fullført uten feil og uten
@@ -203,23 +211,17 @@ hverandre gir identiske resultater.
 - **Resultatet avhenger av bildene.** Den publiserte kjøringen brukte en
   nasjonal mosaikk med produktår 2025, men flyvningene spenner over flere
   år. Det er det viktigste forbeholdet ved sammenligning mellom regioner.
-- **Indeksen metter for åpen myr.** 62 % av polygonene får over 0,99,
-  fordi sigmoid-funksjonen er flat nær referansen. Det er greit for en
-  tilstandsverdi, men misvisende som et kontinuerlig mål på høyde.
-- **495 polygoner (2 %) er utelatt**, fordi de ligger i fire strata
-  (region × bioklimatisk sone) uten referanse for god tilstand.
-- **Populasjonen er en annen enn i `NO_GJEN_001`:** her alle kartlagte
-  NiN-våtmarkspolygoner, der et stratifisert utvalg av AR5 myr. De to
+- **Indeksen metter for åpen myr.** 87 % av polygonene får over 0,99, og
+  2 % under 0,6, fordi sigmoid-funksjonen er flat nær referansen. Det er
+  greit for en tilstandsverdi, men misvisende som et mål på høyde.
+- **9 459 polygoner er utelatt** fordi naturtypen ikke inngår i referansen.
+  Gjengroing i disse typene måles altså ikke. Listen er NINAs, og noen av
+  typene på den er ikke skog (for eksempel kaldkilder og helofyttsump).
+- **388 polygoner er utelatt** fordi de ligger i fire strata (region ×
+  bioklimatisk sone) uten referanse for god tilstand.
+- **Populasjonen er en annen enn i `NO_GJEN_001`:** her
+  kartlagte NiN-våtmarkspolygoner, der et stratifisert utvalg av AR5 myr. De to
   indikatorene kan ikke byttes om.
-- **Naturlig tresatt våtmark trekker ned verdiene i sør.** Populasjonen
-  omfatter tresatte naturtyper (særlig sumpskog), som referansen for god
-  tilstand utelater. De utgjør 69 % av polygonene på Sørlandet og 72 % på
-  Østlandet, og skåres som gjengrodd fordi de sammenlignes med åpen
-  våtmark. Uten dem ville verdiene vært 0,98 på både Sørlandet (levert:
-  0,80) og Østlandet (levert: 0,88), og 0,99 for Norge (levert: 0,96).
-- **Predikerte høyder er mye høyere i sør** (median 2,5–3,5 m) enn ellers
-  (under 0,2 m). Det skyldes i hovedsak de tresatte typene. Årstid og
-  flyår for bildene kan også spille inn.
 
 ## 7. Lisens / Rettigheter
 

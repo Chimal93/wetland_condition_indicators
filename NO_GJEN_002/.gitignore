@@ -55,3 +55,6 @@ data/OpenS_data/meta_chm_scratch/
 Rplots.pdf
 .DS_Store
 Thumbs.db
+
+# Comparison run with the old population (R/population_sensitivity.R).
+outputs/results/*_allTypes*
