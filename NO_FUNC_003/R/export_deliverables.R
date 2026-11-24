@@ -68,8 +68,8 @@ THR     <- 0.6
 
 results_dir <- file.path("..", "outputs", "results")
 spatial_dir <- file.path("..", "data", "NINA", "spatial")
-out_dir     <- file.path("..", "outputs", "deliverables")    # the four indicators
-supp_dir    <- file.path("..", "outputs", "supplementary")   # the combined index
+out_dir     <- file.path("..", "outputs", "deliverables")    # the four indicators, one cycle
+supp_dir    <- file.path("..", "outputs", "supplementary")   # combined index; 3-year periods of the four
 dir.create(supp_dir, showWarnings = FALSE, recursive = TRUE)
 
 region_names <- c("Northern" = "Nord-Norge", "Central" = "Midt-Norge", "Eastern" = "Østlandet",
@@ -287,7 +287,7 @@ factor_meta <- list(
                lims = "0.95 quantile (upper limit only)", nina = "NO_FUNI_002 (mountain), NO_FUNI_004 (forest)")
 )
 
-export_factor_set <- function(f, set_id, pnames, period_text) {
+export_factor_set <- function(f, set_id, pnames, period_text, out_dir) {
   fm   <- factor_meta[[f]]
   col  <- paste0("fac_", f)
   defs <- period_defs[pnames]
@@ -350,11 +350,12 @@ export_factor_set <- function(f, set_id, pnames, period_text) {
 for (f in names(factor_meta)) {
   id <- factor_meta[[f]]$id
   export_factor_set(f, id, c("2019to2021", "2022to2024"),
-                    "Two 3-year ANO reporting periods: 2019-2021 (column suffix 2021) and 2022-2024 (suffix 2024), every plot survey in those years")
+                    "Two 3-year ANO reporting periods: 2019-2021 (column suffix 2021) and 2022-2024 (suffix 2024), every plot survey in those years",
+                    supp_dir)   # supplementary: would give a second value labelled 2024
   for (p in grep("^cycle", names(period_defs), value = TRUE)) {
     d <- period_defs[[p]]
     export_factor_set(f, paste0(id, "_", p), p,
                       paste0("ANO monitoring cycle ", d$visit, ": ", min(d$years), "-", max(d$years),
-                             " (column suffix ", d$year, "), each plot point's survey number ", d$visit, " only"))
+                             " (column suffix ", d$year, "), each plot point's survey number ", d$visit, " only"), out_dir)
   }
 }

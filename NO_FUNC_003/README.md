@@ -107,8 +107,8 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
 | `data/NINA/spatial/` | Regioner og kystlinje fra NINAnor/ecosystemCondition (CC BY 4.0). |
 | `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_FUNC_003.qmd` (kilde) og `NO_FUNC_003.html`. Lages på nytt med `quarto render docs/NO_FUNC_003.qmd` (Quarto 1.9). Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
 | `outputs/results/` | Kart og tabeller fra beregningen, inkludert verdier per flate (`NO_FUNC_003_plots.gpkg`/`.csv`). |
-| `outputs/deliverables/` | De fire indikatorene i plattformformatet. |
-| `outputs/supplementary/` | Den samlede indeksen `NO_FUNC_003` i samme format (ikke levert). |
+| `outputs/deliverables/` | De fire indikatorene i plattformformatet (ANO-syklus 1, 2019–2024). |
+| `outputs/supplementary/` | Ikke levert, samme format: den samlede indeksen `NO_FUNC_003`, og de fire indikatorene for periodene 2019–2021 og 2022–2024. |
 
 ## 5. Input / Output
 
@@ -132,10 +132,16 @@ filen mangler, og kontrollerer at arket `"Taxa"` finnes.
 I `outputs/deliverables/`, for hver av `NO_FULI_003`, `NO_FUMO_003`,
 `NO_FUPH_003` og `NO_FUNI_003`:
 
+- `<ID>_cycle1_2019to2024_*` – én hel ANO-syklus, med bare **første**
+  registrering per punkt (kolonnesuffiks `_2024`). Tre punkter er
+  registrert to ganger samme år i ANO-eksporten; begge registreringene er
+  med i verdiene (2 778 registreringer, 2 775 punkter).
+
+I `outputs/supplementary/` (ikke levert, for å unngå to ulike verdier merket
+2024):
+
 - `<ID>_*` – de to treårsperiodene i originalen, alle registreringer i
   periodene: `_2021` (ANO 2019–2021) og `_2024` (ANO 2022–2024).
-- `<ID>_cycle1_2019to2024_*` – én hel ANO-syklus, med bare **første**
-  registrering per punkt, slik at ingen punkter telles to ganger.
 
 Hvert sett har kart per landsdel og per ANO-punkt (`.rds`), verditabell
 (`.csv`/`.xlsx` med metadata) og figur (`.png`). Særskilt for denne
