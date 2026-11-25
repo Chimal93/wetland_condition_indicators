@@ -1,0 +1,71 @@
+# R session / working-state artifacts - never intentional output
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+*.Rout
+Rplots.pdf
+
+# Large, fully re-fetchable raw source data - regenerate with the
+# scripts in R/ instead of committing. NOT needed at all if you
+# never delete the committed derived caches below (see README).
+data/infra_index_source/
+data/wetland_map_source/
+data/nin_data/
+
+# Quick-test artifacts - not real results.
+outputs/results_TEST_AOI/
+*.real_backup
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# ----------------------------------------------------------------------
+# LICENCE EXCLUSION - read before adding anything under these paths.
+#
+# The AR5 variant is computed from FKB-AR5, whose Geonorge metadata states
+# "Nedlasting av data begrenset til Norge Digitalt avtaleparter" (download
+# restricted to Norge digitalt parties, Norge digitalt-lisens, Geovekst).
+# Its derived wetland OUTLINES are therefore not ours to redistribute:
+# they are area-preserving, only lightly generalised (2 m), and national,
+# so publishing them would effectively republish FKB-AR5 geometry.
+#
+# What IS published from the AR5 variant: the aggregated results - region
+# and national indicator values, the region-level map, the values tables
+# and the metadata. Those are statistics, not geometry.
+#
+# Anyone with AR5 access regenerates the geometry locally with
+# run_connectivity_ar5.ps1. Anyone without it gets the same pipeline on
+# AR50 (NIBIO, open data, NLOD), which R/prepare_ar5_mire_regions.R
+# falls back to automatically - AR50-derived outputs carry no such
+# restriction and may be published.
+# ----------------------------------------------------------------------
+data/wetland_map_ar5/
+data/connectivity_output_ar5/
+outputs/deliverables/*_indicatorMap_polygon.rds
+
+# ----------------------------------------------------------------------
+# Size exclusions (not licence): the ~2GB of derived caches for the
+# mire-model variant. Several exceed GitHub's 100MB per-file hard limit,
+# and keeping 2GB out of git history keeps the repo quick to clone. They
+# are published as GitHub Release assets instead and retrieved by
+# R/download_caches.R - see README's "Cache vs. real compute"
+# section. Regenerating them from scratch is 20+ hours of compute, so do
+# not delete them casually.
+# ----------------------------------------------------------------------
+data/LUI_output/
+data/wetland_map_simplified/
+data/connectivity_output_simplified/
+
+# The mire-model variant's polygon-level map (1.15 M rows, 51 MB). Excluded
+# for SIZE only - it derives from open sources (mire probability model +
+# NiN) and may be redistributed; R/export_deliverables.R regenerates it.
+outputs/deliverables_MireModel/*_indicatorMap_polygon.rds
+
+# Scored polygons written by R/scale_and_map_connectivity_indicator.R
+# (450 MB mire-model / 712 MB AR5; minutes to regenerate). The variant
+# documentation in that folder IS committed.
+data/connectivity_scored/*
+!data/connectivity_scored/README_variants.md
+!data/connectivity_scored/run_logs_AR5/

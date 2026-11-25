@@ -1,0 +1,2 @@
+"reference_slope","threshold","extreme","n_null","n_perm_per_polygon","min_years","sources","year_min","year_max"
+0,0.00214349206349208,0.0106660572337037,983,1,10,"MODIS",2000,2026
