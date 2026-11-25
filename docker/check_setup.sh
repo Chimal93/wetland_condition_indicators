@@ -36,7 +36,7 @@ fi
 
 # ---- NO_FUNC_003: Tyler et al. (2021) spreadsheet, manual download --------
 if want FUNC; then
-  f=NO_FUNC_003/Data/OpenS_data/Tyler_data_raw.xlsx
+  f=NO_FUNC_003/data/OpenS_data/Tyler_data_raw.xlsx
   if [ -f "$REPO_DIR/$f" ]; then
     ok "NO_FUNC_003: $f"
   else
@@ -49,13 +49,13 @@ if want FUNC; then
     echo "         3. Save it, unchanged and still .xlsx, as:"
     echo "              $REPO_DIR/$f"
     echo "         Then check the file with:"
-    echo "           bash docker/run_script.sh NO_FUNC_003/Fetch/get_tyler_data.R"
+    echo "           bash docker/run_script.sh NO_FUNC_003/R/get_tyler_data.R"
   fi
 fi
 
-# ---- NO_CONN_001: nothing manual (caches are downloaded by the runner) -----
+# ---- NO_CONN_003: nothing manual (caches are downloaded by the runner) -----
 if want CONN; then
-  ok "NO_CONN_001: no manual inputs (about 2 GB of caches are downloaded on the first run)"
+  ok "NO_CONN_003: no manual inputs (about 2 GB of caches are downloaded on the first run)"
 fi
 
 # ---- NO_GJEN_002: nothing manual (NiN and bioclim are downloaded) --------
@@ -67,7 +67,7 @@ fi
 if want GJEN; then
   case "$GJEN_SOURCE" in
     AR5)
-      d=NO_GJEN_001/Data/OpenS_data
+      d=NO_GJEN_001/data/OpenS_data
       if [ -f "$REPO_DIR/$d/ar5_skog_national.gpkg" ] && [ -f "$REPO_DIR/$d/ar5_myr_national.gpkg" ]; then
         ok "NO_GJEN_001: $d/ar5_skog_national.gpkg and ar5_myr_national.gpkg"
       else

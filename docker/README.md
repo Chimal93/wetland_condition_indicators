@@ -1,6 +1,6 @@
 # Running the indicators with Docker
 
-This folder lets you run the three indicator pipelines in a ready-made,
+This folder lets you run the indicator pipelines in a ready-made,
 fixed software environment, without installing R yourself. **This is the
 preferred way to run the indicators, on any operating system.** It is the
 only setup that fixes not just the R packages but also R itself and the
@@ -18,8 +18,8 @@ may differ slightly.
 ## What Docker gives you here
 
 A Docker *image* is a complete, frozen software installation: an operating
-system, R 4.6.1, every R package at the exact version listed in
-`renv.lock`, and the map libraries (GDAL, GEOS, PROJ) that the `sf` and
+system, R 4.6.1, every R package at the exact version listed in the
+indicators' own lockfiles (`NO_*/renv.lock`), and the map libraries (GDAL, GEOS, PROJ) that the `sf` and
 `terra` packages depend on. Running a script "inside the image" means it
 uses exactly that installation, whatever is installed on the machine
 itself. This is what makes runs on different machines comparable.
@@ -31,17 +31,17 @@ their results stay on your machine; the image only provides the software.
 
 | File | What it is |
 |---|---|
-| `Dockerfile` | Recipe for the image: starts from the public `rocker/geospatial:4.6.1` image and installs the packages from `renv.lock`. |
+| `Dockerfile` | Recipe for the image: starts from the public `rocker/geospatial:4.6.1` image and installs the packages from every indicator's `renv.lock`. The lockfiles never disagree on a package version, so one image serves all indicators. |
 | `config.env` | All settings, with defaults and explanations. Committed; you do not edit it. |
 | `config.local.env` | Your own settings for this machine (see "Your own settings" below). Not committed; you create it. |
 | `config.local.env.example` | A copyable example of `config.local.env`. |
-| `build_image.sh` | Builds the image. Run once, and again whenever `renv.lock` or `Dockerfile` changes. |
+| `build_image.sh` | Builds the image. Run once, and again whenever a `NO_*/renv.lock` or the `Dockerfile` changes. |
 | `check_setup.sh` | Checks that the inputs you must obtain yourself are in place (see "Before your first run"). The runner calls it automatically. |
 | `run_indicators.sh` | The main runner: runs the selected indicators from start to finish and records everything. |
 | `run_script.sh` | Runs a single R script from the repository inside the image. |
 | `prepare_ar5_input/` | One script, run once by hand: builds the AR5 forest and mire layers for `NO_GJEN_001` from the municipal FKB-AR5 GeoPackages. Needs restricted-access data; not part of the normal run. |
-| `run_NO_CONN_001_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_001`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_001" below. |
-| `build_canopy_height_image.sh`, `canopy_height_model/` | A second image with the Python environment for Meta's canopy-height model, and everything it is built from. Only needed for new `NO_GJEN_002` canopy heights. |
+| `run_NO_CONN_003_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_003`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_003" below. |
+| `build_canopy_height_image.sh`, `canopy_height_model/` | A second image with the Python environment for Meta's canopy-height model (installed with `uv` from `NO_GJEN_002/src/chm_model/uv.lock`). Only needed for new `NO_GJEN_002` canopy heights. |
 | `run_NO_GJEN_002_canopy_height_model.sh` | Computes per-polygon canopy heights from an orthophoto for `NO_GJEN_002` and records exactly which inputs were used. See "New canopy heights for NO_GJEN_002" below. |
 | `data_sources.tsv` | The list of every input the runners use and where it comes from (see "Where the data came from"). |
 | `internal/` | Pieces used by the scripts above; you do not call these yourself. `run_indicators_in_container.sh` is the step list that runs inside the image; `common.sh` loads the settings. |
@@ -98,7 +98,7 @@ place:
 - **NO_FUNC_003 needs the Tyler et al. (2021) spreadsheet.** It is the
   publisher's supplementary material, so it has to be downloaded by hand
   from the article and saved as
-  `NO_FUNC_003/Data/OpenS_data/Tyler_data_raw.xlsx`.
+  `NO_FUNC_003/data/OpenS_data/Tyler_data_raw.xlsx`.
 - **NO_GJEN_001 with `GJEN_SOURCE=AR5` (the default) needs the national
   AR5 forest and mire layers.** Access to FKB-AR5 is restricted. If you
   have the municipal FKB-AR5 GeoPackages, build the layers once with
@@ -140,15 +140,15 @@ progress. Each run gets its own folder under `runs/` in the repository
 |---|---|
 | `SUMMARY.txt` | One line per step: started, finished with exit code and duration, or skipped. Read this first. |
 | `logs/` | The full console output of every step, one file per script, every line stamped with the time. |
-| `versions/` | The exact software used: R session info, GDAL/GEOS/PROJ versions, every installed package with its version, and a copy of `renv.lock`. |
+| `versions/` | The exact software used: R session info, GDAL/GEOS/PROJ versions, every installed package with its version, and a copy of each indicator's `renv.lock`. |
 | `run_info.txt` | Which repository commit, image and settings the run used. |
 | `data_sources.csv` | Every input the run used: where it comes from, size, last change, checksum and when it was fetched (see "Where the data came from" below). |
-| `results_committed/` | The `Results/` and `Deliverables/` folders as they were before the run. |
+| `results_committed/` | Each indicator's `outputs/` folder (results and deliverables) as it was before the run. |
 | `results_after/` | The same folders after the run. Compare with the folder above. |
 | `home/`, `tmp/` | Scratch space used by R during the run. |
 
-Fetched data goes where the indicator scripts put it: into `Data/` inside
-each indicator folder, which git ignores. The national OpenStreetMap
+Fetched data goes where the indicator scripts put it: into `data/` inside
+each indicator folder, where git ignores the large files. The national OpenStreetMap
 download is kept in `runs/osm_cache/` and reused by later runs.
 
 ### Where the data came from
@@ -160,7 +160,7 @@ two records:
 
 - **A download log next to the data.** Every time a download (or the AR5
   preparation) actually runs, one row per file is added to
-  `<indicator>/Data/data_sources_log.csv`: date and time, file, source,
+  `<indicator>/data/data_sources_log.csv`: date and time, file, source,
   size, checksum, repository commit and run. Because it lives next to the
   data, the date survives later runs that skip the download.
 - **A snapshot per run.** At the end of every run, `data_sources.csv` in
@@ -171,7 +171,7 @@ two records:
   time of the run.
 
 The AR5 preparation also writes
-`NO_GJEN_001/Data/OpenS_data/ar5_national_source_files.csv`, the name,
+`NO_GJEN_001/data/OpenS_data/ar5_national_source_files.csv`, the name,
 size, date and checksum of every municipal FKB-AR5 file it used.
 
 Which files belong to which source is listed in `docker/data_sources.tsv`.
@@ -182,32 +182,35 @@ that list.
 ## What the runner does, step by step
 
 1. Records the software versions into `versions/`.
-2. Copies the current `Results/` and `Deliverables/` folders to
+2. Copies each indicator's current `outputs/` folder to
    `results_committed/`.
 3. `NO_FUNC_003`: downloads the ANO field-survey data, runs the pipeline,
-   then writes the deliverables. Requires the Tyler et al. spreadsheet
-   (see "Before your first run").
-4. `NO_CONN_001`: downloads the published caches (about 2 GB, only what is
+   writes the deliverables, then the report maps of its four
+   indicators. Requires the Tyler et al. spreadsheet (see "Before your
+   first run").
+4. `NO_CONN_003`: downloads the published caches (about 2 GB, only what is
    missing), runs the pipeline, then writes the deliverables. With the
    caches this takes minutes; without them it would take more than 20
    hours. The caches belong to the older *mire-model* variant, so this
    reproduces that variant, and its deliverables go to
-   `NO_CONN_001/Deliverables_MireModel/`. The delivered AR5 variant is a
-   separate run (see "The AR5 variant of NO_CONN_001" below).
+   `NO_CONN_003/outputs/deliverables_MireModel/`. The delivered AR5 variant
+   is a separate run (see "The AR5 variant of NO_CONN_003" below).
 5. `NO_GJEN_002` (`GJEN2`): downloads the NiN nature-type data and the
    bioclimatic zones, recomputes the indicator from the canopy heights
-   committed in the repository, then writes the deliverables. Minutes.
+   committed in the repository, then writes the deliverables and the
+   report map. Minutes.
    Computing new canopy heights from aerial photos is a separate run (see
    "New canopy heights for NO_GJEN_002" below).
 6. `NO_GJEN_001`: downloads the bioclimatic zones, the forest disturbance
    map, OpenStreetMap buildings and the NiN nature-type data, checks or
    downloads the forest and mire polygons (see below), builds the
    good-condition reference heights at 30 m (about 40 minutes, the first
-   time only), runs the pipeline, then writes the deliverables. The first
+   time only), runs the pipeline, then writes the deliverables and the
+   report map. The first
    run takes several hours, most of it reading elevation data from
    Kartverket's servers; later runs reuse the cached results and finish in
    minutes.
-7. Copies the `Results/` and `Deliverables/` folders to `results_after/`.
+7. Copies the `outputs/` folders to `results_after/`.
 
 A download step is skipped when its output file already exists. Set
 `RERUN_FETCH=yes` to download everything again. Within one indicator, a
@@ -230,7 +233,7 @@ The pipeline can use two sources, chosen with `GJEN_SOURCE`:
   The script subsets the forest and mire polygons from every municipal
   file, merges them into `ar5_skog_national.gpkg` and
   `ar5_myr_national.gpkg`, checks that no municipality is missing, and
-  places both in `NO_GJEN_001/Data/OpenS_data/`. It takes about 15
+  places both in `NO_GJEN_001/data/OpenS_data/`. It takes about 15
   minutes and runs inside the Docker image, so build the image first. The
   runner only checks that the two files exist.
 
@@ -246,25 +249,26 @@ The pipeline can use two sources, chosen with `GJEN_SOURCE`:
   do not have FKB-AR5: nothing to obtain, nothing to prepare. Results
   differ slightly from the AR5-based ones.
 
-## The AR5 variant of NO_CONN_001
+## The AR5 variant of NO_CONN_003
 
-The delivered `NO_CONN_001` result uses AR5 mires as the wetland
+The delivered `NO_CONN_003` result uses AR5 mires as the wetland
 population. `run_indicators.sh` reproduces only the older mire-model
 variant from published caches; the AR5 variant is computed from scratch:
 
 ```bash
-bash docker/run_NO_CONN_001_ar5_variant.sh
+bash docker/run_NO_CONN_003_ar5_variant.sh
 ```
 
 It needs `ar5_myr_national.gpkg` (built by `prepare_ar5_input/`, see
-above) and the infrastructure layer from a normal `NO_CONN_001` run
+above) and the infrastructure layer from a normal `NO_CONN_003` run
 (`INDICATORS="CONN" bash docker/run_indicators.sh`); the script checks
 both first. About 25 hours, so start it in `screen` or `tmux`. It can be
 stopped and restarted: regions already done are skipped. The run folder is
-`runs/conn001_ar5_<date>_<time>/`; the results land in
-`NO_CONN_001/Deliverables/`, where `git diff` shows any difference from the
-published ones. Same steps as upstream's `run_connectivity_ar5.ps1`, plus
-the final `export_deliverables.R`.
+`runs/conn003_ar5_<date>_<time>/`; the results land in
+`NO_CONN_003/outputs/deliverables/`, where `git diff` shows any difference
+from the published ones. Same steps as upstream's
+`NO_CONN_003/src/run_connectivity_ar5.ps1`, plus the two steps its README
+lists after it: `export_deliverables.R` and `make_report_map.R`.
 
 ## New canopy heights for NO_GJEN_002
 
@@ -279,7 +283,7 @@ canopy heights: new imagery, a later year, or a test of the model.
 ```bash
 bash docker/build_canopy_height_image.sh                       # image with Python and the model's packages
 bash docker/canopy_height_model/download_model_and_weights.sh  # model code and weights, checksum-verified
-bash docker/run_script.sh NO_GJEN_002/Fetch/fetch_nin_data.R   # NiN wetland polygons
+bash docker/run_script.sh NO_GJEN_002/R/fetch_nin_data.R       # NiN wetland polygons
 ```
 
 Then tell the runner which orthophoto to use, in `config.local.env`:
@@ -302,7 +306,7 @@ id), the flight dates, the original pixel size of the photos, and how much
 of the polygon that project covers. `orthophoto_flight_projects.csv` adds
 one row per flight project with everything the metadata says about it
 (owner, flight company, producer, product specification, ...). Method in
-`NO_GJEN_002/Fetch/assign_orthophoto_flight_dates.R`. Use it to check
+`NO_GJEN_002/R/assign_orthophoto_flight_dates.R`. Use it to check
 whether differences between regions or years could come from photo age
 or season.
 
@@ -320,7 +324,7 @@ ride out a network-share hiccup); whatever still fails is listed in an
 `INCOMPLETE.txt` in the output folder, and the run ends with an error.
 
 The output is one CSV per region in
-`NO_GJEN_002/Data/OpenS_data/canopy_height_runs/<CHM_RUN_NAME>/`, next to a
+`NO_GJEN_002/data/OpenS_data/canopy_height_runs/<CHM_RUN_NAME>/`, next to a
 `provenance/` folder that records, for every start of the run:
 
 - a fingerprint of the orthophoto (size, date, checksums of its header and
@@ -339,14 +343,14 @@ What is pinned, and where:
 
 | What | Pinned in |
 |---|---|
-| Python version, `uv` (the installer), model code commit, package-resolution date | `canopy_height_model/versions.env` |
-| Every Python package, by version and checksum | `canopy_height_model/requirements.lock` (generated from `requirements.in` by `update_requirements_lock.sh`) |
+| Python version, `uv` (the installer), model code commit | `canopy_height_model/versions.env` |
+| Every Python package, by version and checksum | `NO_GJEN_002/src/chm_model/uv.lock`, upstream's lock (the image runs `uv sync --locked` on it) |
 | Model code archive and the two weight files | `canopy_height_model/model_files.sha256` |
 
 ## Running a single script
 
 ```bash
-bash docker/run_script.sh NO_FUNC_003/Fetch/get_tyler_data.R
+bash docker/run_script.sh NO_FUNC_003/R/get_tyler_data.R
 ```
 
 The script runs with its own folder as working directory, exactly as the

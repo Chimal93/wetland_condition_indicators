@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Compute per-polygon canopy heights for NO_GJEN_002 from an RGB orthophoto
 # with Meta's HighResCanopyHeight model, inside the canopy-height image.
-# Bash replacement for upstream's NO_GJEN_002/run_national_by_region.ps1.
+# Bash replacement for upstream's NO_GJEN_002/src/run_national_by_region.ps1.
 #
 # Only needed for NEW canopy heights (new imagery, new polygons, another
 # model). The published NO_GJEN_002 result is recomputed from the committed
-# values in NO_GJEN_002/Data/OpenS_data/meta_chm_national_RAW_2026-09-17/.
+# values in NO_GJEN_002/data/OpenS_data/meta_chm_national_RAW_2026-09-17/.
 #
 # A national run takes several days on CPU; start it inside a screen or
 # tmux session. Resumable: rerun with the same CHM_RUN_NAME to continue.
@@ -26,8 +26,8 @@
 . "$DOCKER_DIR/canopy_height_model/versions.env"
 
 MODEL_DIR=$CHM_MODEL_DIR/HighResCanopyHeight-$MODEL_CODE_COMMIT
-NIN_DIR=$REPO_DIR/NO_GJEN_002/Data/OpenS_data/nin_data
-OUT_DIR=$REPO_DIR/NO_GJEN_002/Data/OpenS_data/canopy_height_runs/$CHM_RUN_NAME
+NIN_DIR=$REPO_DIR/NO_GJEN_002/data/OpenS_data/nin_data
+OUT_DIR=$REPO_DIR/NO_GJEN_002/data/OpenS_data/canopy_height_runs/$CHM_RUN_NAME
 
 # ---- check everything before starting ----------------------------------
 missing=0
@@ -44,7 +44,7 @@ elif [[ ! "$ORTHOPHOTO_SOURCE_PATH" =~ ^(/vsi|https?://) ]] && [ ! -f "$ORTHOPHO
   miss "Orthophoto file $ORTHOPHOTO_SOURCE_PATH" "The path in ORTHOPHOTO_SOURCE_PATH does not exist"
 fi
 ls "$NIN_DIR"/*.gdb >/dev/null 2>&1 \
-  || miss "NiN nature-type data in NO_GJEN_002/Data/OpenS_data/nin_data/" "Download it with: bash docker/run_script.sh NO_GJEN_002/Fetch/fetch_nin_data.R"
+  || miss "NiN nature-type data in NO_GJEN_002/data/OpenS_data/nin_data/" "Download it with: bash docker/run_script.sh NO_GJEN_002/R/fetch_nin_data.R"
 IFS=: read -r -a META <<< "$ORTHOPHOTO_METADATA"
 # The flight metadata is checksummed too, unless already listed.
 for m in "$ORTHOPHOTO_VISIBLE_PROJECTS" "$ORTHOPHOTO_PROJECT_GRID"; do
@@ -83,7 +83,7 @@ for d in "$NIN_DIR"/*.gdb; do fingerprint_folder "$d"; done > "$PROV/nin_polygon
   echo "settings:   CHM_REGIONS=\"$CHM_REGIONS\" CHM_MAX_POLYGONS=$CHM_MAX_POLYGONS"
   echo; echo "--- docker/canopy_height_model/versions.env"; grep -v '^#' "$DOCKER_DIR/canopy_height_model/versions.env" | grep .
   echo; echo "--- model files (checked by download_model_and_weights.sh)"; cat "$DOCKER_DIR/canopy_height_model/model_files.sha256"
-  echo; echo "--- requirements.lock sha256: $(sha256sum "$DOCKER_DIR/canopy_height_model/requirements.lock" | cut -d' ' -f1)"
+  echo; echo "--- NO_GJEN_002/src/chm_model/uv.lock sha256: $(sha256sum "$REPO_DIR/NO_GJEN_002/src/chm_model/uv.lock" | cut -d' ' -f1)"
 } > "$PROV/run_info.txt"
 
 # A resumed run must read the same imagery as the part already done.
@@ -109,9 +109,10 @@ if [ -n "$ORTHOPHOTO_VISIBLE_PROJECTS" ] && [ -n "$ORTHOPHOTO_PROJECT_GRID" ]; t
                  -e ORTHOPHOTO_VISIBLE_PROJECTS="/flight_metadata/visible/$(basename "$ORTHOPHOTO_VISIBLE_PROJECTS")"
                  -e ORTHOPHOTO_PROJECT_GRID="/flight_metadata/grid/$(basename "$ORTHOPHOTO_PROJECT_GRID")")
 fi
-# The model's code expects to sit at chm_model/HighResCanopyHeight-main.
-# Create the mount point as this user, or Docker creates it owned by root.
-mkdir -p "$REPO_DIR/NO_GJEN_002/chm_model/HighResCanopyHeight-main"
+# The model's code expects to sit at src/chm_model/HighResCanopyHeight-main
+# (gitignored). Create the mount point as this user, or Docker creates it
+# owned by root.
+mkdir -p "$REPO_DIR/NO_GJEN_002/src/chm_model/HighResCanopyHeight-main"
 
 echo "Run folder: $RUN_DIR"
 echo "Output:     $OUT_DIR"
@@ -119,7 +120,7 @@ echo "Progress:   tail -f $RUN_DIR/SUMMARY.txt"
 IMAGE=$CHM_IMAGE   # run_in_container starts $IMAGE
 rc=0  # common.sh sets -e; capture the exit code so the container is still removed
 run_in_container "$RUN_DIR" --name "gjen002_chm_$STAMP" \
-  -v "$MODEL_DIR:/work/NO_GJEN_002/chm_model/HighResCanopyHeight-main:ro" \
+  -v "$MODEL_DIR:/work/NO_GJEN_002/src/chm_model/HighResCanopyHeight-main:ro" \
   -v "$RUNS_DIR/canopy_height_scratch:/runs/scratch" \
   "${orthophoto_mount[@]}" "${flight_mounts[@]}" \
   -e ORTHOPHOTO_SOURCE_PATH="$ortho_in_container" -e ORTHOPHOTO_SOURCE_USERPWD \

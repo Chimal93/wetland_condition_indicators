@@ -9,5 +9,6 @@ CTX=$DOCKER_DIR/canopy_height_model
 echo "Building $CHM_IMAGE on top of $IMAGE (Python $PYTHON_VERSION)..."
 docker build -t "$CHM_IMAGE" \
   --build-arg R_IMAGE="$IMAGE" --build-arg UV_IMAGE="$UV_IMAGE" --build-arg PYTHON_VERSION="$PYTHON_VERSION" \
+  --build-context chm="$REPO_DIR/NO_GJEN_002/src/chm_model" \
   "$CTX"
 echo "Done: $CHM_IMAGE"

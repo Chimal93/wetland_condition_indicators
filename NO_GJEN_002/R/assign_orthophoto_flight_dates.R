@@ -98,8 +98,8 @@ if (length(chm_files) == 0) stop("No meta_chm_national_*.csv in ", results_dir)
 ids <- unique(unlist(lapply(chm_files, function(f) as.character(read.csv(f)$id))))
 cat("Polygons with a canopy-height value:", length(ids), "\n")
 
-gdb <- list.files(file.path("..", "Data", "OpenS_data", "nin_data"), pattern = "\\.gdb$", full.names = TRUE)[1]
-if (is.na(gdb)) stop("No NiN geodatabase under Data/OpenS_data/nin_data (run Fetch/fetch_nin_data.R).")
+gdb <- list.files(file.path("..", "data", "OpenS_data", "nin_data"), pattern = "\\.gdb$", full.names = TRUE)[1]
+if (is.na(gdb)) stop("No NiN geodatabase under data/OpenS_data/nin_data (run R/fetch_nin_data.R).")
 polys <- st_read(gdb, layer = "naturtyper_nin_omr", quiet = TRUE) %>%
   rename(geometry = SHAPE) %>% st_set_geometry("geometry") %>%
   rename(id = identifikasjon_lokalId) %>% mutate(id = as.character(id)) %>%

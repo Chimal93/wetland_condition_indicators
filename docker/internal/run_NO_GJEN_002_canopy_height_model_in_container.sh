@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs INSIDE the canopy-height image, started by
 # docker/run_NO_GJEN_002_canopy_height_model.sh. Bash version of upstream's
-# NO_GJEN_002/run_national_by_region.ps1: one region at a time, resumable,
+# NO_GJEN_002/src/run_national_by_region.ps1: one region at a time, resumable,
 # a failed region does not stop the others.
 #
 # Additions over the .ps1:
@@ -18,7 +18,7 @@ RUN=/runs/current
 LOG=$RUN/logs
 SUMMARY=$RUN/SUMMARY.txt
 OUT_REL=canopy_height_runs/$CHM_RUN_NAME
-OUT=/work/NO_GJEN_002/Data/OpenS_data/$OUT_REL
+OUT=/work/NO_GJEN_002/data/OpenS_data/$OUT_REL
 mkdir -p "$LOG" "$OUT"
 
 say() { echo "$(date '+%F %T')  $*" | tee -a "$SUMMARY"; }
@@ -57,14 +57,14 @@ for r in $CHM_REGIONS; do
   export CHM_REGION=$r
   export CHM_OUTPUT_NAME=$OUT_REL/meta_chm_national_$a.csv
   export CHM_WORK_DIR=/runs/scratch/$CHM_RUN_NAME/$a
-  csv=/work/NO_GJEN_002/Data/OpenS_data/$CHM_OUTPUT_NAME
+  csv=/work/NO_GJEN_002/data/OpenS_data/$CHM_OUTPUT_NAME
   for delay in 0 10 30 90; do
     if [ "$delay" -gt 0 ]; then
       say "RETRY $r in $delay s ($left polygon(s) not valued yet, last exit code $rc)"; sleep "$delay"
     fi
     say "START $r"
     t0=$SECONDS
-    ( cd /work/NO_GJEN_002/Fetch && stdbuf -oL -eL Rscript run_meta_chm_on_polygons.R ) 2>&1 | stamp_lines >> "$LOG/$a.log"
+    ( cd /work/NO_GJEN_002/R && stdbuf -oL -eL Rscript run_meta_chm_on_polygons.R ) 2>&1 | stamp_lines >> "$LOG/$a.log"
     rc=${PIPESTATUS[0]}
     left=$(outstanding "$csv")
     say "END   $r  rc=$rc  $(( (SECONDS - t0) / 60 )) min  not valued: $left  -> logs/$a.log"
@@ -86,11 +86,11 @@ rm -f "$OUT/INCOMPLETE.txt"
 # When was the photo of each polygon taken? (only with the flight metadata)
 if [ -n "${ORTHOPHOTO_VISIBLE_PROJECTS:-}" ]; then
   say "START flight dates per polygon"
-  ( cd /work/NO_GJEN_002/Fetch && CHM_RESULTS_DIR=$OUT stdbuf -oL -eL Rscript assign_orthophoto_flight_dates.R ) 2>&1 \
+  ( cd /work/NO_GJEN_002/R && CHM_RESULTS_DIR=$OUT stdbuf -oL -eL Rscript assign_orthophoto_flight_dates.R ) 2>&1 \
     | stamp_lines > "$LOG/flight_dates.log"
   rc=${PIPESTATUS[0]}
   say "END   flight dates  rc=$rc  -> logs/flight_dates.log"
   [ "$rc" -eq 0 ] || { say "Canopy heights are complete, but the flight dates FAILED (see its log)."; exit 1; }
 fi
-say "ALL DONE. Per-polygon canopy heights: NO_GJEN_002/Data/OpenS_data/$OUT_REL/"
+say "ALL DONE. Per-polygon canopy heights: NO_GJEN_002/data/OpenS_data/$OUT_REL/"
 say "Use meta_chm_mean (validated), not meta_chm_median. Provenance: $OUT_REL/provenance/${ORTHOPHOTO_VISIBLE_PROJECTS:+  Flight dates: $OUT_REL/orthophoto_flight_dates.csv}"

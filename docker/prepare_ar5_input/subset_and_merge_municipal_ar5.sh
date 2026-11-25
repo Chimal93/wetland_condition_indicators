@@ -30,12 +30,12 @@
 #   records the peat under such forest in a separate column,
 #   arealressursGrunnforhold (ground conditions) = 45 "organiske jordlag"
 #   (organic soil), which this script does not use. This matches the
-#   AR50 route (Fetch/build_ar50_*.R), which uses the same two codes.
+#   AR50 route (R/build_ar50_*.R), which uses the same two codes.
 #   Definitions: NIBIO, "AR5 klassifikasjonssystem" (Ahlstrom et al.).
 # If any municipality still fails after retries, the two outputs are renamed
 # *.INCOMPLETE and nothing is installed, so a partial layer is never used.
 #
-# Result (installed into NO_GJEN_001/Data/OpenS_data/):
+# Result (installed into NO_GJEN_001/data/OpenS_data/):
 #   ar5_skog_national.gpkg   forest
 #   ar5_myr_national.gpkg    mire
 #
@@ -68,7 +68,7 @@ fi
 set -u
 SRC=/fkb
 OUT=/runs/current/ar5
-DEST=/work/NO_GJEN_001/Data/OpenS_data
+DEST=/work/NO_GJEN_001/data/OpenS_data
 STAGE=$OUT/_staging
 mkdir -p "$OUT" "$STAGE" "$DEST"
 SKOG=$OUT/ar5_skog_national.gpkg
@@ -128,12 +128,12 @@ if [ "${#FAILED[@]}" -gt 0 ]; then
 fi
 
 cp "$SKOG" "$DEST/ar5_skog_national.gpkg" && cp "$MYR" "$DEST/ar5_myr_national.gpkg" \
-  && log "Installed ar5_skog_national.gpkg and ar5_myr_national.gpkg into NO_GJEN_001/Data/OpenS_data/" \
+  && log "Installed ar5_skog_national.gpkg and ar5_myr_national.gpkg into NO_GJEN_001/data/OpenS_data/" \
   || { log "Copy into the repository failed"; exit 1; }
 
 # Record where the two layers came from (see docker/data_sources.tsv).
 cp "$SOURCE_LIST" "$DEST/ar5_national_source_files.csv"
 . /work/docker/internal/record_data_sources.sh
 log_fetch NO_GJEN_001 docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh "$RUN_NAME (from $FKB_SOURCE_DIR)"
-log "Recorded in NO_GJEN_001/Data/data_sources_log.csv; the municipal files used are listed in"
-log "NO_GJEN_001/Data/OpenS_data/ar5_national_source_files.csv"
+log "Recorded in NO_GJEN_001/data/data_sources_log.csv; the municipal files used are listed in"
+log "NO_GJEN_001/data/OpenS_data/ar5_national_source_files.csv"

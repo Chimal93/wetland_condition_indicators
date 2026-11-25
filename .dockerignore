@@ -1,4 +1,5 @@
-# The Docker build only needs renv.lock. Everything else (tens of GB of
-# fetched data under */Data/) must not be sent to the Docker daemon.
+# The Docker build only needs the indicators' renv.lock files. Everything
+# else (tens of GB of fetched data under */data/) must not be sent to the
+# Docker daemon.
 *
-!renv.lock
+!NO_*/renv.lock

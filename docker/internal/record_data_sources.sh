@@ -26,11 +26,11 @@ _fingerprint() {
 
 # log_fetch <indicator> <how> [run name]: call right after <how> (a download
 # or build script) finished successfully. Appends one row per output of
-# that script to <indicator>/Data/data_sources_log.csv, which stays next to
+# that script to <indicator>/data/data_sources_log.csv, which stays next to
 # the data and so keeps the fetch date even when later runs skip the download.
 log_fetch() {
   local ind=$1 how=$2 run=${3:-} i path h src size mod sum log
-  log=$REPO/$ind/Data/data_sources_log.csv
+  log=$REPO/$ind/data/data_sources_log.csv
   mkdir -p "$(dirname "$log")"
   [ -f "$log" ] || _csv fetched_at path how source size_bytes sha256 repository_commit run > "$log"
   while IFS=$'\t' read -r i path h src; do
@@ -59,7 +59,7 @@ write_data_sources() {
       _csv "$i" "$path" "$how" "$src" no "" "" "" "" >> "$out"; continue
     fi
     IFS=$'\t' read -r size mod sum < <(_fingerprint "$REPO/$i/$path")
-    log=$REPO/$i/Data/data_sources_log.csv
+    log=$REPO/$i/data/data_sources_log.csv
     last=$( [ -f "$log" ] && grep -F ",\"$path\"," "$log" | tail -1 | cut -d, -f1 | tr -d '"')
     _csv "$i" "$path" "$how" "$src" yes "$size" "$mod" "$sum" \
       "${last:-not logged (fetched before logging existed; see modified)}" >> "$out"
