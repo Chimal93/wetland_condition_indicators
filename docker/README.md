@@ -201,7 +201,12 @@ that list.
    report map. Minutes.
    Computing new canopy heights from aerial photos is a separate run (see
    "New canopy heights for NO_GJEN_002" below).
-6. `NO_GJEN_001`: downloads the bioclimatic zones, the forest disturbance
+6. `NO_NDVI_001` (`NDVI`, provisional): downloads the NiN nature-type data,
+   recomputes the NDVI trends from the national MODIS series committed in
+   the repository, then writes the deliverables and the report map.
+   Minutes. A new MODIS download (`R/fetch_modis_ndvi.R`, hours, needs a
+   free NASA Earthdata token) is not part of the run.
+7. `NO_GJEN_001`: downloads the bioclimatic zones, the forest disturbance
    map, OpenStreetMap buildings and the NiN nature-type data, checks or
    downloads the forest and mire polygons (see below), builds the
    good-condition reference heights at 30 m (about 40 minutes, the first
@@ -210,7 +215,7 @@ that list.
    run takes several hours, most of it reading elevation data from
    Kartverket's servers; later runs reuse the cached results and finish in
    minutes.
-7. Copies the `outputs/` folders to `results_after/`.
+8. Copies the `outputs/` folders to `results_after/`.
 
 A download step is skipped when its output file already exists. Set
 `RERUN_FETCH=yes` to download everything again. Within one indicator, a

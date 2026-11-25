@@ -5,7 +5,7 @@
 # Settings arrive as environment variables: INDICATORS, GJEN_SOURCE, RERUN_FETCH.
 #
 # Order: record software versions, snapshot the committed results, then run
-# the selected indicators cheapest first (FUNC, CONN, GJEN2, GJEN). Within one
+# the selected indicators cheapest first (FUNC, CONN, GJEN2, NDVI, GJEN). Within one
 # indicator a failed step stops that indicator; the others still run.
 # Download steps whose output already exists are skipped unless RERUN_FETCH=yes.
 # The repository's own scripts are never modified.
@@ -13,12 +13,12 @@ set -u
 RUN=/runs/current
 LOG=$RUN/logs
 SUMMARY=$RUN/SUMMARY.txt
-INDICATORS=${INDICATORS:-"FUNC CONN GJEN2 GJEN"}
+INDICATORS=${INDICATORS:-"FUNC CONN GJEN2 NDVI GJEN"}
 GJEN_SOURCE=${GJEN_SOURCE:-AR5}
 RERUN_FETCH=${RERUN_FETCH:-no}
 mkdir -p "$LOG" "$RUN/versions" "$RUN/results_committed" "$RUN/results_after"
 . /work/docker/internal/record_data_sources.sh
-ALL_INDICATORS="NO_FUNC_003 NO_CONN_003 NO_GJEN_002 NO_GJEN_001"
+ALL_INDICATORS="NO_FUNC_003 NO_CONN_003 NO_GJEN_002 NO_NDVI_001 NO_GJEN_001"
 
 say()  { echo "$(date '+%F %T')  $*" | tee -a "$SUMMARY"; }
 stamp_lines() { while IFS= read -r line || [ -n "$line" ]; do echo "$(date '+%F %T')  $line"; done; }
@@ -117,6 +117,20 @@ if want GJEN2; then
     || say "NO_GJEN_002 FAILED (see its log)"
 fi
 
+# ---- 4c. NO_NDVI_001 (minutes, from the committed MODIS series) -------------
+# Provisional indicator (see NO_NDVI_001/README.md). Recomputes the trends
+# from data/NDVI_MODIS/modis_ndvi_ts_national.csv.gz, upstream's national
+# MODIS download. fetch_modis_ndvi.R is not run: it needs a NASA Earthdata
+# token and takes hours.
+if want NDVI; then
+  say "=== NO_NDVI_001 (provisional) ==="
+  step NO_NDVI_001 fetch_nin_data.R data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb \
+    && step NO_NDVI_001 NO_NDVI_001_trend_scaling.R \
+    && step NO_NDVI_001 export_deliverables.R \
+    && step NO_NDVI_001 make_report_map.R \
+    || say "NO_NDVI_001 FAILED (see its log)"
+fi
+
 # ---- 5. NO_GJEN_001 (hours on a first run) ----------------------------------
 # Not run on purpose: build_ssb_grids.R (its outputs are committed),
 # extract_ar5_skog_myr.R (expects a single pre-merged AR5 file), quick_test_small_aoi.R.
@@ -168,6 +182,6 @@ fi
 snapshot "$RUN/results_after"
 say "Recording the inputs this run used -> data_sources.csv"
 inds=(); want FUNC && inds+=(NO_FUNC_003); want CONN && inds+=(NO_CONN_003)
-want GJEN2 && inds+=(NO_GJEN_002); want GJEN && inds+=(NO_GJEN_001)
+want GJEN2 && inds+=(NO_GJEN_002); want NDVI && inds+=(NO_NDVI_001); want GJEN && inds+=(NO_GJEN_001)
 write_data_sources "$RUN/data_sources.csv" "${inds[@]}"
 say "ALL DONE. Results before/after this run: results_committed/ and results_after/ in this folder."

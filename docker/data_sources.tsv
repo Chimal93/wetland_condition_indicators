@@ -10,7 +10,8 @@
 #   path       file or folder inside the indicator folder ("-" for live services)
 #   how        the script that downloads or builds it (relative to the
 #              indicator folder), "manual" for a file you obtain yourself,
-#              "live" for a web service read directly during the run
+#              "live" for a web service read directly during the run,
+#              "committed" for data that is part of the repository
 #   source     where the data comes from (URL, or a description)
 #
 # When you add a download step to a runner, add its output here too.
@@ -32,3 +33,6 @@ NO_GJEN_001	data/OpenS_data/ar50_myr_national.gpkg	R/build_ar50_wetland_lidar_co
 NO_GJEN_001	data/OpenS_data/ar50_skog_national.gpkg	R/build_ar50_skog.R	https://kart8.nibio.no/uttak_Download/ar50/ (AR50 per county, NIBIO, NLOD)
 NO_GJEN_001	data/OpenS_data/refvaatmark_30m	R/build_refvaatmark_30m.R	Computed from the NiN data above and Kartverket DTM1/DOM1 elevation tiles read live (https://nedlasting.geonorge.no/hoydedata/)
 NO_GJEN_001	-	live	Kartverket DTM1/DOM1 elevation tiles (LiDAR), read live by the pipeline and build_refvaatmark_30m.R: https://nedlasting.geonorge.no/hoydedata/
+NO_NDVI_001	data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb	R/fetch_nin_data.R	https://nedlasting.miljodirektoratet.no/Miljodata/Naturtyper_nin/FILEGDB/4326/Naturtyper_nin_0000_norge_4326_FILEGDB.zip (NiN nature types, Miljødirektoratet)
+NO_NDVI_001	data/NDVI_MODIS/modis_ndvi_ts_national.csv.gz	committed	NASA LP DAAC MOD13Q1 v6.1 (doi:10.5067/MODIS/MOD13Q1.061), late May-September 2000-2026, fetched upstream 2026-08-28 with R/fetch_modis_ndvi.R
+NO_NDVI_001	data/NDVI_MODIS/modis_ndvi_ts_national.csv	R/fetch_modis_ndvi.R	NASA LP DAAC MOD13Q1 v6.1 via NASA Earthdata (a fresh download; used instead of the committed .gz when present)
