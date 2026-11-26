@@ -16,6 +16,8 @@
 #   ORTHOPHOTO_SOURCE_PATH   the orthophoto mosaic (local file)
 #   NATIONAL_CHM_OUT_DIR     output folder; may be on the network drive (required)
 #   NATIONAL_CHM_AR5         AR5 mire GeoPackage (default: NO_GJEN_001's ar5_myr_national.gpkg)
+#   HF_TOKEN / HF_HOME       Hugging Face login for CHMv2: the token in $HF_HOME/token
+#                            (default ~/.cache/huggingface/token) or in HF_TOKEN
 . "$(dirname "$0")/internal/common.sh"
 . "$DOCKER_DIR/canopy_height_model/versions.env"
 
@@ -47,7 +49,7 @@ COMMIT=$(git -C "$REPO_DIR" rev-parse HEAD 2>/dev/null)$(git -C "$REPO_DIR" diff
 LOG="$OUT/national_chm_${MODEL}_$(date +%Y%m%d_%H%M%S).log"
 echo "Log: $LOG"
 docker run --rm --gpus all --user "$(id -u):$(id -g)" \
-  -e HOME=/tmp -e USER=chm -e LOGNAME=chm -e TORCHINDUCTOR_CACHE_DIR=/tmp/ind -e HF_HOME=/hf \
+  -e HOME=/tmp -e USER=chm -e LOGNAME=chm -e TORCHINDUCTOR_CACHE_DIR=/tmp/ind -e HF_HOME=/hf -e HF_TOKEN \
   -e UV_CACHE_DIR="$ENV_DIR/.uvcache" -e UV_PYTHON_INSTALL_DIR="$ENV_DIR/.python" -e UV_PROJECT_ENVIRONMENT="$ENV_DIR/.venv" \
   -e CODE_COMMIT="$COMMIT" -e TZ="$HOST_TZ" \
   -v "$SRC:/code:ro" -v "$MODEL_DIR:/chmv1:ro" -v "$ORTHO_DIR:$ORTHO_DIR:ro" -v "$AR5_DIR:$AR5_DIR:ro" \

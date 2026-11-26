@@ -101,11 +101,37 @@ Maskinvare, programvare, KI-verktøy og R-versjon: se
   [`src/chm_national/pyproject.toml`](src/chm_national/pyproject.toml) og
   `uv.lock`. Miljøet bygges automatisk av Docker-skriptene.
 - **GPU:** trengs for høydekartet (testet på NVIDIA RTX 5090, 32 GB).
-- **CHMv2** er en «gated» modell: godta vilkårene på Hugging Face og logg
-  inn (token i `~/.cache/huggingface/token`).
+- **CHMv2** er en «gated» modell og krever innlogging på Hugging Face, se
+  under.
 - **Ytelse:** høydekartet tar 11–14 timer nasjonalt (lesing av mosaikken fra
   nettverksdisk er flaskehalsen), 20 m-beregningen ca. 30 minutter,
   eksporten noen sekunder.
+
+**Tilgang til CHMv2 (Hugging Face).** Modellen lastes ned automatisk ved
+første kjøring (ca. 1,2 GB), men bare med en gyldig nøkkel (token):
+
+1. Lag en konto på <https://huggingface.co> og godta vilkårene (DINOv3-
+   lisensen) på modellsiden
+   <https://huggingface.co/facebook/dinov3-vitl16-chmv2-dpt-head>.
+2. Lag en nøkkel med lesetilgang under *Settings → Access Tokens*
+   (<https://huggingface.co/settings/tokens>). Den begynner med `hf_`.
+3. Gi nøkkelen til skriptene på én av to måter:
+   - **Som fil (anbefalt):** lagre nøkkelen i `~/.cache/huggingface/token`,
+     for eksempel med `hf auth login`, eller uten ekstra programmer:
+
+     ```bash
+     mkdir -p ~/.cache/huggingface
+     printf '%s' 'hf_...' > ~/.cache/huggingface/token
+     chmod 600 ~/.cache/huggingface/token
+     ```
+
+   - **Som miljøvariabel:** `HF_TOKEN=hf_...` foran kommandoen, eller i
+     `docker/config.local.env` (som ikke legges i git).
+
+Mappen `~/.cache/huggingface` (eller `HF_HOME` hvis den er satt) monteres
+inn i containeren. Der lagres også den nedlastede modellen, så den lastes
+bare ned én gang. Skriptet stopper med en tydelig melding hvis ingen nøkkel
+finnes. Nøkkelen er personlig: den skal aldri legges i repoet.
 
 ## 4. Struktur
 

@@ -299,7 +299,9 @@ bash docker/run_NO_GJEN_002_deliverables.sh
 
 **Needs:**
 - the canopy-height image (`build_canopy_height_image.sh`), an NVIDIA GPU;
-- a Hugging Face login with the CHMv2 terms accepted (CHMv2 is gated);
+- a Hugging Face login with the CHMv2 terms accepted (CHMv2 is gated): the
+  token in `~/.cache/huggingface/token` (or `$HF_HOME/token`) or in
+  `HF_TOKEN`; step by step in `NO_GJEN_002/README.md`;
 - in `config.local.env`: `ORTHOPHOTO_SOURCE_PATH` (a local copy of the
   mosaic, with its `metadata/` folder next to it) and `NATIONAL_CHM_OUT_DIR`
   (output folder, may be on the network drive);
