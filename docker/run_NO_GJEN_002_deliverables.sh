@@ -29,7 +29,14 @@ bash "$DOCKER_DIR/run_NO_GJEN_002_cell_indicator.sh"
 say "3/5 copy the tables into $TABLES"
 mkdir -p "$TABLES"
 rm -f "$TABLES"/*.csv "$TABLES"/provenance.json
-cp "$CELLS"/*.csv "$CELLS"/provenance.json "$TABLES"/
+cp "$CELLS"/*.csv "$TABLES"/
+# The repository copy of provenance.json gets placeholders for this machine's
+# folders (user name, network-drive layout); the copy in $CELLS keeps them.
+p=$(cat "$CELLS/provenance.json")
+p=${p//"$NATIONAL_CHM_OUT_DIR"/<NATIONAL_CHM_OUT_DIR>}; p=${p//"$(dirname "$ORTHOPHOTO_SOURCE_PATH")"/<orthophoto>}
+p=${p//"$REPO_DIR"/<repo>}; p=${p//"$RUNS_DIR"/<RUNS_DIR>}
+printf '%s\n' "$p" > "$TABLES/provenance.json"
+grep -qE '"/(mnt|home)/' "$TABLES/provenance.json" && say "WARNING: provenance.json still has local paths - check before committing"
 ls -l "$TABLES" | tee -a "$LOG"
 
 say "4/5 deliverables"
