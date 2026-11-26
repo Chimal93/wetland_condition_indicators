@@ -42,7 +42,9 @@ their results stay on your machine; the image only provides the software.
 | `prepare_ar5_input/` | One script, run once by hand: builds the AR5 forest and mire layers for `NO_GJEN_001` from the municipal FKB-AR5 GeoPackages. Needs restricted-access data; not part of the normal run. |
 | `run_NO_CONN_003_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_003`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_003" below. |
 | `build_canopy_height_image.sh`, `canopy_height_model/` | A second image with the Python environment for Meta's canopy-height model (installed with `uv` from `NO_GJEN_002/src/chm_model/uv.lock`). Only needed for new `NO_GJEN_002` canopy heights. |
-| `run_NO_GJEN_002_canopy_height_model.sh` | Computes per-polygon canopy heights from an orthophoto for `NO_GJEN_002` and records exactly which inputs were used. See "New canopy heights for NO_GJEN_002" below. |
+| `run_NO_GJEN_002_deliverables.sh` | The whole current `NO_GJEN_002` chain in one go: national canopy-height map, 20 m indicator, deliverables and indicator document. See "NO_GJEN_002 from aerial photos" below. |
+| `run_NO_GJEN_002_national_chm.sh`, `run_NO_GJEN_002_cell_indicator.sh` | The two heavy steps of that chain, also runnable on their own. |
+| `run_NO_GJEN_002_canopy_height_model.sh` | Version 000.003 (superseded): per-polygon canopy heights for the NiN polygons with CHMv1. See "New canopy heights for NO_GJEN_002 (version 000.003)" below. |
 | `data_sources.tsv` | The list of every input the runners use and where it comes from (see "Where the data came from"). |
 | `internal/` | Pieces used by the scripts above; you do not call these yourself. `run_indicators_in_container.sh` is the step list that runs inside the image; `common.sh` loads the settings. |
 
@@ -195,12 +197,11 @@ that list.
    reproduces that variant, and its deliverables go to
    `NO_CONN_003/outputs/deliverables_MireModel/`. The delivered AR5 variant
    is a separate run (see "The AR5 variant of NO_CONN_003" below).
-5. `NO_GJEN_002` (`GJEN2`): downloads the NiN nature-type data and the
-   bioclimatic zones, recomputes the indicator from the canopy heights
-   committed in the repository, then writes the deliverables and the
-   report map. Minutes.
-   Computing new canopy heights from aerial photos is a separate run (see
-   "New canopy heights for NO_GJEN_002" below).
+5. `NO_GJEN_002` (`GJEN2`): writes the deliverables from the tables of the
+   national 20 m run committed in the repository
+   (`NO_GJEN_002/data/OpenS_data/orthophoto_chmv2_20m_cells/`). Seconds.
+   The national run itself needs the aerial photos and a GPU and is
+   separate (see "NO_GJEN_002 from aerial photos" below).
 6. `NO_NDVI_001` (`NDVI`, provisional): downloads the NiN nature-type data,
    recomputes the NDVI trends from the national MODIS series committed in
    the repository, then writes the deliverables and the report map.
@@ -275,7 +276,46 @@ from the published ones. Same steps as upstream's
 `NO_CONN_003/src/run_connectivity_ar5.ps1`, plus the two steps its README
 lists after it: `export_deliverables.R` and `make_report_map.R`.
 
-## New canopy heights for NO_GJEN_002
+## NO_GJEN_002 from aerial photos
+
+The current `NO_GJEN_002` (version 000.004) estimates vegetation height
+with the CHMv2 model for all AR5 mire, calibrates it to LiDAR and computes
+the indicator for every 20 m cell, like `NO_GJEN_001`. One script runs the
+whole chain; start it inside `screen`:
+
+```bash
+bash docker/run_NO_GJEN_002_deliverables.sh
+```
+
+1. **Map** (`run_NO_GJEN_002_national_chm.sh chmv2`): canopy height at
+   0.5 m over all AR5 mire plus 30 m, on the GPU. 11–14 hours nationally;
+   finished parts are skipped on a rerun.
+2. **20 m indicator** (`run_NO_GJEN_002_cell_indicator.sh`): cell medians,
+   calibration, indicator, uncertainty and flight years. About 30 minutes.
+3. The result tables are copied into
+   `NO_GJEN_002/data/OpenS_data/orthophoto_chmv2_20m_cells/`.
+4. Deliverables are written to `NO_GJEN_002/outputs/deliverables_20m_cells/`.
+5. The indicator document `NO_GJEN_002/docs/NO_GJEN_002.html` is rendered.
+
+**Needs:**
+- the canopy-height image (`build_canopy_height_image.sh`), an NVIDIA GPU;
+- a Hugging Face login with the CHMv2 terms accepted (CHMv2 is gated);
+- in `config.local.env`: `ORTHOPHOTO_SOURCE_PATH` (a local copy of the
+  mosaic, with its `metadata/` folder next to it) and `NATIONAL_CHM_OUT_DIR`
+  (output folder, may be on the network drive);
+- the AR5 mire layer (see "Forest and mire polygons for NO_GJEN_001");
+- `NATIONAL_CHM_OUT_DIR/validation_cells_lidar_20m_median.csv`: LiDAR
+  heights at the `NO_GJEN_001` sample cells, for the uncertainty. It is
+  not in the repository because the cells come from AR5.
+
+Reads from the network drive are retried after 10, 30 and 90 seconds. If
+anything still fails, the output is marked `INCOMPLETE` and the script
+stops with an error.
+
+## New canopy heights for NO_GJEN_002 (version 000.003, superseded)
+
+This section describes the earlier version on NiN polygons with CHMv1. It
+is kept for reference.
 
 `NO_GJEN_002` measures vegetation height with Meta's HighResCanopyHeight
 model on RGB aerial photos. The published result is recomputed from

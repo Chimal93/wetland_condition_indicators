@@ -1,0 +1,12 @@
+{
+ "model": "chmv2",
+ "statistic": "median of the 0.5 m CHMv2 pixels in a 20 m cell (global 20 m grid, EPSG:25833)",
+ "formula": "lidar_m = max(0, a + b * model_m)",
+ "a": -0.012697,
+ "b": 0.533637,
+ "fit": "ordinary least squares, LiDAR 20 m cell median (DOM1 - DTM1, 1 m, clamped) on CHMv2 20 m cell median, 0.6 m input variant (as national_chm.py)",
+ "points": "25,027 NO_GJEN_001 AR5 mire sample cells (all usable points of vaatmark_pop_openS)",
+ "validation": "leave-one-region-out MAE 0.30 m; slope per region 0.49-0.55",
+ "orthophoto": "MosaikkOmlopNorge_2025 (norway_ortho_50cm_25833.tif)",
+ "fitted": "2026-11-26, chm_model_comparison/out_25k (wetland_runs)"
+}

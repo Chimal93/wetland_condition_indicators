@@ -103,17 +103,15 @@ if want CONN; then
     || say "NO_CONN_003 FAILED (see its log)"
 fi
 
-# ---- 4b. NO_GJEN_002 (minutes, from the committed canopy heights) -----------
-# Recomputes the indicator from data/OpenS_data/meta_chm_national_RAW_2026-09-17/,
-# the per-polygon canopy heights of upstream's national model run. New
-# canopy heights from imagery: docker/run_NO_GJEN_002_canopy_height_model.sh.
+# ---- 4b. NO_GJEN_002 (minutes, from the committed 20 m cell tables) ---------
+# Exports the deliverables from data/OpenS_data/orthophoto_chmv2_20m_cells/,
+# the tables of the national 20 m cell run. That run needs the orthophoto, a
+# GPU and hours: docker/run_NO_GJEN_002_deliverables.sh does all of it. The
+# earlier NiN-polygon version (000.003, R/NO_GJEN_002_national_pipeline.R)
+# is superseded and no longer run here.
 if want GJEN2; then
   say "=== NO_GJEN_002 ==="
-  step NO_GJEN_002 fetch_nin_data.R data/OpenS_data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb \
-    && step NO_GJEN_002 fetch_bioclim_zones.R data/OpenS_data/bioclim/soner2017.shp \
-    && step NO_GJEN_002 NO_GJEN_002_national_pipeline.R \
-    && step NO_GJEN_002 export_deliverables.R \
-    && step NO_GJEN_002 make_report_map.R \
+  step NO_GJEN_002 export_deliverables_20m_cells.R \
     || say "NO_GJEN_002 FAILED (see its log)"
 fi
 
