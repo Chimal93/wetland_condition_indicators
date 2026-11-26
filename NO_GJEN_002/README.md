@@ -155,7 +155,7 @@ finnes. Nøkkelen er personlig: den skal aldri legges i repoet.
 |---|---|---|---|
 | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS (`MosaikkOmlopNorge_2025`), produktår 2025, 8 bit RGB, EPSG:25833. Flyvningene over myrene er fra 2015–2024 (median 2022). Kan ikke videreformidles | Høydekartet, sammenligningen | Brukerens egen kilde (`ORTHOPHOTO_SOURCE_PATH`), lest 2026-11 |
 | Flyprosjekter i mosaikken | Metadata levert med mosaikken: `mosaic_coverage_by_project.gpkg` (synlig prosjekt per område; navnet slutter med flyåret) og `metadata_omløpsprosjekt_mosaic_v2_2025.gpkg` (flydatoer) | Flyår per celle; flydato i sammenligningen | `metadata/` ved mosaikken |
-| CHMv2 | Meta og World Resources Institute, `facebook/dinov3-vitl16-chmv2-dpt-head` på Hugging Face, revisjon `37130c85` (DINOv3-lisens, krever innlogging) | Høydekartet | Lastes ned automatisk, 2026-11 |
+| CHMv2 | Meta og World Resources Institute, `facebook/dinov3-vitl16-chmv2-dpt-head` på Hugging Face, revisjon `37130c85` (låst i koden; DINOv3-lisens, krever innlogging) | Høydekartet | Lastes ned automatisk, 2026-11 |
 | CHMv1 | Meta HighResCanopyHeight, kode-commit `84971392`, sjekkpunkt `compressed_SSLhuge_aerial.pth` (Apache-2.0) | Bare sammenligningen (og versjon 000.003) | `docker/canopy_height_model/download_model_and_weights.sh` |
 | AR5 myr | NIBIO, FKB-AR5, arealtype 60 (myr), kommunevise filer fra Geonorge lastet ned 2026-07-28. Begrenset lisens (Norge digitalt), kan ikke deles | Hvilke celler som er med, og myrandelen i hver celle | `docker/prepare_ar5_input/`, se `NO_GJEN_001` |
 | Utvalgspunkter i AR5 myr | `vaatmark_pop_openS.gpkg` fra `NO_GJEN_001` (25 029 punkter); avledet av AR5 | Kalibrering og validering | Lages av `NO_GJEN_001` |

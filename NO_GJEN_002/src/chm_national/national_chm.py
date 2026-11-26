@@ -189,9 +189,9 @@ if a.model == "chmv1":
 else:
     from transformers import CHMv2ForDepthEstimation
     repo = "facebook/dinov3-vitl16-chmv2-dpt-head"
-    net = CHMv2ForDepthEstimation.from_pretrained(repo).eval().to(dev)
-    model_id = {"name": "CHMv2 (Meta/WRI), DINOv3 ViT-L + DPT head", "hf_repo": repo,
-                "hf_commit": getattr(net.config, "_commit_hash", None)}
+    rev = "37130c851a3cf6720f974490707059f5edaeed4e"   # the model version calibrated in src/chm_comparison
+    net = CHMv2ForDepthEstimation.from_pretrained(repo, revision=rev).eval().to(dev)
+    model_id = {"name": "CHMv2 (Meta/WRI), DINOv3 ViT-L + DPT head", "hf_repo": repo, "hf_commit": rev}
     def predict(x):                                     # x: (B,3,672,672) in [0,1] at 0.5 m
         x6 = F.interpolate(x, size=(560, 560), mode="bicubic", antialias=True, align_corners=False).clamp(0, 1)
         y = net(pixel_values=(x6 - mean_t) / std_t).predicted_depth          # (B,560,560) metres

@@ -59,7 +59,8 @@ def load_chmv1():
 
 def load_chmv2():
     from transformers import CHMv2ForDepthEstimation
-    m = CHMv2ForDepthEstimation.from_pretrained("facebook/dinov3-vitl16-chmv2-dpt-head").eval().to(dev)
+    m = CHMv2ForDepthEstimation.from_pretrained("facebook/dinov3-vitl16-chmv2-dpt-head",
+                                                revision="37130c851a3cf6720f974490707059f5edaeed4e").eval().to(dev)   # pinned
     def run(x):
         y = m(pixel_values=(x - MEAN) / STD).predicted_depth            # metres, same size as input
         assert y.shape[-2:] == x.shape[-2:], (y.shape, x.shape)
