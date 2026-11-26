@@ -15,6 +15,11 @@
 *.yml    text
 *.yaml   text
 
+# Run by bash (also from a Windows checkout, via WSL or Docker): always LF,
+# or bash fails on the carriage returns.
+*.sh     text eol=lf
+docker/** text eol=lf
+
 # Windows-only scripts keep CRLF - some Windows tooling requires it.
 *.ps1    text eol=crlf
 *.bat    text eol=crlf

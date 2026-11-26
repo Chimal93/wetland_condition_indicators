@@ -62,7 +62,8 @@ laserdata, så indikatoren kan oppdateres hyppigere.
 **Modellvalg.** CHMv2 ble sammenlignet med CHMv1 (Meta HighResCanopyHeight,
 brukt i versjon 000.003) i 25 027 utvalgsceller fra `NO_GJEN_001` med
 laserhøyde. Kalibrert CHMv2 har gjennomsnittlig absolutt feil 0,30 m (CHMv1:
-0,35 m) og er klart bedre der vegetasjonen er 2 m eller høyere. CHMv1 kan
+0,35 m) og er klart bedre der vegetasjonen er 2 m eller høyere. Skriptene og
+alle resultatene: [`src/chm_comparison/`](src/chm_comparison/README.md). CHMv1 kan
 ikke forbedres med kalibrering og ville tatt ca. to uker nasjonalt på CPU;
 CHMv2 tok ca. 11 timer på én GPU.
 
@@ -137,7 +138,8 @@ finnes. Nøkkelen er personlig: den skal aldri legges i repoet.
 
 | Mappe | Innhold |
 |---|---|
-| `src/chm_national/` | `national_chm.py` (høydekartet), `cell_indicator.py` (20 m-celler, kalibrering, indikator, usikkerhet, flyår), `calibration_chmv2_median.json` (kalibreringen) og Python-miljøet. |
+| `src/chm_comparison/` | Sammenligningen av modellene mot laserdata: valget av CHMv2, kalibreringen og valideringscellene. Se [`src/chm_comparison/README.md`](src/chm_comparison/README.md). |
+| `src/chm_national/` | `national_chm.py` (høydekartet), `cell_indicator.py` (20 m-celler, kalibrering, indikator, usikkerhet, flyår), `calibration_chmv2_median.json` (kalibreringen) og Python-miljøet. `src/chm_model/` og `src/run_national_by_region.ps1` hører til versjon 000.003. |
 | `R/` | `export_deliverables_20m_cells.R` (leveransene). Resten hører til versjon 000.003 (NiN-polygoner, CHMv1) og er beholdt til sammenligning. |
 | `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_GJEN_002.qmd` (kilde) og `NO_GJEN_002.html`. `METHODOLOGY_CANOPY_HEIGHT.md` og `CHM_MODEL_SETUP.md` gjelder versjon 000.003. |
 | `data/OpenS_data/orthophoto_chmv2_20m_cells/` | Tabellene fra den nasjonale 20 m-kjøringen. Leveransene kan lages på nytt fra dem uten bilder. |
@@ -149,14 +151,19 @@ finnes. Nøkkelen er personlig: den skal aldri legges i repoet.
 
 ### Input
 
-| Datasett | Kilde og versjon | Hentes med |
-|---|---|---|
-| Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025; flyvningene spenner over flere år | Brukerens egen kilde (`ORTHOPHOTO_SOURCE_PATH`) |
-| Flyprosjekter i mosaikken | `metadata/mosaic_coverage_by_project.gpkg`, levert med mosaikken | Ligger ved mosaikken |
-| CHMv2 | `facebook/dinov3-vitl16-chmv2-dpt-head` (DINOv3-lisens), Hugging Face | Lastes ned automatisk |
-| AR5 myr | FKB-AR5 (NIBIO), arealtype 60, ikke åpne data | `docker/prepare_ar5_input/`, se `NO_GJEN_001` |
-| Valideringsceller | Laserhøyde (DOM1 − DTM1) i utvalgscellene til `NO_GJEN_001`; ligger ikke i repoet fordi cellene kommer fra AR5 | `NATIONAL_CHM_OUT_DIR/validation_cells_lidar_20m_median.csv` |
-| Referanser, regioner, bioklimatiske soner, bygninger, SSB 50 km | Fra `NO_GJEN_001` | Ligger i repoet eller lages av `NO_GJEN_001` |
+| Datasett | Kilde, versjon og lisens | Brukt til | Hentes med / ligger |
+|---|---|---|---|
+| Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS (`MosaikkOmlopNorge_2025`), produktår 2025, 8 bit RGB, EPSG:25833. Flyvningene over myrene er fra 2015–2024 (median 2022). Kan ikke videreformidles | Høydekartet, sammenligningen | Brukerens egen kilde (`ORTHOPHOTO_SOURCE_PATH`), lest 2026-11 |
+| Flyprosjekter i mosaikken | Metadata levert med mosaikken: `mosaic_coverage_by_project.gpkg` (synlig prosjekt per område; navnet slutter med flyåret) og `metadata_omløpsprosjekt_mosaic_v2_2025.gpkg` (flydatoer) | Flyår per celle; flydato i sammenligningen | `metadata/` ved mosaikken |
+| CHMv2 | Meta og World Resources Institute, `facebook/dinov3-vitl16-chmv2-dpt-head` på Hugging Face, revisjon `37130c85` (DINOv3-lisens, krever innlogging) | Høydekartet | Lastes ned automatisk, 2026-11 |
+| CHMv1 | Meta HighResCanopyHeight, kode-commit `84971392`, sjekkpunkt `compressed_SSLhuge_aerial.pth` (Apache-2.0) | Bare sammenligningen (og versjon 000.003) | `docker/canopy_height_model/download_model_and_weights.sh` |
+| AR5 myr | NIBIO, FKB-AR5, arealtype 60 (myr), kommunevise filer fra Geonorge lastet ned 2026-07-28. Begrenset lisens (Norge digitalt), kan ikke deles | Hvilke celler som er med, og myrandelen i hver celle | `docker/prepare_ar5_input/`, se `NO_GJEN_001` |
+| Utvalgspunkter i AR5 myr | `vaatmark_pop_openS.gpkg` fra `NO_GJEN_001` (25 029 punkter); avledet av AR5 | Kalibrering og validering | Lages av `NO_GJEN_001` |
+| Laserhøyde, DOM1 og DTM1 | Kartverket, Nasjonal detaljert høydemodell, 1 m, åpne data (CC BY 4.0); laserprosjektene fra Kartverkets katalog. Laserår 2006–2025 (median 2017) | Kalibrering og validering (median i 20 m-cellen, som `NO_GJEN_001`) | Leses over nett av sammenligningen, 2026-11 |
+| Valideringsceller | Laserhøyden i utvalgscellene, fra sammenligningen; ligger ikke i repoet fordi cellene kommer fra AR5 | Usikkerheten | `docker/run_NO_GJEN_002_chm_comparison.sh`, kopieres til `NATIONAL_CHM_OUT_DIR` |
+| Referanser X100 og X0 | God tilstand (30 m) og skog (20 m) per region og bioklimatisk sone, fra `NO_GJEN_001` | Skaleringen | `data/OpenS_data/refvaatmark_openS_30m.csv`, `vegHeights_skog_climZoneRegion_openS_20m.csv` |
+| Bygninger | OpenStreetMap (ODbL), fra `NO_GJEN_001` | Trekkes fra myrarealet | `NO_GJEN_001/R/fetch_osm_buildings.R` |
+| Regioner, bioklimatiske soner, SSB 50 km-ruter | Fra `NO_GJEN_001` (se hoved-README) | Strata og rapporteringsenheter | Ligger i repoet eller lages av `NO_GJEN_001` |
 
 **Egne bilder.** Bildene bak de publiserte tallene er kommersielle data
 med en lisens som ikke tillater videreformidling av bildene eller
@@ -181,9 +188,12 @@ Det finnes ingen polygonfil, fordi AR5 ikke er åpne data.
 ## 6. Installasjon / Kjøring
 
 **Leveransene fra tabellene i repoet (sekunder, uten bilder):**
-`R/export_deliverables_20m_cells.R`, eller `docker/run_indicators.sh`.
+`R/export_deliverables_20m_cells.R`, i RStudio eller med `Rscript` (også
+på Windows), eller `docker/run_indicators.sh`. Indikatordokumentet:
+`quarto render docs/NO_GJEN_002.qmd`.
 
-**Hele kjeden (krever bilder, AR5 og GPU):** i en `screen`-økt,
+**Hele kjeden (krever bilder, AR5, Linux eller WSL2, Docker og en NVIDIA-GPU;
+oppsett i [`docker/README.md`](../docker/README.md)):** i en `screen`-økt,
 
 ```bash
 bash docker/run_NO_GJEN_002_deliverables.sh
@@ -195,6 +205,10 @@ ferdige deler hoppes over), 20 m-beregningen
 repoet, lager leveransene og indikatordokumentet. Innstillinger
 (`NATIONAL_CHM_OUT_DIR`, `ORTHOPHOTO_SOURCE_PATH` m.fl.) står i
 `docker/config.env`.
+
+**Kalibrering og valideringsceller** (bare ved nye bilder eller ny modell):
+`bash docker/run_NO_GJEN_002_chm_comparison.sh`, ca. 3,5 timer. Se
+[`src/chm_comparison/README.md`](src/chm_comparison/README.md).
 
 **Kontroll.** Lesefeil fra nettverksdisken prøves på nytt etter 10, 30 og
 90 sekunder. Deler som fortsatt feiler, listes, og resultatet merkes
@@ -216,5 +230,6 @@ repoet, lager leveransene og indikatordokumentet. Innstillinger
 ## 7. Lisens / Rettigheter
 
 Se [**LICENSE**-filen](LICENSE.md). Bildene og tilgangsinformasjonen er
-ikke en del av repoet og kan ikke deles. Modellen er Apache-2.0 og lastes
-ned fra Meta. Nedlastede data er underlagt lisensene til kildene.
+ikke en del av repoet og kan ikke deles. CHMv2 er underlagt DINOv3-lisensen
+og lastes ned fra Hugging Face (CHMv1 i versjon 000.003: Apache-2.0).
+Nedlastede data er underlagt lisensene til kildene.
