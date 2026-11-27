@@ -31,12 +31,12 @@
 # the 5 regions and the SSB 50 km grid - the same estimator NO_GJEN_001
 # uses, so the two GJEN indicators are directly comparable.
 #
-# Outputs (../outputs/results/, suffix _OpenSource):
-#   ../outputs/results/NO_GJEN_002_wetland_index_OpenSource.csv / .shp  per polygon
+# Outputs (../outputs/v000.003/results/, suffix _OpenSource):
+#   ../outputs/v000.003/results/NO_GJEN_002_wetland_index_OpenSource.csv / .shp  per polygon
 #   NO_GJEN_002_wetland_index_region_OpenSource.shp   per region
 #   NO_GJEN_002_wetland_index_grid_OpenSource.shp     per 50 km cell
 #   vaatmarkIndexStrata_OpenSource.csv                 per stratum
-#   ../outputs/results/NO_GJEN_002_wetland_map_OpenSource.png
+#   ../outputs/v000.003/results/NO_GJEN_002_wetland_map_OpenSource.png
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -55,7 +55,8 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 spatial_dir <- file.path("..", "data", "spatial")
 data_dir    <- file.path("..", "data")
 opens_dir   <- file.path(data_dir, "OpenS_data")
-results_dir <- file.path("..", "outputs", "results")   # indicator outputs (repo convention)
+results_dir <- file.path("..", "outputs", "v000.003", "results")   # version 000.003 (superseded); not committed
+dir.create(results_dir, showWarnings = FALSE, recursive = TRUE)
 img_dir     <- results_dir
 if (!dir.exists(img_dir)) dir.create(img_dir, recursive = TRUE)
 # Forest anchor (GJEN002_SKOG_SCALE). Both anchors are borrowed from

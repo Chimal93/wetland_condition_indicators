@@ -19,9 +19,9 @@ Måler gjengroing i våtmark som vegetasjonshøyde fra flyfoto, for hver
 
 > **Versjon 000.004 (november 2026) erstatter versjon 000.003.** Den forrige
 > versjonen brukte modellen CHMv1 på kartlagte NiN-våtmarkspolygoner. Koden
-> (`R/NO_GJEN_002_national_pipeline.R` m.fl.) og leveransene
-> (`outputs/deliverables/`) er beholdt til sammenligning, men brukes ikke
-> lenger.
+> (`R/NO_GJEN_002_national_pipeline.R` m.fl.) er beholdt til sammenligning
+> og skriver til `outputs/v000.003/`, som ikke ligger i repoet. Leveransene
+> for versjon 000.003 finnes i git-historikken (tag `pre-docker-gjen002-v000.004`).
 
 ## 1. Bidragsytere / Kontakt
 
@@ -144,8 +144,8 @@ finnes. Nøkkelen er personlig: den skal aldri legges i repoet.
 | `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_GJEN_002.qmd` (kilde) og `NO_GJEN_002.html`. `METHODOLOGY_CANOPY_HEIGHT.md` og `CHM_MODEL_SETUP.md` gjelder versjon 000.003. |
 | `data/OpenS_data/orthophoto_chmv2_20m_cells/` | Tabellene fra den nasjonale 20 m-kjøringen. Leveransene kan lages på nytt fra dem uten bilder. |
 | `data/OpenS_data/` ellers | Referansetabellene fra `NO_GJEN_001`, og data for versjon 000.003. |
-| `outputs/deliverables_20m_cells/` | Indikatoren i plattformformatet (gjeldende). |
-| `outputs/deliverables/`, `outputs/results/` | Versjon 000.003 (erstattet). |
+| `outputs/deliverables/` | Indikatoren i plattformformatet (versjon 000.004). |
+| `outputs/v000.003/` | Utdata fra skriptene for versjon 000.003 (erstattet); ligger ikke i repoet. Leveransene for 000.003 finnes i git-historikken (tag `pre-docker-gjen002-v000.004`). |
 
 ## 5. Input / Output
 
@@ -172,7 +172,7 @@ EPSG:25833, som lokal fil (GeoTIFF eller VRT).
 
 ### Output
 
-I `outputs/deliverables_20m_cells/`:
+I `outputs/deliverables/`:
 
 - `NO_GJEN_002_indicatorMap_region.rds` – landsdeler (primær).
 - `NO_GJEN_002_indicatorMap_grid50km.rds` – SSB 50 km-ruter med myr.

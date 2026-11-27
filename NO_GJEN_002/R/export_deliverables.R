@@ -52,8 +52,9 @@ DATA_YEAR <- as.integer(Sys.getenv("GJEN002_DATA_YEAR", "2025"))
 SUFFIX    <- Sys.getenv("GJEN002_RESULT_SUFFIX", "_OpenSource")
 THR       <- 0.6
 
-data_dir <- file.path("..", "outputs", "results")   # the pipeline writes its results here
-out_dir  <- file.path("..", "outputs", "deliverables")
+data_dir <- file.path("..", "outputs", "v000.003", "results")   # the 000.003 pipeline writes its results here
+out_dir  <- file.path("..", "outputs", "v000.003", "deliverables")   # version 000.003 (superseded); not committed
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 region_ids <- c("Nord-Norge" = 1L, "Midt-Norge" = 2L, "Østlandet" = 3L, "Vestlandet" = 4L, "Sørlandet" = 5L)
 

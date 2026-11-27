@@ -8,7 +8,7 @@
 #     region.csv, grid50km.csv, norway.csv, strata.csv, excluded.csv, uncertainty.csv,
 #     sums_by_stratum_and_grid50km.csv, provenance.json
 # (copied from <NATIONAL_CHM_OUT_DIR>/cell_indicator_chmv2/; the 20 m rasters
-# stay there), and writes to ../outputs/deliverables_20m_cells/:
+# stay there), and writes to ../outputs/deliverables/:
 #   NO_GJEN_002_indicatorMap_region.rds     5 landsdeler (primary)
 #   NO_GJEN_002_indicatorMap_grid50km.rds   SSB 50 km cells with mire
 #   NO_GJEN_002_values.csv / .xlsx          region rows + national row,
@@ -49,7 +49,7 @@ VERSION   <- Sys.getenv("GJEN002_DELIVERY_VERSION", "000.004")
 THR       <- 0.6
 
 in_dir  <- file.path("..", "data", "OpenS_data", "orthophoto_chmv2_20m_cells")
-out_dir <- Sys.getenv("GJEN002_DELIVERABLES_DIR", file.path("..", "outputs", "deliverables_20m_cells"))
+out_dir <- Sys.getenv("GJEN002_DELIVERABLES_DIR", file.path("..", "outputs", "deliverables"))
 g1_dir  <- file.path("..", "..", "NO_GJEN_001", "data", "OpenS_data")
 
 region_ids <- c("Nord-Norge" = 1L, "Midt-Norge" = 2L, "Østlandet" = 3L, "Vestlandet" = 4L, "Sørlandet" = 5L)

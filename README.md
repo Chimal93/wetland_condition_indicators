@@ -155,8 +155,7 @@ indikatormappe følger standardstrukturen:
 - _/docs_ – Indikatordokument på engelsk (Quarto, `.qmd` og `.html`) etter
   NINAs ecRxiv-mal, og annen metodikk.
 - _/outputs/results_ – Kart og tabeller fra beregningen.
-- _/outputs/deliverables_ – Indikatoren i plattformformatet (`NO_GJEN_002`:
-  `outputs/deliverables_20m_cells`).
+- _/outputs/deliverables_ – Indikatoren i plattformformatet.
 
 I tillegg:
 
@@ -230,9 +229,8 @@ beregne (ca. 2 GB) publiseres som Release-filer på GitHub og hentes med
 ### Output
 
 Hver indikator avslutter med `R/export_deliverables.R`, som skriver til
-`outputs/deliverables/` (`NO_GJEN_002`: `R/export_deliverables_20m_cells.R`
-til `outputs/deliverables_20m_cells/`, uten polygonfil fordi AR5 ikke er
-åpne data):
+`outputs/deliverables/` (`NO_GJEN_002`: `R/export_deliverables_20m_cells.R`,
+uten polygonfil fordi AR5 ikke er åpne data):
 
 - `<ID>_indicatorMap_region.rds` – `sf`-objekt i EPSG:25833, én rad per
   landsdel, kolonnene `area, areaId, v_ÅÅÅÅ, sd_ÅÅÅÅ, i_ÅÅÅÅ,

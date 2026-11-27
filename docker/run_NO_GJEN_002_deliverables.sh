@@ -6,7 +6,7 @@
 #   2. indicator on the 20 m grid, uncertainty and flight years (CPU, ~30 min)
 #   3. copy the result tables into the repository:
 #      NO_GJEN_002/data/OpenS_data/orthophoto_chmv2_20m_cells/
-#   4. deliverables: NO_GJEN_002/outputs/deliverables_20m_cells/
+#   4. deliverables: NO_GJEN_002/outputs/deliverables/
 #   5. indicator document: NO_GJEN_002/docs/NO_GJEN_002.html
 #
 # Usage (inside screen):  bash docker/run_NO_GJEN_002_deliverables.sh
@@ -46,4 +46,4 @@ say "5/5 indicator document"
 run_in_container "$RUNS_DIR/single_scripts" --rm -w /work/NO_GJEN_002/docs -- \
   quarto render NO_GJEN_002.qmd 2>&1 | tail -5 | tee -a "$LOG"
 
-say "done. Deliverables: NO_GJEN_002/outputs/deliverables_20m_cells/  Document: NO_GJEN_002/docs/NO_GJEN_002.html"
+say "done. Deliverables: NO_GJEN_002/outputs/deliverables/  Document: NO_GJEN_002/docs/NO_GJEN_002.html"

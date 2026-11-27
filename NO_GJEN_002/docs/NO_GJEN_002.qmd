@@ -69,7 +69,7 @@ library(sf)
 opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 source(file.path("..", "..", "Tools", "quarto_helpers.R"), encoding = "UTF-8")
 tables <- file.path("..", "data", "OpenS_data", "orthophoto_chmv2_20m_cells")
-deliv  <- file.path("..", "outputs", "deliverables_20m_cells")
+deliv  <- file.path("..", "outputs", "deliverables")
 reg_lv <- c("Norge", "Nord-Norge", "Midt-Norge", "Vestlandet", "Østlandet", "Sørlandet")
 vals   <- read_csv(file.path(deliv, "NO_GJEN_002_values.csv"), show_col_types = FALSE)
 yr     <- sub("^i_", "", grep("^i_[0-9]{4}$", names(vals), value = TRUE))
@@ -108,7 +108,7 @@ metadata_table("NO_GJEN_002.qmd")
 ## Log
 
 - 24 Nov. 2026 - First version of this document. Population changed (version 000.003).
-- 26 Nov. 2026 - New method (version 000.004): canopy height from CHMv2 calibrated to LiDAR, on every 20 m cell of AR5 mire instead of NiN wetland polygons. Version 000.003 is kept in `outputs/deliverables/` for reference.
+- 26 Nov. 2026 - New method (version 000.004): canopy height from CHMv2 calibrated to LiDAR, on every 20 m cell of AR5 mire instead of NiN wetland polygons. Version 000.003 is kept in the git history (tag `pre-docker-gjen002-v000.004`).
 :::
 
 <hr />

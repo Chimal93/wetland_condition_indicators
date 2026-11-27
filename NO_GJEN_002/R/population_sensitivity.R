@@ -8,7 +8,7 @@
 # Run first:
 #   NO_GJEN_002_national_pipeline.R                            (delivered)
 #   NO_GJEN_002_national_pipeline.R, GJEN002_POPULATION=all    (comparison)
-# Output: ../outputs/results/NO_GJEN_002_population_sensitivity.csv
+# Output: ../outputs/v000.003/results/NO_GJEN_002_population_sensitivity.csv
 # ============================================================
 
 suppressPackageStartupMessages({ library(sf); library(dplyr); library(readr) })
@@ -20,7 +20,8 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
   if (length(fm)) setwd(dirname(normalizePath(sub("^--file=", "", cmd_args[fm]))))
 }
 
-res <- file.path("..", "outputs", "results")
+res <- file.path("..", "outputs", "v000.003", "results")   # version 000.003 (superseded)
+dir.create(res, showWarnings = FALSE, recursive = TRUE)
 summarise_run <- function(suffix) {
   d <- st_read(file.path(res, paste0("NO_GJEN_002_wetland_index", suffix, ".shp")), quiet = TRUE)
   d$area <- as.numeric(st_area(d))

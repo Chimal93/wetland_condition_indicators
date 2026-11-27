@@ -57,3 +57,7 @@ Thumbs.db
 
 # Comparison run with the old population (R/population_sensitivity.R).
 outputs/results/*_allTypes*
+
+# Outputs of the superseded version 000.003 scripts (NiN polygons, CHMv1).
+# The committed copies are in git history (tag pre-docker-gjen002-v000.004).
+outputs/v000.003/

@@ -295,7 +295,7 @@ bash docker/run_NO_GJEN_002_deliverables.sh
    calibration, indicator, uncertainty and flight years. About 30 minutes.
 3. The result tables are copied into
    `NO_GJEN_002/data/OpenS_data/orthophoto_chmv2_20m_cells/`.
-4. Deliverables are written to `NO_GJEN_002/outputs/deliverables_20m_cells/`.
+4. Deliverables are written to `NO_GJEN_002/outputs/deliverables/`.
 5. The indicator document `NO_GJEN_002/docs/NO_GJEN_002.html` is rendered.
 
 **Needs:**

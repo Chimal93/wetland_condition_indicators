@@ -6,7 +6,7 @@
 #
 # Reads the delivered regional values (outputs/deliverables/NO_GJEN_002_values.csv,
 # written by export_deliverables.R) - run that first. No computation here.
-# Output: outputs/results/NO_GJEN_002_wetland_map_report.png
+# Output: outputs/v000.003/results/NO_GJEN_002_wetland_map_report.png
 # ============================================================
 
 suppressPackageStartupMessages({ library(sf); library(dplyr); library(ggplot2); library(readr) })
@@ -19,9 +19,9 @@ if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable())
 }
 
 spatial_dir <- file.path("..", "data", "spatial")
-out_dir     <- file.path("..", "outputs", "results")
+out_dir     <- file.path("..", "outputs", "v000.003", "results")   # version 000.003 (superseded)
 
-vals <- read_csv(file.path("..", "outputs", "deliverables", "NO_GJEN_002_values.csv"), show_col_types = FALSE) %>%
+vals <- read_csv(file.path("..", "outputs", "v000.003", "deliverables", "NO_GJEN_002_values.csv"), show_col_types = FALSE) %>%
   filter(areaId != 0) %>%
   select(areaId, index = i_2025, n)
 
@@ -76,7 +76,7 @@ wetland_map <- ggplot() +
         plot.caption    = element_text(size = 8, hjust = 0.5),
         legend.position = "right")
 
-dir.create(out_dir, showWarnings = FALSE)
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 out <- file.path(out_dir, "NO_GJEN_002_wetland_map_report.png")
 ggsave(out, wetland_map, width = 11, height = 10, dpi = 300, bg = "white")
 cat("Saved", out, "\n")
