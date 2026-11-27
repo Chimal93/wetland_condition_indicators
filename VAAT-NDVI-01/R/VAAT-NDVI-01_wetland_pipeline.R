@@ -18,7 +18,7 @@
 # classes and ecosystem types "makes it generally difficult to define
 # useful scaling values for absolute NDVI values" - i.e. no X0/X100
 # reference levels or sigmoid-style scaling function were ever defined,
-# unlike VAAT-GJEN-01/VAAT-GJEN-02. The source's own "Export" section is a literal
+# unlike VAAT-GJEN-01 and VAAT-GJEN-02. The source's own "Export" section is a literal
 # empty placeholder with no code. This script therefore stops at the same
 # point the original does: cleaned data, exploratory plots, and
 # statistical models testing whether NDVI correlates with condition - not
@@ -26,7 +26,7 @@
 # concluding assessment, reproduced as a code comment for reference.
 #
 # Data availability (checked against this repo):
-#   - data/spatial/regions.shp   PRESENT - copied from VAAT-GJEN-01/VAAT-GJEN-02/
+#   - data/spatial/regions.shp   PRESENT - copied from VAAT-GJEN-01/ or VAAT-GJEN-02/
 #     VAAT-FUNC-01 (same file already reused across those folders), then
 #     relabelled to the English region names this source page uses
 #     ("Northern Norway" etc.) instead of the Norwegian names used elsewhere
@@ -95,7 +95,7 @@ regionlvl <- c("Northern Norway", "Central Norway", "Eastern Norway",
 # STAGE 2: Load regions
 # Present locally, relabelled to the English region names this source
 # uses (the underlying polygons/id order are identical to the
-# "Nord-Norge" etc. copy used in VAAT-GJEN-01/VAAT-GJEN-02/VAAT-FUNC-01).
+# "Nord-Norge" etc. copy used in VAAT-GJEN-01, VAAT-GJEN-02 and VAAT-FUNC-01).
 # ===========================================================
 
 regions_path <- file.path(spatial_dir, "regions.shp")

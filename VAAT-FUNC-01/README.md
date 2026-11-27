@@ -61,7 +61,7 @@ ecRxiv (NO_FULI_002, NO_FUMO_004, NO_FUNI_002/004). pH har ingen
 tilsvarende NINA-indikator, men er tatt med fordi den er valgt for
 våtmark. Skaleringsfunksjonen gjengir `ec_normalise()` fra gjeldende
 versjon av eaTools. Versjonen som er låst i dette repoet (nødvendig for
-`VAAT-GJEN-01/VAAT-GJEN-02`) har en feil i synkende retning som NINA rettet i mai
+`VAAT-GJEN-01` og `VAAT-GJEN-02`) har en feil i synkende retning som NINA rettet i mai
 2026 (eaTools-commit `ca7bc797`).
 
 Den samlede indeksen (laveste av de åtte skalerte sidene, grenser

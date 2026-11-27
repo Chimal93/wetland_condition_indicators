@@ -653,7 +653,7 @@ res.wet <- res.wet |>
 # Piece-wise linear normalisation, identical to ec_normalise(fun = "linear")
 # in CURRENT eaTools (NINAnor/eaTools, R/ec_normalise.R after commit
 # ca7bc797 "Fixes #26", May 2026). Not called from the package because this
-# repo pins eaTools at e9480b4 (VAAT-GJEN-01/VAAT-GJEN-02 need its ea_spread()), and
+# repo pins eaTools at e9480b4 (VAAT-GJEN-01 and VAAT-GJEN-02 need its ea_spread()), and
 # that older version has a bug in the decreasing direction: a value at the
 # reference (x100) does not score 1 and x0 scores 0.2 instead of 0. NINA's
 # split indicators use the fixed version.

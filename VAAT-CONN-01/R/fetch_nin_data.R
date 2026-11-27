@@ -5,7 +5,7 @@
 # (fetch_wetland_map.R) doesn't actually cover, despite its "nationwide"
 # filename - confirmed from the raster's own real extent.
 #
-# Same public source used identically in VAAT-GJEN-01/VAAT-GJEN-02/
+# Same public source used identically in VAAT-GJEN-01/ and VAAT-GJEN-02/
 # VAAT-NDVI-01 - copied here unmodified (self-contained pipelines
 # preference: each indicator keeps its own local copy rather than
 # reading another indicator's Data folder).
