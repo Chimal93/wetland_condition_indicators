@@ -46,13 +46,19 @@ god tilstand. Repoet er en uavhengig rekonstruksjon og **ikke et offisielt
 NINA-produkt**. Der originalen ikke kunne gjenskapes nøyaktig, er avviket
 dokumentert i indikatorens README.
 
-| Indikator | Måler | Status |
-|---|---|---|
-| [`VAAT-FUNC-01`](VAAT-FUNC-01/) | Funksjonell plantesammensetning: artsvektede indikatorverdier for lys, fuktighet, pH og nitrogen i ANO-flater, mot referansefordelinger. Leveres som fire indikatorer (`VAAT-FULI-01`, `VAAT-FUMO-01`, `VAAT-FUPH-01`, `VAAT-FUNI-01`). | Ferdig |
-| [`VAAT-CONN-01`](VAAT-CONN-01/) | Strukturell konnektivitet: avstand fra hver myr til nærmeste infrastruktur, sett mot avstand til nærmeste nabomyr. | Ferdig |
-| [`VAAT-GJEN-01`](VAAT-GJEN-01/) | Gjengroing: vegetasjonshøyde fra laserdata (LiDAR) mot referansenivåer for god tilstand og for skog. | Ferdig |
-| [`VAAT-GJEN-02`](VAAT-GJEN-02/) | Gjengroing fra flyfoto: vegetasjonshøyde predikert med en dyplæringsmodell, mot de samme referansenivåene som `VAAT-GJEN-01`. | Ferdig |
-| [`VAAT-NDVI-01`](VAAT-NDVI-01/) | Primærproduksjon: trend i NDVI (MODIS) per myrpolygon, skalert mot ingen trend. | **Foreløpig** – kun MODIS, uten usikkerhetsestimat |
+| Indikator | Måler | NINAs original | Status |
+|---|---|---|---|
+| [`VAAT-FUNC-01`](VAAT-FUNC-01/) | Funksjonell plantesammensetning: artsvektede indikatorverdier for lys, fuktighet, pH og nitrogen i ANO-flater, mot referansefordelinger. Leveres som fire indikatorer (`VAAT-FULI-01`, `VAAT-FUMO-01`, `VAAT-FUPH-01`, `VAAT-FUNI-01`). | [NO_FUNC_001–004](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_FUNC_001-004) (ecRxiv) | Ferdig |
+| [`VAAT-CONN-01`](VAAT-CONN-01/) | Strukturell konnektivitet: avstand fra hver myr til nærmeste infrastruktur, sett mot avstand til nærmeste nabomyr. | [NO_CONN_003](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_CONN_003) (ecRxiv; tidligere NO_CONN_001) | Ferdig |
+| [`VAAT-GJEN-01`](VAAT-GJEN-01/) | Gjengroing: vegetasjonshøyde fra laserdata (LiDAR) mot referansenivåer for god tilstand og for skog. | [NO_GJEN_001](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_GJEN_001) (ecRxiv) | Ferdig |
+| [`VAAT-GJEN-02`](VAAT-GJEN-02/) | Gjengroing fra flyfoto: vegetasjonshøyde predikert med en dyplæringsmodell (CHMv2, kalibrert mot laserdata), mot de samme referansenivåene som `VAAT-GJEN-01`. | [NO_GJEN_002, versjon 000.001](https://github.com/NINAnor/ecRxiv/blob/main/indicators/NO_GJEN_002/R/NO_GJEN_002_version_000_001.html) (ecRxiv) | Ferdig |
+| [`VAAT-NDVI-01`](VAAT-NDVI-01/) | Primærproduksjon: trend i NDVI (MODIS) per myrpolygon, skalert mot ingen trend. | [NDVI – våtmark](https://ninanor.github.io/ecosystemCondition/NDVI-indicator-wetland.html) (ecosystemCondition, ikke på ecRxiv) | **Foreløpig** – kun MODIS, uten usikkerhetsestimat |
+
+ID-ene som begynner med `VAAT-` er våre. ID-ene som begynner med `NO_` tilhører NINAs
+originaler på [ecRxiv](https://github.com/NINAnor/ecRxiv), slik at det er lett å
+sammenligne med det NINA har gjort. NINA har senere publisert en ny versjon av
+NO_GJEN_002 for åpent lavland, med en annen metode; `VAAT-GJEN-02` bygger på
+versjon 000.001.
 
 `VAAT-GJEN-01` og `VAAT-GJEN-02` måler det samme mot de samme
 referansenivåene og skiller seg bare i hvordan vegetasjonshøyden måles.
