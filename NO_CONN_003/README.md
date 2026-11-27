@@ -211,7 +211,9 @@ Sett opp R-miljøet som beskrevet i [hoved-README](../README.md#6-installasjon--
    `powershell -ExecutionPolicy Bypass -File .\src\run_connectivity_ar5.ps1`
    (klargjøring, avstander og skalering per region; kan avbrytes og
    startes på nytt). Sett `$env:RSCRIPT` hvis R ikke ligger på
-   standardstien.
+   standardstien. På Linux eller macOS, eller hvor som helst med Docker,
+   er den samme kjøringen `bash docker/run_NO_CONN_003_ar5_variant.sh`
+   fra repoets rotmappe (se `docker/README.md`).
 5. `R/export_deliverables.R` med `CONNECTIVITY_SCORE_LABEL=national_2023_AR5`.
 6. `R/make_report_map.R` – rapportkartet.
 

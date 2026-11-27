@@ -6,16 +6,22 @@
 - **Leveringsdato**: 30.11.2026
 - **Del av**: [Indikatorutvikling for våtmark-2026](../README.md)
 
-Måler gjengroing i våtmark som vegetasjonshøyde predikert fra flyfoto med
-en dyplæringsmodell, mot de samme referansenivåene som `NO_GJEN_001`.
+Måler gjengroing i våtmark som vegetasjonshøyde fra flyfoto, for hver
+20 m-celle med AR5 myr, mot de samme referansenivåene som `NO_GJEN_001`.
 
 - **English**: Woody encroachment in wetlands from aerial photography:
-  canopy height predicted from orthophoto by a deep-learning model for
-  every NiN wetland polygon of the open types, scaled against the reference levels of
-  `NO_GJEN_001`.
+  canopy height estimated from the national orthophoto by the CHMv2 model,
+  calibrated to LiDAR, for every 20 m cell of AR5 mire, scaled against the
+  reference levels of `NO_GJEN_001`.
 - **Norwegian**: Gjengroing i våtmark fra flyfoto: vegetasjonshøyde
-  predikert fra ortofoto med en dyplæringsmodell for hvert
-  NiN-våtmarkspolygon av åpne typer, skalert mot referansenivåene i `NO_GJEN_001`.
+  beregnet fra ortofoto med modellen CHMv2, kalibrert mot laserdata, for
+  hver 20 m-celle med AR5 myr, skalert mot referansenivåene i `NO_GJEN_001`.
+
+> **Versjon 000.004 (november 2026) erstatter versjon 000.003.** Den forrige
+> versjonen brukte modellen CHMv1 på kartlagte NiN-våtmarkspolygoner. Koden
+> (`R/NO_GJEN_002_national_pipeline.R` m.fl.) og leveransene
+> (`outputs/deliverables/`) er beholdt til sammenligning, men brukes ikke
+> lenger.
 
 ## 1. Bidragsytere / Kontakt
 
@@ -27,72 +33,63 @@ Rekonstruksjon av NINAs indikator NO_GJEN_002 (Gray, Mienna og Venter,
 publisert på ecRxiv). Den måler det samme som
 [`NO_GJEN_001`](../NO_GJEN_001/), men henter vegetasjonshøyden fra flyfoto
 i stedet for laserdata. Flyfoto fornyes langt oftere enn nasjonale
-laserdata, så indikatoren kan oppdateres hyppigere. Originalen ble testet
-på 124 polygoner; dette er den første nasjonale kjøringen.
+laserdata, så indikatoren kan oppdateres hyppigere.
 
 **Metode.**
 
-1. **Vegetasjonshøyde.** Metas modell HighResCanopyHeight (Tolan et al.,
-   2024), sjekkpunktet for flyfoto, kjøres på ortofoto med 0,5 m
-   oppløsning i fliser på 256 × 256 piksler (128 m), på CPU.
-2. **Populasjon.** NiN-våtmarkspolygonene, ikke et utvalg. Naturtyper som
-   kan være i god tilstand med mer enn 10 % tresjikt (særlig sumpskog), er
-   utelatt. Det er de samme 24 typene som er utelatt fra referansen for god
-   tilstand. Verdien per polygon er **gjennomsnittet** av pikslene.
-3. **Referanser.** Lånt uendret fra `NO_GJEN_001`, som i originalen:
-   referansen for god tilstand evaluert på 30 m (X100), og skogreferansen
-   på 20 m (X0).
-4. **Skalering og aggregering.** Samme sigmoid-funksjon som `NO_GJEN_001`;
-   arealvektet gjennomsnitt per region, per SSB 50 km-rute og nasjonalt,
-   med bootstrap-standardfeil (`ecTools::ea_spread`, 1000 trekninger, fast
-   seed).
+1. **Høydekart.** Modellen CHMv2 (Meta og World Resources Institute)
+   beregner vegetasjonshøyde fra den nasjonale ortofotomosaikken (0,5 m)
+   for all AR5 myr pluss en stripe på 30 m rundt, på GPU.
+2. **Celler.** Det faste 20 m-rutenettet, det samme som i `NO_GJEN_001`.
+   Alle celler med AR5 myr er med. Hver celle teller med sin andel myr, og
+   bygninger (OpenStreetMap) trekkes fra, som i `NO_GJEN_001`.
+3. **Høyde per celle.** Medianen av de 1 600 høydeverdiene i cellen, som
+   medianen av laserhøyden i `NO_GJEN_001`. Høyden kalibreres mot
+   laserdata: *laserhøyde = maks(0; −0,0127 + 0,5336 × CHMv2-høyde)*.
+4. **Referanser og skalering.** Uendret fra `NO_GJEN_001`: referansen for
+   god tilstand (X100, 30 m) og skogreferansen (X0, 20 m), og samme
+   sigmoid-funksjon, per celle.
+5. **Aggregering.** Gjennomsnitt per region, per SSB 50 km-rute og
+   nasjonalt, vektet med myrarealet i cellene. I tillegg et gjennomsnitt der
+   hvert stratum (region × bioklimatisk sone) veier likt, som i utvalget i
+   `NO_GJEN_001` (`i_sample_design`).
+6. **Usikkerhet.** Avstanden til den laserbaserte indikatoren i ca. 21 000
+   valideringsceller: √(gjennomsnittlig differanse² + standardfeil²). En
+   50 km-rute får verdien til regionen med mest av myrarealet.
+7. **Flyår.** Hver celle dateres med flyprosjektet som er synlig der i
+   mosaikken. Årstallet i leveransene er medianen over myrarealet i Norge.
 
-To innstillinger er avgjørende og håndteres automatisk:
+**Modellvalg.** CHMv2 ble sammenlignet med CHMv1 (Meta HighResCanopyHeight,
+brukt i versjon 000.003) i 25 027 utvalgsceller fra `NO_GJEN_001` med
+laserhøyde. Kalibrert CHMv2 har gjennomsnittlig absolutt feil 0,30 m (CHMv1:
+0,35 m) og er klart bedre der vegetasjonen er 2 m eller høyere. Skriptene og
+alle resultatene: [`src/chm_comparison/`](src/chm_comparison/README.md). CHMv1 kan
+ikke forbedres med kalibrering og ville tatt ca. to uker nasjonalt på CPU;
+CHMv2 tok ca. 11 timer på én GPU.
 
-- Normaliseringen for satellittbilder som er bygget inn i modellen, **må
-  hoppes over** for sjekkpunktet for flyfoto.
-- Polygonverdiene **må aggregeres med gjennomsnitt, ikke median**, fordi
-  fordelingen av pikselverdier er høyreskjev.
+**Resultater (versjon 000.004):**
 
-Begge er forklart i [`docs/METHODOLOGY_CANOPY_HEIGHT.md`](docs/METHODOLOGY_CANOPY_HEIGHT.md).
-Feil på ett av punktene endrer resultatet vesentlig.
+| Region | Indikator (vektet med myrareal) | Strata likt vektet | `NO_GJEN_001` | Usikkerhet | Myrareal |
+|---|---|---|---|---|---|
+| Nord-Norge | 0,976 | 0,977 | 0,977 | 0,005 | 2 609 km² |
+| Midt-Norge | 0,962 | 0,959 | 0,960 | 0,008 | 4 568 km² |
+| Vestlandet | 0,952 | 0,963 | 0,959 | 0,004 | 774 km² |
+| Sørlandet | 0,956 | 0,957 | 0,950 | 0,004 | 1 210 km² |
+| Østlandet | 0,932 | 0,914 | 0,908 | 0,003 | 4 705 km² |
+| **Norge** | **0,954** | **0,952** | **0,949** | **0,002** | 13 867 km² |
 
-**Validering.** Mot kronehøyde fra laserdata på de 46 testpolygonene som
-har begge: r = 0,95, MAE = 0,31 m. Det er like godt som eller bedre enn
-originalens egen validering på alle mål.
-
-**Resultater (n = 14 674 polygoner, versjon 000.003):**
-
-| Region | Indikator | Gjennomsnittlig høyde | n |
-|---|---|---|---|
-| Nord-Norge | 0,989 | 0,38 m | 4 495 |
-| Midt-Norge | 0,995 | 0,45 m | 5 851 |
-| Vestlandet | 0,995 | 0,43 m | 1 721 |
-| Østlandet | 0,984 | 0,95 m | 1 756 |
-| Sørlandet | 0,983 | 0,96 m | 851 |
-| **Norge** | **0,992** | 0,28 m | 14 674 |
-
-Gjennomsnittlig høyde er uvektet per region, men arealvektet for Norge.
-Derfor er den nasjonale høyden lavere enn i noen av regionene.
-
-Verdiene ligger 0,01–0,08 over `NO_GJEN_001`. Populasjonene er
-forskjellige, så forskjellen skyldes ikke bare målemetoden.
-
-**Endring fra versjon 000.002.** Den forrige versjonen hadde med alle
-NiN-våtmarkspolygoner (n = 24 026). Tresatte typer ble da sammenlignet med
-åpen våtmark og skåret som gjengrodd: Sørlandet 0,802, Østlandet 0,877,
-Norge 0,957. `GJEN002_POPULATION=all` gjenskaper den versjonen, og
-`outputs/results/NO_GJEN_002_population_sensitivity.csv` sammenligner de to.
+Med samme vekting av strata ligger alle regioner innenfor 0,007 av
+`NO_GJEN_001`. 1,8 % av myrarealet er utelatt: celler utenfor kartet over
+regioner og soner, celler i strata uten referanse, og celler uten flyfoto.
 
 **Referanser**
 
-- Tolan, J., Yang, H.-I., Nosarzewski, B., Couairon, G., Vo, H. V.,
-  Brandt, J., Spore, J., Majumdar, S., Haziza, D., Vamaraju, J.,
-  Moutakanni, T., Bojanowski, P., Johns, T., White, B., Tiecke, T., &
-  Couprie, C. (2024). Very high resolution canopy height maps from RGB
+- CHMv2: Meta og World Resources Institute, bygget på DINOv3,
+  <https://huggingface.co/facebook/dinov3-vitl16-chmv2-dpt-head>.
+- Tolan, J. mfl. (2024). Very high resolution canopy height maps from RGB
   imagery using self-supervised vision transformer and convolutional
   decoder trained on aerial lidar. *Remote Sensing of Environment, 300*,
-  113888. https://doi.org/10.1016/j.rse.2023.113888
+  113888. https://doi.org/10.1016/j.rse.2023.113888 (CHMv1)
 - NINAs original: [NINAnor/ecRxiv, NO_GJEN_002](https://github.com/NINAnor/ecRxiv).
 
 ## 3. Forutsetninger / Dependencies
@@ -100,132 +97,139 @@ Norge 0,957. `GJEN002_POPULATION=all` gjenskaper den versjonen, og
 Maskinvare, programvare, KI-verktøy og R-versjon: se
 [hoved-README](../README.md#3-forutsetninger--dependencies).
 
-- **R-pakker:** låst i [`renv.lock`](renv.lock). Viktigst: `sf`, `terra`,
-  `dplyr`, `ggplot2` og `ecTools` (se `NO_GJEN_001`).
-- **Python (bare for nye prediksjoner):** Python 3.9 med PyTorch 2.0.1 på
-  CPU, låst i `src/chm_model/pyproject.toml` og `uv.lock`. Python 3.9 er
-  eldre enn malens krav (> 3.11), men er versjonen modellen er laget for,
-  og den de publiserte prediksjonene er laget med. Oppsett og kjente
-  fallgruver: [`docs/CHM_MODEL_SETUP.md`](docs/CHM_MODEL_SETUP.md).
-- **GPU:** trengs ikke. Sjekkpunktet som brukes, er komprimert for CPU.
-- **Ytelse:** fra de lagrede prediksjonene tar beregningen noen minutter.
-  Nye nasjonale prediksjoner tar ca. 90 timer: 114 406 bildeuttrekk for
-  24 521 polygoner, hvorav 45,6 timer er modellkjøring.
+- **R-pakker:** låst i [`renv.lock`](renv.lock) (eksporten og dokumentet).
+- **Python:** 3.12 med PyTorch 2.11 (CUDA 12.8) og transformers 5.24, låst i
+  [`src/chm_national/pyproject.toml`](src/chm_national/pyproject.toml) og
+  `uv.lock`. Miljøet bygges automatisk av Docker-skriptene.
+- **GPU:** trengs for høydekartet (testet på NVIDIA RTX 5090, 32 GB).
+- **CHMv2** er en «gated» modell og krever innlogging på Hugging Face, se
+  under.
+- **Ytelse:** høydekartet tar 11–14 timer nasjonalt (lesing av mosaikken fra
+  nettverksdisk er flaskehalsen), 20 m-beregningen ca. 30 minutter,
+  eksporten noen sekunder.
+
+**Tilgang til CHMv2 (Hugging Face).** Modellen lastes ned automatisk ved
+første kjøring (ca. 1,2 GB), men bare med en gyldig nøkkel (token):
+
+1. Lag en konto på <https://huggingface.co> og godta vilkårene (DINOv3-
+   lisensen) på modellsiden
+   <https://huggingface.co/facebook/dinov3-vitl16-chmv2-dpt-head>.
+2. Lag en nøkkel med lesetilgang under *Settings → Access Tokens*
+   (<https://huggingface.co/settings/tokens>). Den begynner med `hf_`.
+3. Gi nøkkelen til skriptene på én av to måter:
+   - **Som fil (anbefalt):** lagre nøkkelen i `~/.cache/huggingface/token`,
+     for eksempel med `hf auth login`, eller uten ekstra programmer:
+
+     ```bash
+     mkdir -p ~/.cache/huggingface
+     printf '%s' 'hf_...' > ~/.cache/huggingface/token
+     chmod 600 ~/.cache/huggingface/token
+     ```
+
+   - **Som miljøvariabel:** `HF_TOKEN=hf_...` foran kommandoen, eller i
+     `docker/config.local.env` (som ikke legges i git).
+
+Mappen `~/.cache/huggingface` (eller `HF_HOME` hvis den er satt) monteres
+inn i containeren. Der lagres også den nedlastede modellen, så den lastes
+bare ned én gang. Skriptet stopper med en tydelig melding hvis ingen nøkkel
+finnes. Nøkkelen er personlig: den skal aldri legges i repoet.
 
 ## 4. Struktur
 
 | Mappe | Innhold |
 |---|---|
-| `R/` | All R-kode: nedlasting, kobling mot ortofoto (`orthophoto_source.R`), kjøring av modellen per polygon, validering, beregningen (`NO_GJEN_002_national_pipeline.R`), eksport og kart. `fetch_eth_canopy_height.R` og `validate_eth_canopy_height.R` hører til en tidligere, forkastet midlertidig løsning med satellittbasert kronehøyde (ETH, Sentinel-2), beholdt for dokumentasjon; se metodedokumentet. |
-| `src/` | `run_national_by_region.ps1` (den nasjonale modellkjøringen) og `chm_model/`: vår innpakning av modellen (`predict_tiles.py`), røyktest og Python-miljøet. Selve modellen lastes ned, se `docs/CHM_MODEL_SETUP.md`. |
-| `config/` | `orthophoto_access.template.txt`. Kopieres til `orthophoto_access.txt` (gitignored) for å peke på egne bilder. |
-| `docs/` | `METHODOLOGY_CANOPY_HEIGHT.md` (hvorfor metoden er som den er) og `CHM_MODEL_SETUP.md`. Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_GJEN_002.qmd` (kilde) og `NO_GJEN_002.html`. Lages på nytt med `quarto render docs/NO_GJEN_002.qmd`. Koden vises, men kjøres ikke; resultatene leses fra `outputs/`. |
-| `data/OpenS_data/` | De lagrede prediksjonene per polygon og referansetabellene fra `NO_GJEN_001`. Store inndata (NiN, bioklimatiske soner) lastes ned. |
-| `outputs/results/` | Kart og tabeller fra beregningen. |
-| `outputs/deliverables/` | Indikatoren i plattformformatet. |
+| `src/chm_comparison/` | Sammenligningen av modellene mot laserdata: valget av CHMv2, kalibreringen og valideringscellene. Se [`src/chm_comparison/README.md`](src/chm_comparison/README.md). |
+| `src/chm_national/` | `national_chm.py` (høydekartet), `cell_indicator.py` (20 m-celler, kalibrering, indikator, usikkerhet, flyår), `calibration_chmv2_median.json` (kalibreringen) og Python-miljøet. `src/chm_model/` og `src/run_national_by_region.ps1` hører til versjon 000.003. |
+| `R/` | `export_deliverables_20m_cells.R` (leveransene). Resten hører til versjon 000.003 (NiN-polygoner, CHMv1) og er beholdt til sammenligning. |
+| `docs/` | Indikatordokument på engelsk etter NINAs ecRxiv-mal: `NO_GJEN_002.qmd` (kilde) og `NO_GJEN_002.html`. `METHODOLOGY_CANOPY_HEIGHT.md` og `CHM_MODEL_SETUP.md` gjelder versjon 000.003. |
+| `data/OpenS_data/orthophoto_chmv2_20m_cells/` | Tabellene fra den nasjonale 20 m-kjøringen. Leveransene kan lages på nytt fra dem uten bilder. |
+| `data/OpenS_data/` ellers | Referansetabellene fra `NO_GJEN_001`, og data for versjon 000.003. |
+| `outputs/deliverables_20m_cells/` | Indikatoren i plattformformatet (gjeldende). |
+| `outputs/deliverables/`, `outputs/results/` | Versjon 000.003 (erstattet). |
 
 ## 5. Input / Output
 
 ### Input
 
-| Datasett | Kilde og versjon | Lastet ned | Hentes med |
+| Datasett | Kilde, versjon og lisens | Brukt til | Hentes med / ligger |
 |---|---|---|---|
-| Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025; flyvningene spenner over flere år | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde, se under |
-| Høydemodell for trær | Meta HighResCanopyHeight, sjekkpunkt `compressed_SSLhuge_aerial.pth` (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
-| Prediksjoner per polygon | Egen kjøring, frosset 2026-09-17 (15 MB, med sjekksummer og logger) | – | Ligger i repoet: `data/OpenS_data/meta_chm_national_RAW_2026-09-17/` |
-| NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
-| Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Tjenesten var åpen da dataene ble lastet ned, men svarte «Service not found» 2026-11-24. Filen må da skaffes på annen måte og legges i `data/OpenS_data/bioclim/`. | 2026-07-20 | `R/fetch_bioclim_zones.R` |
-| Referanse for god tilstand (30 m) og skogreferanse (20 m) | Fra `NO_GJEN_001` | – | Ligger i repoet |
-| SSB 50 km-rutenett | Fra `NO_GJEN_001` (`R/build_ssb_grids.R`) | 2026-07-21 | Ligger i repoet |
+| Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS (`MosaikkOmlopNorge_2025`), produktår 2025, 8 bit RGB, EPSG:25833. Flyvningene over myrene er fra 2015–2024 (median 2022). Kan ikke videreformidles | Høydekartet, sammenligningen | Brukerens egen kilde (`ORTHOPHOTO_SOURCE_PATH`), lest 2026-11 |
+| Flyprosjekter i mosaikken | Metadata levert med mosaikken: `mosaic_coverage_by_project.gpkg` (synlig prosjekt per område; navnet slutter med flyåret) og `metadata_omløpsprosjekt_mosaic_v2_2025.gpkg` (flydatoer) | Flyår per celle; flydato i sammenligningen | `metadata/` ved mosaikken |
+| CHMv2 | Meta og World Resources Institute, `facebook/dinov3-vitl16-chmv2-dpt-head` på Hugging Face, revisjon `37130c85` (låst i koden; DINOv3-lisens, krever innlogging) | Høydekartet | Lastes ned automatisk, 2026-11 |
+| CHMv1 | Meta HighResCanopyHeight, kode-commit `84971392`, sjekkpunkt `compressed_SSLhuge_aerial.pth` (Apache-2.0) | Bare sammenligningen (og versjon 000.003) | `docker/canopy_height_model/download_model_and_weights.sh` |
+| AR5 myr | NIBIO, FKB-AR5, arealtype 60 (myr), kommunevise filer fra Geonorge lastet ned 2026-07-28. Begrenset lisens (Norge digitalt), kan ikke deles | Hvilke celler som er med, og myrandelen i hver celle | `docker/prepare_ar5_input/`, se `NO_GJEN_001` |
+| Utvalgspunkter i AR5 myr | `vaatmark_pop_openS.gpkg` fra `NO_GJEN_001` (25 029 punkter); avledet av AR5 | Kalibrering og validering | Lages av `NO_GJEN_001` |
+| Laserhøyde, DOM1 og DTM1 | Kartverket, Nasjonal detaljert høydemodell, 1 m, åpne data (CC BY 4.0); laserprosjektene fra Kartverkets katalog. Laserår 2006–2025 (median 2017) | Kalibrering og validering (median i 20 m-cellen, som `NO_GJEN_001`) | Leses over nett av sammenligningen, 2026-11 |
+| Valideringsceller | Laserhøyden i utvalgscellene, fra sammenligningen; ligger ikke i repoet fordi cellene kommer fra AR5 | Usikkerheten | `docker/run_NO_GJEN_002_chm_comparison.sh`, kopieres til `NATIONAL_CHM_OUT_DIR` |
+| Referanser X100 og X0 | God tilstand (30 m) og skog (20 m) per region og bioklimatisk sone, fra `NO_GJEN_001` | Skaleringen | `data/OpenS_data/refvaatmark_openS_30m.csv`, `vegHeights_skog_climZoneRegion_openS_20m.csv` |
+| Bygninger | OpenStreetMap (ODbL), fra `NO_GJEN_001` | Trekkes fra myrarealet | `NO_GJEN_001/R/fetch_osm_buildings.R` |
+| Regioner, bioklimatiske soner, SSB 50 km-ruter | Fra `NO_GJEN_001` (se hoved-README) | Strata og rapporteringsenheter | Ligger i repoet eller lages av `NO_GJEN_001` |
 
 **Egne bilder.** Bildene bak de publiserte tallene er kommersielle data
 med en lisens som ikke tillater videreformidling av bildene eller
-tilgangsinformasjonen. Bildene er levert av Field Geospatial AS.
-Tilgangsinformasjon ligger ikke i repoet.
-Bildene må være 3-bånds RGB, 8 bit, **0,5 m eller finere**, i projisert
-koordinatsystem (EPSG:25833 for Norge), som GeoTIFF, COG eller VRT. En
-COG over nett må støtte HTTP range-forespørsler; mosaikken lastes aldri
-ned i sin helhet. Kilden settes på en av to måter:
-
-```powershell
-# 1. miljøvariabler (har forrang)
-$env:ORTHOPHOTO_SOURCE_PATH    = "D:/bilder/ortofoto_50cm.tif"          # lokal fil eller VRT
-$env:ORTHOPHOTO_SOURCE_PATH    = "/vsicurl/https://din.server/orto.tif" # COG over nett
-$env:ORTHOPHOTO_SOURCE_USERPWD = "bruker:passord"                       # bare ved innlogging
-
-# 2. eller kopier malen og fyll den ut (den utfylte filen er gitignored)
-copy config\orthophoto_access.template.txt config\orthophoto_access.txt
-```
-
-Bilder trengs bare for å lage nye prediksjoner eller beregne indikatoren
-for et nytt år. Den publiserte indikatoren kan beregnes på nytt uten
-bilder.
+tilgangsinformasjonen. Bildene må være 3-bånds RGB, 8 bit, 0,5 m, i
+EPSG:25833, som lokal fil (GeoTIFF eller VRT).
 
 ### Output
 
-I `outputs/deliverables/`:
+I `outputs/deliverables_20m_cells/`:
 
 - `NO_GJEN_002_indicatorMap_region.rds` – landsdeler (primær).
-- `NO_GJEN_002_indicatorMap_grid50km.rds` – SSB 50 km-ruter med data.
-- `NO_GJEN_002_indicatorMap_polygon.rds` – hvert NiN-våtmarkspolygon med
-  verdi (NiN er åpne data).
+- `NO_GJEN_002_indicatorMap_grid50km.rds` – SSB 50 km-ruter med myr.
 - `NO_GJEN_002_values.csv` / `.xlsx` – verditabell med nasjonal verdi,
   tilleggskolonner og metadata.
 - `NO_GJEN_002_map.png`.
 
-Kolonner som i `NO_GJEN_001`, men `v` er gjennomsnittlig predikert
-høyde per polygon. Årstall `2025` er produktåret for ortofotomosaikken.
+`v` er kalibrert gjennomsnittshøyde, der høyder under X100 regnes som X100
+(som i `NO_GJEN_001`). Tilleggskolonner: `i_sample_design`, `height_m`,
+`n_cells`, `mire_km2` og flyår (`flight_year_median`, `_min`, `_max`).
+Det finnes ingen polygonfil, fordi AR5 ikke er åpne data.
 
 ## 6. Installasjon / Kjøring
 
-Sett opp R-miljøet som beskrevet i [hoved-README](../README.md#6-installasjon--kjøring).
+**Leveransene fra tabellene i repoet (sekunder, uten bilder):**
+`R/export_deliverables_20m_cells.R`, i RStudio eller med `Rscript` (også
+på Windows), eller `docker/run_indicators.sh`. Indikatordokumentet:
+`quarto render docs/NO_GJEN_002.qmd`.
 
-**Fra de lagrede prediksjonene (minutter, uten bilder):**
+**Hele kjeden (krever bilder, AR5, Linux eller WSL2, Docker og en NVIDIA-GPU;
+oppsett i [`docker/README.md`](../docker/README.md)):** i en `screen`-økt,
 
-1. `R/fetch_nin_data.R`
-2. `R/fetch_bioclim_zones.R`
-3. `R/NO_GJEN_002_national_pipeline.R` – beregningen.
-4. `R/export_deliverables.R` – leveransefilene.
-5. `R/make_report_map.R` – rapportkartet.
+```bash
+bash docker/run_NO_GJEN_002_deliverables.sh
+```
 
-**Nye prediksjoner (krever bilder, ca. 90 timer nasjonalt):**
+Skriptet kjører høydekartet (`docker/run_NO_GJEN_002_national_chm.sh`;
+ferdige deler hoppes over), 20 m-beregningen
+(`docker/run_NO_GJEN_002_cell_indicator.sh`), kopierer tabellene inn i
+repoet, lager leveransene og indikatordokumentet. Innstillinger
+(`NATIONAL_CHM_OUT_DIR`, `ORTHOPHOTO_SOURCE_PATH` m.fl.) står i
+`docker/config.env`.
 
-1. Sett opp modellen: [`docs/CHM_MODEL_SETUP.md`](docs/CHM_MODEL_SETUP.md).
-2. Sett opp tilgang til bildene (se over).
-3. `src/run_national_by_region.ps1` – kjører region for region, med
-   sjekkpunkter. Et avbrudd koster bare partiet som pågikk. Sett
-   `$env:RSCRIPT` hvis R ikke ligger på standardstien.
-4. Valider før resultatene tas i bruk: `R/validate_meta_chm_orthophoto.R`
-   sammenligner med kronehøyde fra laserdata på testpolygonene.
+**Kalibrering og valideringsceller** (bare ved nye bilder eller ny modell):
+`bash docker/run_NO_GJEN_002_chm_comparison.sh`, ca. 3,5 timer. Se
+[`src/chm_comparison/README.md`](src/chm_comparison/README.md).
 
-**Varianter.** `GJEN002_POPULATION=all` tar med alle naturtyper (utdata med
-suffiks `_allTypes`); `R/population_sensitivity.R` sammenligner deretter de
-to. `GJEN002_SKOG_SCALE=1m` bruker den eldre skogreferansen på
-1 m til sammenligning (utdata med suffiks `_skog1m`).
-
-**Kontroll.** Den nasjonale kjøringen ble fullført uten feil og uten
-manglende verdier i alle fem regioner. To kjøringer av beregningen etter
-hverandre gir identiske resultater.
+**Kontroll.** Lesefeil fra nettverksdisken prøves på nytt etter 10, 30 og
+90 sekunder. Deler som fortsatt feiler, listes, og resultatet merkes
+`INCOMPLETE`, slik at en ufullstendig kjøring aldri ser ferdig ut.
 
 **Kjente begrensninger**
 
-- **Resultatet avhenger av bildene.** Den publiserte kjøringen brukte en
-  nasjonal mosaikk med produktår 2025, men flyvningene spenner over flere
-  år. Det er det viktigste forbeholdet ved sammenligning mellom regioner.
-- **Indeksen metter for åpen myr.** 87 % av polygonene får over 0,99, og
-  2 % under 0,6, fordi sigmoid-funksjonen er flat nær referansen. Det er
-  greit for en tilstandsverdi, men misvisende som et mål på høyde.
-- **9 459 polygoner er utelatt** fordi naturtypen ikke inngår i referansen.
-  Gjengroing i disse typene måles altså ikke. Listen er NINAs, og noen av
-  typene på den er ikke skog (for eksempel kaldkilder og helofyttsump).
-- **388 polygoner er utelatt** fordi de ligger i fire strata (region ×
-  bioklimatisk sone) uten referanse for god tilstand.
-- **Populasjonen er en annen enn i `NO_GJEN_001`:** her
-  kartlagte NiN-våtmarkspolygoner, der et stratifisert utvalg av AR5 myr. De to
-  indikatorene kan ikke byttes om.
+- **Høye bestand.** Etter kalibrering undervurderes høyder over 5 m med ca.
+  1,4 m i gjennomsnitt.
+- **Bildene.** Flyår og årstid varierer over landet; flyårene per enhet
+  står i leveransene.
+- **Tid mellom flyfoto og laser.** Kalibrering og validering bruker
+  laserdata som ofte er flere år eldre eller nyere enn bildet.
+- **Indeksen metter for åpen myr.** De fleste celler med åpen myr får 1,
+  fordi sigmoid-funksjonen er flat nær referansen.
+- **Strata uten referanse** (f.eks. Nord-Norge × boreonemoral sone) er
+  utelatt, som i `NO_GJEN_001`.
 
 ## 7. Lisens / Rettigheter
 
 Se [**LICENSE**-filen](LICENSE.md). Bildene og tilgangsinformasjonen er
-ikke en del av repoet og kan ikke deles. Modellen er Apache-2.0 og lastes
-ned fra Meta. Nedlastede data er underlagt lisensene til kildene.
+ikke en del av repoet og kan ikke deles. CHMv2 er underlagt DINOv3-lisensen
+og lastes ned fra Hugging Face (CHMv1 i versjon 000.003: Apache-2.0).
+Nedlastede data er underlagt lisensene til kildene.

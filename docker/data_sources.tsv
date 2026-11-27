@@ -1,0 +1,38 @@
+# Every input the Docker runners use, and where it comes from.
+# Read by docker/internal/record_data_sources.sh, which
+#   - after every download step that actually runs, appends a row (date,
+#     file, size, checksum, source) to <indicator>/data/data_sources_log.csv;
+#   - at the end of every run, writes data_sources.csv into the run folder:
+#     the state of every input listed here as it was used by that run.
+#
+# Columns, separated by TABs:
+#   indicator  the indicator folder
+#   path       file or folder inside the indicator folder ("-" for live services)
+#   how        the script that downloads or builds it (relative to the
+#              indicator folder), "manual" for a file you obtain yourself,
+#              "live" for a web service read directly during the run,
+#              "committed" for data that is part of the repository
+#   source     where the data comes from (URL, or a description)
+#
+# When you add a download step to a runner, add its output here too.
+indicator	path	how	source
+NO_FUNC_003	data/OpenS_data/ano_data/naturovervaking_eksport.gpkg	R/fetch_ano_data.R	https://nedlasting.miljodirektoratet.no/naturovervaking/naturovervaking_eksport.gpkg.zip (ANO field survey, Miljødirektoratet)
+NO_FUNC_003	data/OpenS_data/Tyler_data_raw.xlsx	manual	Tyler et al. (2021), Ecological Indicators, supplementary material: https://doi.org/10.1016/j.ecolind.2020.106923
+NO_CONN_003	data/LUI_output	R/download_caches.R	GitHub release Chimal93/wetland_condition_indicators, tag conn001-caches-v1 (pre-computed caches)
+NO_CONN_003	data/wetland_map_simplified	R/download_caches.R	GitHub release Chimal93/wetland_condition_indicators, tag conn001-caches-v1 (pre-computed caches)
+NO_CONN_003	data/connectivity_output_simplified	R/download_caches.R	GitHub release Chimal93/wetland_condition_indicators, tag conn001-caches-v1 (pre-computed caches)
+NO_GJEN_002	data/OpenS_data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb	R/fetch_nin_data.R	https://nedlasting.miljodirektoratet.no/Miljodata/Naturtyper_nin/FILEGDB/4326/Naturtyper_nin_0000_norge_4326_FILEGDB.zip (NiN nature types, Miljødirektoratet)
+NO_GJEN_002	data/OpenS_data/bioclim	R/fetch_bioclim_zones.R	https://arcgis06.miljodirektoratet.no/arcgis/rest/services/NIN_hjelpelag/BioklimatiskeSoner/MapServer/0 (Moen bioclimatic zones)
+NO_GJEN_001	data/OpenS_data/bioclim	R/fetch_bioclim_zones.R	https://arcgis06.miljodirektoratet.no/arcgis/rest/services/NIN_hjelpelag/BioklimatiskeSoner/MapServer/0 (Moen bioclimatic zones)
+NO_GJEN_001	data/OpenS_data/disturbance	R/fetch_disturbance.R	https://zenodo.org/records/7080016 (Senf & Seidl forest disturbance map, Norway)
+NO_GJEN_001	data/OpenS_data/osm_buildings_national.gpkg	R/fetch_osm_buildings.R	OpenStreetMap buildings from Geofabrik's Norway extract (via the osmextract package; the .pbf is cached in runs/osm_cache)
+NO_GJEN_001	data/OpenS_data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb	R/fetch_nin_data.R	https://nedlasting.miljodirektoratet.no/Miljodata/Naturtyper_nin/FILEGDB/4326/Naturtyper_nin_0000_norge_4326_FILEGDB.zip (NiN nature types, Miljødirektoratet)
+NO_GJEN_001	data/OpenS_data/ar5_skog_national.gpkg	docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh	FKB-AR5 municipal GeoPackages from Geonorge (restricted access); forest, arealressursArealtype 30
+NO_GJEN_001	data/OpenS_data/ar5_myr_national.gpkg	docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh	FKB-AR5 municipal GeoPackages from Geonorge (restricted access); mire, arealressursArealtype 60
+NO_GJEN_001	data/OpenS_data/ar50_myr_national.gpkg	R/build_ar50_wetland_lidar_coverage.R	https://kart8.nibio.no/uttak_Download/ar50/ (AR50 per county, NIBIO, NLOD)
+NO_GJEN_001	data/OpenS_data/ar50_skog_national.gpkg	R/build_ar50_skog.R	https://kart8.nibio.no/uttak_Download/ar50/ (AR50 per county, NIBIO, NLOD)
+NO_GJEN_001	data/OpenS_data/refvaatmark_30m	R/build_refvaatmark_30m.R	Computed from the NiN data above and Kartverket DTM1/DOM1 elevation tiles read live (https://nedlasting.geonorge.no/hoydedata/)
+NO_GJEN_001	-	live	Kartverket DTM1/DOM1 elevation tiles (LiDAR), read live by the pipeline and build_refvaatmark_30m.R: https://nedlasting.geonorge.no/hoydedata/
+NO_NDVI_001	data/nin_data/Naturtyper_nin_0000_norge_4326_FILEGDB.gdb	R/fetch_nin_data.R	https://nedlasting.miljodirektoratet.no/Miljodata/Naturtyper_nin/FILEGDB/4326/Naturtyper_nin_0000_norge_4326_FILEGDB.zip (NiN nature types, Miljødirektoratet)
+NO_NDVI_001	data/NDVI_MODIS/modis_ndvi_ts_national.csv.gz	committed	NASA LP DAAC MOD13Q1 v6.1 (doi:10.5067/MODIS/MOD13Q1.061), late May-September 2000-2026, fetched upstream 2026-08-28 with R/fetch_modis_ndvi.R
+NO_NDVI_001	data/NDVI_MODIS/modis_ndvi_ts_national.csv	R/fetch_modis_ndvi.R	NASA LP DAAC MOD13Q1 v6.1 via NASA Earthdata (a fresh download; used instead of the committed .gz when present)

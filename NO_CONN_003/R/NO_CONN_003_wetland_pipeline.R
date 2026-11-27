@@ -56,11 +56,12 @@
 #
 # ------------------------------------------------------------------
 # EXTERNAL SOFTWARE DEPENDENCIES (detail in README):
-#   - STAGE 2 needs QGIS installed locally (SOSI driver) and hardcodes
-#     qgis_root in R/convert_n50_2006_sosi_to_gpkg.R - edit that if
-#     your install is elsewhere.
-#   - STAGE 5 is Windows-only (PowerShell/.NET ZipFile; R's own unzip()
-#     does not handle ZIP64).
+#   - STAGE 2 needs GDAL's SOSI driver: on Windows via a local QGIS
+#     install (qgis_root in R/convert_n50_2006_sosi_to_gpkg.R - edit
+#     that if your install is elsewhere), on Linux/macOS via the system's
+#     ogr2ogr.
+#   - STAGE 5 needs a ZIP64-capable unzip (R's own unzip() is not):
+#     PowerShell/.NET on Windows, the `unzip` command on Linux/macOS.
 # Neither applies unless you delete the cache that stage feeds.
 #
 # ------------------------------------------------------------------

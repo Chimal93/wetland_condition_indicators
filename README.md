@@ -72,7 +72,9 @@ oppdateres hyppigere.
   - **OS:** Windows 11 Pro, build 10.0.26200
   - **Memory (RAM):** 27,6 GB tilgjengelig
   - **CPU:** AMD Ryzen AI 7 PRO 350, 8 kjerner / 16 tråder
-  - **GPU:** AMD Radeon 860M (integrert). Brukes ikke; ingen analyser krever GPU.
+  - **GPU:** AMD Radeon 860M (integrert). Brukes ikke. Unntak: høydekartet for
+    `NO_GJEN_002` er beregnet i Docker på en Linux-maskin med NVIDIA RTX 5090
+    (32 GB); se `docker/README.md`.
   - **Storage:** 954 GB SSD. En full nyberegning av alle indikatorer krever
     rundt 200 GB ledig plass, mest til rådata for `NO_CONN_003` (N50 og
     myrmodell, ca. 37 GB) og MODIS-fliser for `NO_NDVI_001` (ca. 100 GB).
@@ -84,7 +86,7 @@ oppdateres hyppigere.
     |---|---|---|
     | `NO_FUNC_003` | ca. 3 min | ca. 3 min + nedlasting (ca. 115 MB) |
     | `NO_GJEN_001` | under 1 min | over 2 timer |
-    | `NO_GJEN_002` | noen minutter | ca. 90 timer (modellkjøring på flyfoto) |
+    | `NO_GJEN_002` | sekunder | 11–14 timer høydekart på GPU + ca. 30 min |
     | `NO_CONN_003` | noen minutter | over 20 timer |
     | `NO_NDVI_001` | ca. 2 min | flere timer (MODIS-nedlasting) |
 
@@ -119,7 +121,8 @@ oppdateres hyppigere.
     de inneholder tilgangsinformasjon til lisensierte data.
 - **Programmeringsspråk:**
   - R 4.6.1 (alle indikatorer)
-  - Python 3.9.25 (bare `NO_GJEN_002`, kjøring av høydemodellen)
+  - Python 3.12 (bare `NO_GJEN_002`, høydemodellen CHMv2; versjon 000.003:
+    Python 3.9.25 for CHMv1)
 - **Definisjon av analysemiljø:**
 
   **R-miljø:** Hver indikator har sin egen `renv.lock` med eksakte
@@ -129,12 +132,13 @@ oppdateres hyppigere.
   commit). Gjenopprettingen er testet i et tomt bibliotek (ca. 4 minutter
   for alle indikatorene).
 
-  **Python-miljø:** `NO_GJEN_002/src/chm_model/` har `pyproject.toml` og
-  `uv.lock`. Python 3.9 er eldre enn malens krav (> 3.11), men er versjonen
-  høydemodellen (Meta HighResCanopyHeight) er laget for, og den som de
-  publiserte resultatene er beregnet med. Python trengs bare for å lage nye
-  høydeprediksjoner; indikatoren kan beregnes på nytt fra prediksjonene som
-  ligger i repoet.
+  **Python-miljø:** `NO_GJEN_002/src/chm_national/` (høydekartet) og
+  `NO_GJEN_002/src/chm_comparison/` (sammenligning med laserdata og
+  kalibrering) har hver sin `pyproject.toml` og `uv.lock` (Python 3.12,
+  PyTorch med CUDA). Python trengs bare for å lage et nytt høydekart eller en
+  ny kalibrering; leveransene lages på nytt i R fra tabellene som ligger i
+  repoet. Versjon 000.003 (erstattet) har sitt eget miljø i
+  `NO_GJEN_002/src/chm_model/` (Python 3.9, versjonen CHMv1 er laget for).
 
 ## 4. Struktur
 
@@ -151,7 +155,8 @@ indikatormappe følger standardstrukturen:
 - _/docs_ – Indikatordokument på engelsk (Quarto, `.qmd` og `.html`) etter
   NINAs ecRxiv-mal, og annen metodikk.
 - _/outputs/results_ – Kart og tabeller fra beregningen.
-- _/outputs/deliverables_ – Indikatoren i plattformformatet.
+- _/outputs/deliverables_ – Indikatoren i plattformformatet (`NO_GJEN_002`:
+  `outputs/deliverables_20m_cells`).
 
 I tillegg:
 
@@ -160,6 +165,9 @@ I tillegg:
   hjelpefunksjoner for indikatordokumentene (`quarto_helpers.R`).
 - _NO_NDVI_001/experimental_ – uferdig henting av Sentinel-2-data. Ikke
   del av den leverte indikatoren.
+- _/docker_ (rotmappen) – et ferdig, låst kjøremiljø (R, R-pakker og
+  GDAL/GEOS/PROJ) med skript som kjører indikatorene og lagrer logger,
+  versjoner og resultater for hver kjøring. Se `docker/README.md`.
 
 ## 5. Input / Output
 
@@ -176,16 +184,19 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 | `NO_FUNC_003` | ANO – arealrepresentativ naturovervåking | Miljødirektoratet, nasjonal eksport (GeoPackage) | 2026-07-30 | `R/fetch_ano_data.R` |
 | `NO_FUNC_003` | B12, plante- og lavarter på myr | Artsdatabanken. Åpen, men må nå lastes ned i nettleser (403 for skript, 2026-11-24) | 2026-08-03 | `R/fetch_b12_data.R` |
 | `NO_FUNC_003` | Indikatorverdier for svenske karplanter | Tyler et al. (2021), tilleggsmateriale | 2026-07-30 | Manuelt, se `R/get_tyler_data.R` |
-| `NO_GJEN_001`, `NO_GJEN_002` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
+| `NO_GJEN_001`, `NO_GJEN_002` (000.003) | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
 | `NO_GJEN_001` | Terreng- og overflatemodell, DTM1/DOM1 | Kartverket, Nasjonal detaljert høydemodell, lest direkte over nett | 2026-07-28 til 2026-09-17 (under kjøring) | Leses av beregningsskriptene |
+| `NO_GJEN_002` | Laserhøyde (DOM1 − DTM1) i utvalgscellene til `NO_GJEN_001`, til kalibrering og usikkerhet | Kartverket, som over | 2026-11 | Se `NO_GJEN_002/README.md` |
 | `NO_GJEN_001` | AR5 skog og myr | NIBIO, FKB-AR5 (begrenset lisens, se under) | 2026-07-28 | `R/extract_ar5_skog_myr.R` |
 | `NO_GJEN_001` | AR50 skog og myr (åpen reserveløsning) | NIBIO, AR50 | 2026-07-21 | `R/build_ar50_*.R` |
 | `NO_GJEN_001`, `NO_GJEN_002` | Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Åpen ved nedlasting, men tjenesten er borte (2026-11-24) | 2026-07-20 | `R/fetch_bioclim_zones.R` |
 | `NO_GJEN_001` | Skogforstyrrelser 1986–2020 | Senf og Seidl (2021), Zenodo-post 7080016 | 2026-07-22 | `R/fetch_disturbance.R` |
 | `NO_GJEN_001` | Bygninger | OpenStreetMap | 2026-07-23 | `R/fetch_osm_buildings.R` |
 | `NO_GJEN_001`, `NO_GJEN_002` | SSB-rutenett 10 og 50 km | SSB via Kartverket | 2026-07-21 | `R/build_ssb_grids.R` |
-| `NO_GJEN_002` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025 (kan ikke deles, se indikatorens README) | Lest 2026-09-04 til 2026-09-17 | Brukerens egen kilde |
-| `NO_GJEN_002` | Høydemodell for trær | Meta HighResCanopyHeight, «aerial»-sjekkpunkt (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
+| `NO_GJEN_002` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025, med flyprosjektene i `metadata/` (kan ikke deles, se indikatorens README) | Lest 2026-11 (000.003: 2026-09-04 til 2026-09-17) | Brukerens egen kilde |
+| `NO_GJEN_002` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `NO_GJEN_001` |
+| `NO_GJEN_002` | Høydemodell for trær | CHMv2 (Meta og World Resources Institute), `facebook/dinov3-vitl16-chmv2-dpt-head`, Hugging Face (DINOv3-lisens) | 2026-11 | Lastes ned automatisk, se indikatorens README |
+| `NO_GJEN_002` (000.003) | Høydemodell for trær | Meta HighResCanopyHeight (CHMv1), «aerial»-sjekkpunkt (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
 | `NO_CONN_003` | N50 Kartdata, historiske data 2023 og 2013 | Kartverket via Geonorge, FGDB | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
 | `NO_CONN_003` | N50 Kartdata, historiske data 2006 | Kartverket via Geonorge, SOSI | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` + QGIS |
 | `NO_CONN_003` | Regulerte innsjøer | NVE, Vannkraft, via Geonorge (FGDB) | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
@@ -200,8 +211,9 @@ digitalt. Derfor publiseres ikke AR5-polygoner eller myrflater avledet av
 dem; de genereres lokalt av den som har tilgang. Unntaket er polygonkartet
 for `NO_GJEN_001`, som viser 20 × 20 m-cellen rundt hvert utvalgspunkt
 trukket i AR5 myr. Ingen AR5-polygongrenser er med. Ortofotoet til `NO_GJEN_002` er
-kommersielt og kan ikke deles. Prediksjonene per polygon ligger i repoet,
-slik at indikatoren kan beregnes på nytt uten bildene.
+kommersielt og kan ikke deles. Tabellene fra 20 m-beregningen (summert
+per region, 50 km-rute og stratum, uten geometri) ligger i repoet, slik at
+leveransene kan lages på nytt uten bildene og uten AR5.
 
 **Mellomlager for `NO_CONN_003`.** Avledede data som tar over 20 timer å
 beregne (ca. 2 GB) publiseres som Release-filer på GitHub og hentes med
@@ -218,7 +230,9 @@ beregne (ca. 2 GB) publiseres som Release-filer på GitHub og hentes med
 ### Output
 
 Hver indikator avslutter med `R/export_deliverables.R`, som skriver til
-`outputs/deliverables/`:
+`outputs/deliverables/` (`NO_GJEN_002`: `R/export_deliverables_20m_cells.R`
+til `outputs/deliverables_20m_cells/`, uten polygonfil fordi AR5 ikke er
+åpne data):
 
 - `<ID>_indicatorMap_region.rds` – `sf`-objekt i EPSG:25833, én rad per
   landsdel, kolonnene `area, areaId, v_ÅÅÅÅ, sd_ÅÅÅÅ, i_ÅÅÅÅ,
@@ -249,9 +263,10 @@ beregningen.
    renv::restore(lockfile = "renv.lock", library = .libPaths()[1], prompt = FALSE)
    ```
 
-3. Bare for `NO_GJEN_002`, og bare for å lage nye høydeprediksjoner:
-   installer [uv](https://docs.astral.sh/uv/) og kjør `uv sync --frozen` i
-   `NO_GJEN_002/src/chm_model/`.
+3. Bare for `NO_GJEN_002`, og bare for å lage et nytt høydekart: det
+   kjøres med Docker på Linux (eller WSL2) med NVIDIA-GPU, se
+   `NO_GJEN_002/README.md`. Leveransene kan lages fra tabellene i repoet
+   uten dette.
 4. Kjør skriptene i rekkefølgen indikatorens README angir. Mønsteret er
    det samme for alle:
    1. nedlastingsskriptene i `R/` (`fetch_*`, `build_*`);
@@ -261,6 +276,20 @@ beregningen.
 
 Skriptene kan kjøres fra RStudio, med `Rscript skript.R` eller med
 `source()`. De setter selv riktig arbeidsmappe.
+
+**Alternativ: Docker (Linux, macOS, eller Windows via WSL).** Docker-miljøet
+låser også R-versjonen og kartbibliotekene, ikke bare R-pakkene, slik at
+resultater fra ulike maskiner kan sammenlignes. Fra repoets rotmappe:
+
+```bash
+bash docker/build_image.sh        # én gang, noen minutter
+bash docker/check_setup.sh        # viser hvilke inndata som må skaffes manuelt
+bash docker/run_indicators.sh     # flere timer; kjør i screen eller tmux
+```
+
+Detaljer, også for de lange kjøringene (AR5-varianten av konnektivitet og
+nye høydeprediksjoner for `NO_GJEN_002`), står i
+[`docker/README.md`](docker/README.md).
 
 ## 7. Lisens / Rettigheter
 

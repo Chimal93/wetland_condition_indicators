@@ -1,5 +1,10 @@
 # Meta canopy-height model - environment setup and status
 
+> **Superseded.** This document belongs to version 000.003 of NO_GJEN_002
+> (the CHMv1 model (Meta HighResCanopyHeight) on NiN polygons). Since version 000.004 the indicator uses CHMv2, calibrated to
+> LiDAR, on every 20 m cell of AR5 mire: see the [README](../README.md) and
+> the indicator document [NO_GJEN_002.qmd](NO_GJEN_002.qmd).
+
 This documents the **external Python/PyTorch dependency** needed to regenerate
 NO_GJEN_002's canopy-height predictions (Meta's `HighResCanopyHeight` model, run
 on orthophoto tiles) - the same kind of "read this before running anything"

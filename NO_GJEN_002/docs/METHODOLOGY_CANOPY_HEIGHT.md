@@ -1,5 +1,10 @@
 # NO_GJEN_002 — Canopy height from orthophoto: process, decisions and parameters
 
+> **Superseded.** This document belongs to version 000.003 of NO_GJEN_002
+> (the CHMv1 model on NiN polygons). Since version 000.004 the indicator uses CHMv2, calibrated to
+> LiDAR, on every 20 m cell of AR5 mire: see the [README](../README.md) and
+> the indicator document [NO_GJEN_002.qmd](NO_GJEN_002.qmd).
+
 **Status as of 2026-09-04.** Method built and validated on the 46-polygon
 test set; national run prepared but **not yet executed**.
 
