@@ -22,21 +22,21 @@ FROM rocker/geospatial:4.6.1@sha256:e67737e30c66e6d2237570cd647e2bfec59315e53371
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Restore the lockfiles into the image's system library, so scripts run
-# from any subfolder see the packages without renv activation. NO_NDVI_001
+# from any subfolder see the packages without renv activation. VAAT-NDVI-01
 # is not run by the runners, but its packages are installed too, so its
 # scripts work with docker/run_script.sh.
-COPY NO_FUNC_003/renv.lock /tmp/renv/NO_FUNC_003/renv.lock
-COPY NO_CONN_003/renv.lock /tmp/renv/NO_CONN_003/renv.lock
-COPY NO_GJEN_001/renv.lock /tmp/renv/NO_GJEN_001/renv.lock
-COPY NO_GJEN_002/renv.lock /tmp/renv/NO_GJEN_002/renv.lock
-COPY NO_NDVI_001/renv.lock /tmp/renv/NO_NDVI_001/renv.lock
+COPY VAAT-FUNC-01/renv.lock /tmp/renv/VAAT-FUNC-01/renv.lock
+COPY VAAT-CONN-01/renv.lock /tmp/renv/VAAT-CONN-01/renv.lock
+COPY VAAT-GJEN-01/renv.lock /tmp/renv/VAAT-GJEN-01/renv.lock
+COPY VAAT-GJEN-02/renv.lock /tmp/renv/VAAT-GJEN-02/renv.lock
+COPY VAAT-NDVI-01/renv.lock /tmp/renv/VAAT-NDVI-01/renv.lock
 # Optional: --build-arg GITHUB_PAT=... to avoid GitHub API rate limits. An
 # EMPTY value must not reach R: renv would then send an empty auth header,
 # which GitHub rejects with 401.
 ARG GITHUB_PAT=""
 RUN if [ -z "$GITHUB_PAT" ]; then unset GITHUB_PAT; fi; Rscript -e ' \
       install.packages("renv", quiet = TRUE); \
-      for (ind in c("NO_FUNC_003", "NO_CONN_003", "NO_GJEN_001", "NO_GJEN_002", "NO_NDVI_001")) { \
+      for (ind in c("VAAT-FUNC-01", "VAAT-CONN-01", "VAAT-GJEN-01", "VAAT-GJEN-02", "VAAT-NDVI-01")) { \
         message("=== renv::restore for ", ind); \
         renv::restore(project = file.path("/tmp/renv", ind), \
                       lockfile = file.path("/tmp/renv", ind, "renv.lock"), \

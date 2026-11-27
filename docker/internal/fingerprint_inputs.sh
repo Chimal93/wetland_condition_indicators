@@ -1,4 +1,4 @@
-# Shared by docker/run_NO_GJEN_002_canopy_height_model.sh. Not meant to be
+# Shared by docker/run_VAAT-GJEN-02_canopy_height_model.sh. Not meant to be
 # run directly. Functions that write a short, comparable fingerprint of an
 # input, so a result can be traced back to exactly the data it came from.
 

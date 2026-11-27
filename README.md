@@ -48,15 +48,15 @@ dokumentert i indikatorens README.
 
 | Indikator | Måler | Status |
 |---|---|---|
-| [`NO_FUNC_003`](NO_FUNC_003/) | Funksjonell plantesammensetning: artsvektede indikatorverdier for lys, fuktighet, pH og nitrogen i ANO-flater, mot referansefordelinger. Leveres som fire indikatorer (`NO_FULI_003`, `NO_FUMO_003`, `NO_FUPH_003`, `NO_FUNI_003`). | Ferdig |
-| [`NO_CONN_003`](NO_CONN_003/) | Strukturell konnektivitet: avstand fra hver myr til nærmeste infrastruktur, sett mot avstand til nærmeste nabomyr. | Ferdig |
-| [`NO_GJEN_001`](NO_GJEN_001/) | Gjengroing: vegetasjonshøyde fra laserdata (LiDAR) mot referansenivåer for god tilstand og for skog. | Ferdig |
-| [`NO_GJEN_002`](NO_GJEN_002/) | Gjengroing fra flyfoto: vegetasjonshøyde predikert med en dyplæringsmodell, mot de samme referansenivåene som `NO_GJEN_001`. | Ferdig |
-| [`NO_NDVI_001`](NO_NDVI_001/) | Primærproduksjon: trend i NDVI (MODIS) per myrpolygon, skalert mot ingen trend. | **Foreløpig** – kun MODIS, uten usikkerhetsestimat |
+| [`VAAT-FUNC-01`](VAAT-FUNC-01/) | Funksjonell plantesammensetning: artsvektede indikatorverdier for lys, fuktighet, pH og nitrogen i ANO-flater, mot referansefordelinger. Leveres som fire indikatorer (`VAAT-FULI-01`, `VAAT-FUMO-01`, `VAAT-FUPH-01`, `VAAT-FUNI-01`). | Ferdig |
+| [`VAAT-CONN-01`](VAAT-CONN-01/) | Strukturell konnektivitet: avstand fra hver myr til nærmeste infrastruktur, sett mot avstand til nærmeste nabomyr. | Ferdig |
+| [`VAAT-GJEN-01`](VAAT-GJEN-01/) | Gjengroing: vegetasjonshøyde fra laserdata (LiDAR) mot referansenivåer for god tilstand og for skog. | Ferdig |
+| [`VAAT-GJEN-02`](VAAT-GJEN-02/) | Gjengroing fra flyfoto: vegetasjonshøyde predikert med en dyplæringsmodell, mot de samme referansenivåene som `VAAT-GJEN-01`. | Ferdig |
+| [`VAAT-NDVI-01`](VAAT-NDVI-01/) | Primærproduksjon: trend i NDVI (MODIS) per myrpolygon, skalert mot ingen trend. | **Foreløpig** – kun MODIS, uten usikkerhetsestimat |
 
-`NO_GJEN_001` og `NO_GJEN_002` måler det samme mot de samme
+`VAAT-GJEN-01` og `VAAT-GJEN-02` måler det samme mot de samme
 referansenivåene og skiller seg bare i hvordan vegetasjonshøyden måles.
-Flyfoto fornyes oftere enn nasjonale laserdata, slik at `NO_GJEN_002` kan
+Flyfoto fornyes oftere enn nasjonale laserdata, slik at `VAAT-GJEN-02` kan
 oppdateres hyppigere.
 
 **Referanser**
@@ -73,22 +73,22 @@ oppdateres hyppigere.
   - **Memory (RAM):** 27,6 GB tilgjengelig
   - **CPU:** AMD Ryzen AI 7 PRO 350, 8 kjerner / 16 tråder
   - **GPU:** AMD Radeon 860M (integrert). Brukes ikke. Unntak: høydekartet for
-    `NO_GJEN_002` er beregnet i Docker på en Linux-maskin med NVIDIA RTX 5090
+    `VAAT-GJEN-02` er beregnet i Docker på en Linux-maskin med NVIDIA RTX 5090
     (32 GB); se `docker/README.md`.
   - **Storage:** 954 GB SSD. En full nyberegning av alle indikatorer krever
-    rundt 200 GB ledig plass, mest til rådata for `NO_CONN_003` (N50 og
-    myrmodell, ca. 37 GB) og MODIS-fliser for `NO_NDVI_001` (ca. 100 GB).
+    rundt 200 GB ledig plass, mest til rådata for `VAAT-CONN-01` (N50 og
+    myrmodell, ca. 37 GB) og MODIS-fliser for `VAAT-NDVI-01` (ca. 100 GB).
     Beregning fra mellomlagrede data krever langt mindre.
   - **Ytelse:** Se tabellen under. «Fra mellomlager» betyr fra data som
     ligger i repoet eller som lastes ned ferdig beregnet.
 
     | Indikator | Fra mellomlager | Full nyberegning |
     |---|---|---|
-    | `NO_FUNC_003` | ca. 3 min | ca. 3 min + nedlasting (ca. 115 MB) |
-    | `NO_GJEN_001` | under 1 min | over 2 timer |
-    | `NO_GJEN_002` | sekunder | 11–14 timer høydekart på GPU + ca. 30 min |
-    | `NO_CONN_003` | noen minutter | over 20 timer |
-    | `NO_NDVI_001` | ca. 2 min | flere timer (MODIS-nedlasting) |
+    | `VAAT-FUNC-01` | ca. 3 min | ca. 3 min + nedlasting (ca. 115 MB) |
+    | `VAAT-GJEN-01` | under 1 min | over 2 timer |
+    | `VAAT-GJEN-02` | sekunder | 11–14 timer høydekart på GPU + ca. 30 min |
+    | `VAAT-CONN-01` | noen minutter | over 20 timer |
+    | `VAAT-NDVI-01` | ca. 2 min | flere timer (MODIS-nedlasting) |
 
 - **Kjøringsmiljø:**
   - **Lokal PC:** Windows 11. Geodatabibliotekene følger med R-pakken
@@ -98,9 +98,9 @@ oppdateres hyppigere.
     `curl.exe`, som følger med Windows.
 - **Programvare:**
   - R 4.6.1
-  - QGIS 3.44.12 – bare for `NO_CONN_003`, steg 2 (konvertering av N50 2006
+  - QGIS 3.44.12 – bare for `VAAT-CONN-01`, steg 2 (konvertering av N50 2006
     fra SOSI-format).
-  - uv 0.11.29 – bare for Python-miljøet til `NO_GJEN_002`.
+  - uv 0.11.29 – bare for Python-miljøet til `VAAT-GJEN-02`.
   - Quarto 1.9.38 – bare for å lage indikatordokumentene i `docs/` på nytt.
 - **KI-verktøy:**
   - Claude Code (Anthropic), kommandolinjeverktøy og VS Code-utvidelse,
@@ -121,7 +121,7 @@ oppdateres hyppigere.
     de inneholder tilgangsinformasjon til lisensierte data.
 - **Programmeringsspråk:**
   - R 4.6.1 (alle indikatorer)
-  - Python 3.12 (bare `NO_GJEN_002`, høydemodellen CHMv2; versjon 000.003:
+  - Python 3.12 (bare `VAAT-GJEN-02`, høydemodellen CHMv2; versjon 000.003:
     Python 3.9.25 for CHMv1)
 - **Definisjon av analysemiljø:**
 
@@ -132,13 +132,13 @@ oppdateres hyppigere.
   commit). Gjenopprettingen er testet i et tomt bibliotek (ca. 4 minutter
   for alle indikatorene).
 
-  **Python-miljø:** `NO_GJEN_002/src/chm_national/` (høydekartet) og
-  `NO_GJEN_002/src/chm_comparison/` (sammenligning med laserdata og
+  **Python-miljø:** `VAAT-GJEN-02/src/chm_national/` (høydekartet) og
+  `VAAT-GJEN-02/src/chm_comparison/` (sammenligning med laserdata og
   kalibrering) har hver sin `pyproject.toml` og `uv.lock` (Python 3.12,
   PyTorch med CUDA). Python trengs bare for å lage et nytt høydekart eller en
   ny kalibrering; leveransene lages på nytt i R fra tabellene som ligger i
   repoet. Versjon 000.003 (erstattet) har sitt eget miljø i
-  `NO_GJEN_002/src/chm_model/` (Python 3.9, versjonen CHMv1 er laget for).
+  `VAAT-GJEN-02/src/chm_model/` (Python 3.9, versjonen CHMv1 er laget for).
 
 ## 4. Struktur
 
@@ -149,7 +149,7 @@ indikatormappe følger standardstrukturen:
 - _/config_ – Konfigurasjonsfiler (maler for tilgang til egne data).
 - _/R_ – All R-kode: nedlasting, beregning, eksport og figurer.
 - _/src_ – PowerShell-skript som kjører lange beregninger region for
-  region, og Python-kode (`NO_GJEN_002`).
+  region, og Python-kode (`VAAT-GJEN-02`).
 - _/data_ – Små inndata og metadata. Store inndata lastes ned av skriptene
   og ligger ikke i repoet.
 - _/docs_ – Indikatordokument på engelsk (Quarto, `.qmd` og `.html`) etter
@@ -162,7 +162,7 @@ I tillegg:
 - _/Tools_ (rotmappen) – felles eksportskript (`export_platform_format.R`)
   som alle indikatorene bruker for å skrive leveransefilene, og
   hjelpefunksjoner for indikatordokumentene (`quarto_helpers.R`).
-- _NO_NDVI_001/experimental_ – uferdig henting av Sentinel-2-data. Ikke
+- _VAAT-NDVI-01/experimental_ – uferdig henting av Sentinel-2-data. Ikke
   del av den leverte indikatoren.
 - _/docker_ (rotmappen) – et ferdig, låst kjøremiljø (R, R-pakker og
   GDAL/GEOS/PROJ) med skript som kjører indikatorene og lagrer logger,
@@ -180,43 +180,43 @@ gi en nyere versjon, siden flere av kildene oppdateres løpende.
 | Indikator | Datasett | Kilde og versjon | Lastet ned | Hentes med |
 |---|---|---|---|---|
 | Alle | Regioner (5 landsdeler) og kystlinje | NINAnor/ecosystemCondition, CC BY 4.0 | 2026-06-23 | Ligger i repoet |
-| `NO_FUNC_003` | ANO – arealrepresentativ naturovervåking | Miljødirektoratet, nasjonal eksport (GeoPackage) | 2026-07-30 | `R/fetch_ano_data.R` |
-| `NO_FUNC_003` | B12, plante- og lavarter på myr | Artsdatabanken. Åpen, men må nå lastes ned i nettleser (403 for skript, 2026-11-24) | 2026-08-03 | `R/fetch_b12_data.R` |
-| `NO_FUNC_003` | Indikatorverdier for svenske karplanter | Tyler et al. (2021), tilleggsmateriale | 2026-07-30 | Manuelt, se `R/get_tyler_data.R` |
-| `NO_GJEN_001`, `NO_GJEN_002` (000.003) | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
-| `NO_GJEN_001` | Terreng- og overflatemodell, DTM1/DOM1 | Kartverket, Nasjonal detaljert høydemodell, lest direkte over nett | 2026-07-28 til 2026-09-17 (under kjøring) | Leses av beregningsskriptene |
-| `NO_GJEN_002` | Laserhøyde (DOM1 − DTM1) i utvalgscellene til `NO_GJEN_001`, til kalibrering og usikkerhet | Kartverket, som over | 2026-11 | Se `NO_GJEN_002/README.md` |
-| `NO_GJEN_001` | AR5 skog og myr | NIBIO, FKB-AR5 (begrenset lisens, se under) | 2026-07-28 | `R/extract_ar5_skog_myr.R` |
-| `NO_GJEN_001` | AR50 skog og myr (åpen reserveløsning) | NIBIO, AR50 | 2026-07-21 | `R/build_ar50_*.R` |
-| `NO_GJEN_001`, `NO_GJEN_002` | Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Åpen ved nedlasting, men tjenesten er borte (2026-11-24) | 2026-07-20 | `R/fetch_bioclim_zones.R` |
-| `NO_GJEN_001` | Skogforstyrrelser 1986–2020 | Senf og Seidl (2021), Zenodo-post 7080016 | 2026-07-22 | `R/fetch_disturbance.R` |
-| `NO_GJEN_001` | Bygninger | OpenStreetMap | 2026-07-23 | `R/fetch_osm_buildings.R` |
-| `NO_GJEN_001`, `NO_GJEN_002` | SSB-rutenett 10 og 50 km | SSB via Kartverket | 2026-07-21 | `R/build_ssb_grids.R` |
-| `NO_GJEN_002` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025, med flyprosjektene i `metadata/` (kan ikke deles, se indikatorens README) | Lest 2026-11 (000.003: 2026-09-04 til 2026-09-17) | Brukerens egen kilde |
-| `NO_GJEN_002` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `NO_GJEN_001` |
-| `NO_GJEN_002` | Høydemodell for trær | CHMv2 (Meta og World Resources Institute), `facebook/dinov3-vitl16-chmv2-dpt-head`, Hugging Face (DINOv3-lisens) | 2026-11 | Lastes ned automatisk, se indikatorens README |
-| `NO_GJEN_002` (000.003) | Høydemodell for trær | Meta HighResCanopyHeight (CHMv1), «aerial»-sjekkpunkt (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
-| `NO_CONN_003` | N50 Kartdata, historiske data 2023 og 2013 | Kartverket via Geonorge, FGDB | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
-| `NO_CONN_003` | N50 Kartdata, historiske data 2006 | Kartverket via Geonorge, SOSI | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` + QGIS |
-| `NO_CONN_003` | Regulerte innsjøer | NVE, Vannkraft, via Geonorge (FGDB) | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
-| `NO_CONN_003` | Myrmodell (MyrMod2Rv) | «Våtmark basert på NiN» (Bakkestuen m.fl.), GeoTIFF via Geonorge, fil datert 2023-06-19 | 2026-08-07 | `R/fetch_wetland_map.R` |
-| `NO_CONN_003` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-27 | `R/fetch_nin_data.R` |
-| `NO_CONN_003` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `NO_GJEN_001` |
-| `NO_NDVI_001` | NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), 2000–2026, slutten av mai til september | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
-| `NO_NDVI_001` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-05 | `R/fetch_nin_data.R` |
+| `VAAT-FUNC-01` | ANO – arealrepresentativ naturovervåking | Miljødirektoratet, nasjonal eksport (GeoPackage) | 2026-07-30 | `R/fetch_ano_data.R` |
+| `VAAT-FUNC-01` | B12, plante- og lavarter på myr | Artsdatabanken. Åpen, men må nå lastes ned i nettleser (403 for skript, 2026-11-24) | 2026-08-03 | `R/fetch_b12_data.R` |
+| `VAAT-FUNC-01` | Indikatorverdier for svenske karplanter | Tyler et al. (2021), tilleggsmateriale | 2026-07-30 | Manuelt, se `R/get_tyler_data.R` |
+| `VAAT-GJEN-01`, `VAAT-GJEN-02` (000.003) | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-07-28 | `R/fetch_nin_data.R` |
+| `VAAT-GJEN-01` | Terreng- og overflatemodell, DTM1/DOM1 | Kartverket, Nasjonal detaljert høydemodell, lest direkte over nett | 2026-07-28 til 2026-09-17 (under kjøring) | Leses av beregningsskriptene |
+| `VAAT-GJEN-02` | Laserhøyde (DOM1 − DTM1) i utvalgscellene til `VAAT-GJEN-01`, til kalibrering og usikkerhet | Kartverket, som over | 2026-11 | Se `VAAT-GJEN-02/README.md` |
+| `VAAT-GJEN-01` | AR5 skog og myr | NIBIO, FKB-AR5 (begrenset lisens, se under) | 2026-07-28 | `R/extract_ar5_skog_myr.R` |
+| `VAAT-GJEN-01` | AR50 skog og myr (åpen reserveløsning) | NIBIO, AR50 | 2026-07-21 | `R/build_ar50_*.R` |
+| `VAAT-GJEN-01`, `VAAT-GJEN-02` | Bioklimatiske soner | Moen-sonene, Miljødirektoratets kartjeneste (lag «soner2017»). Åpen ved nedlasting, men tjenesten er borte (2026-11-24) | 2026-07-20 | `R/fetch_bioclim_zones.R` |
+| `VAAT-GJEN-01` | Skogforstyrrelser 1986–2020 | Senf og Seidl (2021), Zenodo-post 7080016 | 2026-07-22 | `R/fetch_disturbance.R` |
+| `VAAT-GJEN-01` | Bygninger | OpenStreetMap | 2026-07-23 | `R/fetch_osm_buildings.R` |
+| `VAAT-GJEN-01`, `VAAT-GJEN-02` | SSB-rutenett 10 og 50 km | SSB via Kartverket | 2026-07-21 | `R/build_ssb_grids.R` |
+| `VAAT-GJEN-02` | Ortofoto, 50 cm RGB | Kommersiell nasjonal mosaikk fra Field Geospatial AS, produktår 2025, med flyprosjektene i `metadata/` (kan ikke deles, se indikatorens README) | Lest 2026-11 (000.003: 2026-09-04 til 2026-09-17) | Brukerens egen kilde |
+| `VAAT-GJEN-02` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `VAAT-GJEN-01` |
+| `VAAT-GJEN-02` | Høydemodell for trær | CHMv2 (Meta og World Resources Institute), `facebook/dinov3-vitl16-chmv2-dpt-head`, Hugging Face (DINOv3-lisens) | 2026-11 | Lastes ned automatisk, se indikatorens README |
+| `VAAT-GJEN-02` (000.003) | Høydemodell for trær | Meta HighResCanopyHeight (CHMv1), «aerial»-sjekkpunkt (Apache-2.0) | 2026-09 | Se `docs/CHM_MODEL_SETUP.md` |
+| `VAAT-CONN-01` | N50 Kartdata, historiske data 2023 og 2013 | Kartverket via Geonorge, FGDB | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
+| `VAAT-CONN-01` | N50 Kartdata, historiske data 2006 | Kartverket via Geonorge, SOSI | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` + QGIS |
+| `VAAT-CONN-01` | Regulerte innsjøer | NVE, Vannkraft, via Geonorge (FGDB) | 2026-08-06 | `R/fetch_n50_infrastructure_data.R` |
+| `VAAT-CONN-01` | Myrmodell (MyrMod2Rv) | «Våtmark basert på NiN» (Bakkestuen m.fl.), GeoTIFF via Geonorge, fil datert 2023-06-19 | 2026-08-07 | `R/fetch_wetland_map.R` |
+| `VAAT-CONN-01` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-27 | `R/fetch_nin_data.R` |
+| `VAAT-CONN-01` | AR5 myr | NIBIO, FKB-AR5 (begrenset lisens) | 2026-07-28 | Fra `VAAT-GJEN-01` |
+| `VAAT-NDVI-01` | NDVI, MODIS MOD13Q1 v6.1 | NASA LP DAAC (Didan, 2021), 2000–2026, slutten av mai til september | 2026-08-28 | `R/fetch_modis_ndvi.R`; resultatet ligger i repoet |
+| `VAAT-NDVI-01` | NiN-naturtyper | Miljødirektoratet, FILEGDB, EPSG:4326 | 2026-08-05 | `R/fetch_nin_data.R` |
 
 **Lisensbegrensninger.** AR5 er bare tilgjengelig for parter i Norge
 digitalt. Derfor publiseres ikke AR5-polygoner eller myrflater avledet av
 dem; de genereres lokalt av den som har tilgang. Unntaket er polygonkartet
-for `NO_GJEN_001`, som viser 20 × 20 m-cellen rundt hvert utvalgspunkt
-trukket i AR5 myr. Ingen AR5-polygongrenser er med. Ortofotoet til `NO_GJEN_002` er
+for `VAAT-GJEN-01`, som viser 20 × 20 m-cellen rundt hvert utvalgspunkt
+trukket i AR5 myr. Ingen AR5-polygongrenser er med. Ortofotoet til `VAAT-GJEN-02` er
 kommersielt og kan ikke deles. Tabellene fra 20 m-beregningen (summert
 per region, 50 km-rute og stratum, uten geometri) ligger i repoet, slik at
 leveransene kan lages på nytt uten bildene og uten AR5.
 
-**Mellomlager for `NO_CONN_003`.** Avledede data som tar over 20 timer å
+**Mellomlager for `VAAT-CONN-01`.** Avledede data som tar over 20 timer å
 beregne (ca. 2 GB) publiseres som Release-filer på GitHub og hentes med
-`NO_CONN_003/R/download_caches.R`.
+`VAAT-CONN-01/R/download_caches.R`.
 
 - Didan, K. (2021). *MODIS/Terra vegetation indices 16-day L3 global 250m
   SIN grid V061* [Datasett]. NASA EOSDIS Land Processes Distributed Active
@@ -229,7 +229,7 @@ beregne (ca. 2 GB) publiseres som Release-filer på GitHub og hentes med
 ### Output
 
 Hver indikator avslutter med `R/export_deliverables.R`, som skriver til
-`outputs/deliverables/` (`NO_GJEN_002`: `R/export_deliverables_20m_cells.R`,
+`outputs/deliverables/` (`VAAT-GJEN-02`: `R/export_deliverables_20m_cells.R`,
 uten polygonfil fordi AR5 ikke er åpne data):
 
 - `<ID>_indicatorMap_region.rds` – `sf`-objekt i EPSG:25833, én rad per
@@ -261,9 +261,9 @@ beregningen.
    renv::restore(lockfile = "renv.lock", library = .libPaths()[1], prompt = FALSE)
    ```
 
-3. Bare for `NO_GJEN_002`, og bare for å lage et nytt høydekart: det
+3. Bare for `VAAT-GJEN-02`, og bare for å lage et nytt høydekart: det
    kjøres med Docker på Linux (eller WSL2) med NVIDIA-GPU, se
-   `NO_GJEN_002/README.md`. Leveransene kan lages fra tabellene i repoet
+   `VAAT-GJEN-02/README.md`. Leveransene kan lages fra tabellene i repoet
    uten dette.
 4. Kjør skriptene i rekkefølgen indikatorens README angir. Mønsteret er
    det samme for alle:
@@ -286,7 +286,7 @@ bash docker/run_indicators.sh     # flere timer; kjør i screen eller tmux
 ```
 
 Detaljer, også for de lange kjøringene (AR5-varianten av konnektivitet og
-nye høydeprediksjoner for `NO_GJEN_002`), står i
+nye høydeprediksjoner for `VAAT-GJEN-02`), står i
 [`docker/README.md`](docker/README.md).
 
 ## 7. Lisens / Rettigheter

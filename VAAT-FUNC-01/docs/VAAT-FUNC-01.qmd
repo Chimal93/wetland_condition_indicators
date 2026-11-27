@@ -1,0 +1,524 @@
+---
+title: "Functional plant indicators for wetlands"
+subtitle: |
+  [VAAT-FULI-01] (light) \
+  [VAAT-FUMO-01] (moisture) \
+  [VAAT-FUPH-01] (pH) \
+  [VAAT-FUNI-01] (nitrogen)
+indicatorID:
+  - VAAT-FULI-01
+  - VAAT-FUMO-01
+  - VAAT-FUPH-01
+  - VAAT-FUNI-01
+indicatorName:
+  - Light impact on vegetation
+  - Moisture impact on vegetation
+  - Soil reaction (pH) impact on vegetation
+  - Nitrogen impact on vegetation
+verbatimName:
+  - Vegetasjonsindikator for lys
+  - Vegetasjonsindikator for fuktighet
+  - Vegetasjonsindikator for pH
+  - Vegetasjonsindikator for nitrogen
+folderName: VAAT-FUNC-01
+country: Norway
+continent: Europe
+ECT:
+  - A1 - Physical State characteristics
+  - A1 - Physical State characteristics
+  - A2 - Chemical State characteristics
+  - A2 - Chemical State characteristics
+Realm:
+  - Freshwater-Terrestrial (TF)
+Biome:
+  - TF1 Palustrine wetlands biome
+Ecosystem:
+  - TF1.6 Boreal, temperate and montane peat bogs
+  - TF1.7 Boreal and temperate fens
+verbatimEcosystem: Våtmark
+yearAdded: 2026
+yearLastUpdate: 2026
+status: complete
+Version: "000.003"
+VersionComment: Four separate indicators. IDs are provisional.
+url: https://github.com/Chimal93/wetland_condition_indicators/tree/main/VAAT-FUNC-01
+Normalised: Yes
+SpatialAggregationPathway: "Scale/Truncate - Aggregate (ordered beta regression)"
+Precision: "95% intervals and standard deviation from 1000 draws of the model coefficients"
+format:
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+    toc-title: Contents
+    toc-depth: 3
+    smooth-scroll: true
+execute:
+  cache: false
+author:
+  - name: Bendik Sivertsen
+    email: bendik@sallirnatur.no
+    affiliations:
+      - id: sallir
+        name: Sállir Natur AS
+  - name: Jesus Adrian Chimal-Ballesteros
+    email: adrian@sallirnatur.no
+    affiliations:
+      - ref: sallir
+  - name: Lasse Keetz
+    email: lasse.keetz@fieldgeo.no
+    affiliations:
+      - id: field
+        name: Field Geospatial AS
+AuthorList: "Sivertsen, B., Chimal-Ballesteros, J. A., and Keetz, L."
+date: 2026-11-24
+date-format: long
+data_availability: none
+code_reproducibility: none
+open_science_badge: none
+hide: TRUE
+---
+
+```{r setup}
+#| include: false
+library(knitr)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(sf)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+results <- file.path("..", "outputs", "results")
+num <- function(x, d = 2) formatC(x, format = "f", digits = d)
+cnt <- function(x) format(x, big.mark = ",", trim = TRUE)
+
+# Source lines of one or more stages of a script in R/. The code shown in this
+# document is therefore always the code in the repository.
+stage <- function(script, ...) {
+  x  <- readLines(file.path("..", "R", script), encoding = "UTF-8", warn = FALSE)
+  h  <- grep("^# STAGE ", x)
+  id <- sub("^# STAGE ([0-9a-z]+).*", "\\1", x[h])
+  from <- h - 1                       # the "# ====" line above each header
+  to   <- c(from[-1] - 1, length(x))
+  k <- match(c(...), id); stopifnot(!anyNA(k))
+  unlist(Map(function(a, b) x[a:b], from[k], to[k]))
+}
+pipeline <- "VAAT-FUNC-01_wetland_pipeline_OpenSource.R"
+
+fac   <- read_csv(file.path(results, "VAAT-FUNC-01_factor_indicators.csv"))
+idx   <- read_csv(file.path(results, "VAAT-FUNC-01_index_by_region_period.csv"))
+plots <- read_csv(file.path(results, "VAAT-FUNC-01_plots.csv"))
+ref   <- read_csv(file.path("..", "data", "OpenS_data", "wet_ref_openS.csv"))
+plots$nin <- sub("-.*", "", plots$kartleggingsenhet_1m2)
+
+main_period <- "cycle1_2019to2024"
+nat <- fac |> filter(period == main_period, region == "Norway")
+val <- function(f) {
+  r <- nat[nat$factor == f, ]
+  paste0(num(r$mean), " [95% CI: ", num(r$ci_low), "–", num(r$ci_high), "]")
+}
+idx_nat <- idx |> filter(period == main_period, region == "Norway")
+fac_lv <- c("Light", "Moisture", "pH", "Nitrogen")
+reg_lv <- c("Norway", "Northern", "Central", "Western", "Eastern", "Southern")
+extremes <- function(f) {
+  r <- fac |> filter(period == main_period, factor == f, region != "Norway") |> arrange(mean)
+  k <- nrow(r)
+  paste0("lowest in ", r$region[1], " (", num(r$mean[1]), ") and highest in ",
+         r$region[k], " (", num(r$mean[k]), ")")
+}
+```
+
+::: {.callout-note}
+## Status of this document
+This document follows the structure of NINA's ecRxiv indicator template. It
+has **not** been submitted to or published on ecRxiv, and it is not a NINA
+product. The four split IDs are provisional. The ecRxiv badges and the ecRxiv
+citation are therefore left out.
+:::
+
+::: {.callout-tip collapse="true"}
+## Metadata
+
+```{r tbl-meta}
+#| tbl-cap: "Indicator metadata"
+#| echo: false
+y <- rmarkdown::yaml_front_matter("VAAT-FUNC-01.qmd")
+keep <- c(indicatorID = "Indicator ID", indicatorName = "Indicator name",
+          verbatimName = "Norwegian name", continent = "Continent", country = "Country",
+          ECT = "Ecosystem Condition Typology class", Realm = "Realm", Biome = "Biome",
+          Ecosystem = "Ecosystem", verbatimEcosystem = "Norwegian ecosystem",
+          yearAdded = "Year added", yearLastUpdate = "Last update", Version = "Version",
+          VersionComment = "Version comment", Normalised = "Normalised",
+          SpatialAggregationPathway = "Spatial aggregation pathway", Precision = "Precision")
+value <- vapply(names(keep), function(n) {
+  v <- unlist(y[[n]])
+  if (is.logical(v)) v <- ifelse(v, "Yes", "No")
+  paste(v, collapse = "; ")
+}, "")
+kable(data.frame(Variable = unname(keep), Value = unname(value)))
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Log
+
+- 24 Nov. 2026 - First version of this document
+:::
+
+<hr />
+
+## 1. Summary
+
+1. **Background and rationale**:
+Plant species differ in the light, moisture, soil reaction (pH) and nitrogen conditions they grow in. When the conditions in a wetland change, for example through drainage, woody encroachment or nitrogen deposition, the species composition shifts with them. These indicators measure how far the vegetation has shifted from what is expected for the wetland type.
+
+2. **Methods**:
+We use plant cover data from the national area-representative monitoring programme ANO and species indicator values from Tyler et al. (2021).
+    - For each plot, we calculate the cover-weighted mean (community-weighted mean, CWM) of the indicator values.
+    - The CWM is scaled against a reference distribution for the plot's wetland type, bootstrapped from generalised species lists.
+    - Light, moisture and pH are two-sided: deviations in both directions lower the value. Nitrogen is one-sided: only enrichment counts.
+    - Regional and national values come from an ordered beta regression with ANO site as a random effect.
+
+3. **Interpretation**:
+A value of 1 means that the species composition matches the reference for the wetland type.
+Values decreasing towards 0 reflect a shift away from it. 0.6 is the limit for good ecological condition.
+
+4. **Results and development needs**:
+For ANO's first cycle (2019–2024, the first survey of each point, n = `r cnt(nat$n[1])` plots) the national values are: light `r val("Light")`, moisture `r val("Moisture")`, pH `r val("pH")` and nitrogen `r val("Nitrogen")`. All are above 0.6.
+The main development needs are regionalised species lists, references for the wetland types that lack them, and validation against independent data.
+
+## 2. About the underlying data {#sec-about}
+
+Three types of data are used:
+
+- plant community data from ANO (observations);
+- generalised species lists from Nature in Norway, NiN (reference): dataset B12 "Planter og lav på myr" from Artsdatabanken;
+- indicator values for vascular plants from Tyler et al. (2021).
+
+### 2.1 Spatial and temporal resolution and extent
+The ANO export covers mainland Norway, 2019–2024. It holds `r cnt(nrow(plots))` surveys of wetland plots (NiN main types V1–V8) at `r cnt(n_distinct(plots$ano_punkt_id))` points in `r cnt(n_distinct(plots$ano_flate_id))` sites. Points are revisited on a five-year rotation, and the second rotation has only just begun. Three periods are reported: 2019–2021 and 2022–2024 (every survey in those years), and cycle 1 (2019–2024, first survey of each point, so no point is counted twice).
+
+### 2.2 Sampling design
+At each ANO site, vascular plants and their cover are recorded in a 1 m² plot at each of 18 systematically placed points (Tingstad et al., 2019). Only points that fall in wetland are used here, so the number of plots varies between sites.
+
+### 2.3 Original units
+Cover is recorded in per cent per 1 m² plot. The indicator values are ordinal: light 1–7, moisture 1–12, soil reaction 1–8 and nitrogen 1–9. The variable is the cover-weighted mean on the same scale.
+
+### 2.4 Instructions for citing, using and accessing data
+
+- **ANO**: open, [Miljødirektoratet dataset 2054](https://kartkatalog.miljodirektoratet.no/Dataset/Details/2054). Downloaded 2026-07-30 with `R/fetch_ano_data.R`.
+- **B12**: open, [Artsdatabanken](https://artsdatabanken.no/Pages/281569/Generaliserte_artslistedatasett_til_artikkel_2). Downloaded 2026-08-03 with `R/fetch_b12_data.R`. On 2026-11-24 the site rejected downloads from scripts (HTTP 403), so the file must be downloaded in a web browser.
+- **Tyler et al. (2021)**: supplementary material to the article. It must be downloaded by hand (2026-07-30) and is not redistributed here.
+
+### 2.5 Additional comments about the dataset
+Species without a match in Tyler et al. (2021) do not contribute to the CWM. `r cnt(sum(!is.na(plots$fac_Light)))` of the `r cnt(nrow(plots))` surveys get a value, see @tbl-types.
+
+## 3. Indicator properties
+
+### 3.1 Ecosystem Condition Typology Class (ECT)
+Light and moisture are assigned to A1 (physical state), pH and nitrogen to A2 (chemical state). NINA uses the same classes for its light, moisture and nitrogen indicators.
+
+### 3.2 Ecosystem condition characteristic
+Abiotic factors, expressed through the species composition.
+
+### 3.3 Collinearities with other indicators
+The four indicators are derived from the same plant records and are therefore not independent of each other. Light may also covary with the woody encroachment indicators VAAT-GJEN-01 and VAAT-GJEN-02.
+
+### 3.4 Impact factors
+Drainage and other hydrological change (moisture), woody encroachment (light), nitrogen deposition and nutrient run-off (nitrogen), acidification and liming (pH), and climate change.
+
+### 3.5 Spatial aggregation
+The variable is scaled and truncated per plot. Regional and national values are means from an ordered beta regression on the plot values, with ANO site as a random effect. No area weighting is applied.
+
+## 4. Reference condition and levels
+
+### 4.1 Reference condition
+The reference condition is largely intact ecosystems without large-scale human modification (Nybø & Evju, 2017). Here it is represented by the generalised species lists for each wetland type.
+
+### 4.2 Reference levels
+The reference levels are quantiles of the bootstrapped CWM distribution per NiN main type.
+
+- **X~100~**: the median.
+- **X~60~**: the 0.025 and 0.975 quantiles for the two-sided indicators; the 0.95 quantile for nitrogen.
+- **X~0~**: the end of the indicator value scale.
+
+The bootstrap uses NINA's function and settings: 1000 iterations per list, each keeping the dominant species and a random half of the others, with the cover classes varied.
+
+```{r tbl-ref}
+#| tbl-cap: "Reference levels per NiN main type (CWM quantiles)"
+#| echo: false
+ref |>
+  mutate(indicator = factor(recode(indicator, Soil_reaction_pH = "pH"), fac_lv)) |>
+  arrange(indicator, hovedtype) |>
+  transmute(Indicator = indicator, `NiN type` = hovedtype, `Species lists` = n_lists,
+            `0.025` = num(q025), `0.25` = num(q25), `Median (X100)` = num(median),
+            `0.75` = num(q75), `0.95` = num(q95), `0.975` = num(q975)) |>
+  kable()
+```
+
+#### 4.2.1 Spatial resolution and validity
+The reference levels vary between wetland types, but not between regions. They are valid at plot level, which is where the scaling is done.
+
+## 5. Uncertainties
+
+### 5.1 General uncertainties
+
+- **Reference per main type.** The references are set per NiN main type (V1, V2, V3), not per mapping unit as in NINA's original. Variation along the lime gradient within a main type is therefore part of the reference distribution.
+- **Wetland types without a reference.** V6 has no reference, in NINA's original either. V4 and V8 have a reference in NINA's original, but not here, where the references are rebuilt from B12 only (@tbl-types).
+- **Swamp forest.** ANO records V2 as one type, "myr- og sumpskogsmark". The V2 reference is built from 11 lists, all of forested peatland. A plot in swamp forest on mineral soil is therefore compared with forested peatland, and its pH and nitrogen may look like a deviation when they are not.
+- **Regional bias.** NINA notes that the generalised species lists are biased towards southern and eastern Norway.
+- **Observer and species uncertainty.** Uncertainty in the recorded cover and in the species' indicator values is not quantified.
+- **No validation.** The indicators have not been validated against independent data.
+
+```{r tbl-types}
+#| tbl-cap: "Wetland plot surveys in ANO 2019–2024 and how many get a value, by NiN main type"
+#| echo: false
+type_names <- c(V1 = "Åpen jordvannsmyr", V2 = "Myr- og sumpskogsmark", V3 = "Nedbørsmyr",
+                V4 = "Kaldkilde", V6 = "Våtsnøleie og snøleiekilde", V8 = "Strandsumpskogsmark")
+plots |>
+  group_by(nin) |>
+  summarise(Surveys = n(), Scored = sum(!is.na(fac_Light)), .groups = "drop") |>
+  transmute(`NiN type` = nin, Name = unname(type_names[nin]), Surveys, Scored) |>
+  kable()
+```
+
+The `r sum(plots$nin %in% c("V1", "V2", "V3") & is.na(plots$fac_Light))` unscored surveys of types V1–V3 have no species records in the ANO export.
+
+### 5.2 Reported uncertainties
+The reported uncertainties are inferential and refer to the estimated mean. `sd` is the standard deviation, and the 95% interval the 2.5 and 97.5 percentiles, of 1000 draws from the estimated coefficients of the regression. Uncertainty in the reference levels is not included.
+
+## 6. References
+
+Halvorsen, R., Skarpaas, O., Bryn, A., Bratli, H., Erikstad, L., Simensen, T., & Lieungh, E. (2020). Towards a systematics of ecodiversity: The EcoSyst framework. *Global Ecology and Biogeography, 29*(11), 1887–1906. <https://doi.org/10.1111/geb.13164> (the framework behind NiN and its generalised species lists)
+
+Nybø, S., & Evju, M. (Eds.). (2017). *Fagsystem for fastsetting av god økologisk tilstand: Forslag fra et ekspertråd*. Ekspertrådet for økologisk tilstand.
+
+Tingstad, L., Evju, M., Sickel, H., & Töpper, J. (2019). *Utvikling av nasjonal arealrepresentativ naturovervåking (ANO): Forslag til gjennomføring, protokoller og kostnadsvurderinger med utgangspunkt i erfaringer fra uttesting i Trøndelag* (NINA Rapport 1642). Norsk institutt for naturforskning.
+
+Tyler, T., Herbertsson, L., Olofsson, J., & Olsson, P. A. (2021). Ecological indicator and traits values for Swedish vascular plants. *Ecological Indicators, 120*, 106923. <https://doi.org/10.1016/j.ecolind.2020.106923>
+
+The method follows NINA's indicator documents [NO_FUNC_001–004](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_FUNC_001-004), [NO_FULI_002](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_FULI_002), [NO_FUMO_004](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_FUMO_004), [NO_FUNI_002](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_FUNI_002) and [NO_FUNI_004](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_FUNI_004) on ecRxiv.
+
+## 7. Import and prepare datasets
+
+The code in chapters 7, 9 and 11 is read from the scripts in `R/` when this document is rendered. It is shown, but not executed. The results in chapter 10 are read from the files those scripts wrote to `outputs/`. To recalculate everything, run the scripts in the order given in the README.
+
+### 7.1 Generalised species lists and reference distributions
+
+Species lists are assigned to a NiN main type (stage 1), joined with the indicator values (stages 2–3), bootstrapped (stage 4) and summarised per main type (stage 5).
+
+```{r code-ref}
+#| eval: false
+#| code: !expr stage("build_wet_ref_openS.R", "1", "2", "3", "4", "5")
+```
+
+### 7.2 ANO, indicator values and reference table
+
+```{r code-load}
+#| eval: false
+#| code: !expr stage(pipeline, "2")
+```
+
+### 7.3 Harmonising indicator values
+
+```{r code-tyler}
+#| eval: false
+#| code: !expr stage(pipeline, "3")
+```
+
+### 7.4 Harmonising ANO
+
+Species names are aligned with the indicator values, wetland plots are selected, and each visit to a point is numbered.
+
+```{r code-ano}
+#| eval: false
+#| code: !expr stage(pipeline, "4")
+```
+
+## 8. Spatial units
+
+The basic spatial unit (BSU) is the 1 m² ANO plot. The indicator values should be interpreted for the ecosystem accounting areas (EAA): mainland Norway and five regions (Northern, Central, Western, Eastern and Southern Norway). The ecosystem asset (EA) is not delineated: wetland is identified by the NiN type recorded at the plot. The region polygons are taken from NINAnor/ecosystemCondition.
+
+## 9. Analyses
+
+### 9.1 Scaling values and functions
+
+```{r code-scalval}
+#| eval: false
+#| code: !expr stage(pipeline, "5", "6")
+```
+
+### 9.2 Community-weighted means
+
+```{r code-cwm}
+#| eval: false
+#| code: !expr stage(pipeline, "7")
+```
+
+### 9.3 The four separate indicators
+
+```{r code-factors}
+#| eval: false
+#| code: !expr stage(pipeline, "8b")
+```
+
+### 9.4 Regions
+
+```{r code-regions}
+#| eval: false
+#| code: !expr stage(pipeline, "9")
+```
+
+### 9.5 Aggregation
+
+```{r code-agg}
+#| eval: false
+#| code: !expr stage(pipeline, "10")
+```
+
+## 10. Results
+
+### 10.1 The four indicators
+
+```{r tbl-final}
+#| tbl-cap: "Indicator values, ANO cycle 1 (2019–2024, first survey of each point). Mean [95% interval], n = plots"
+#| echo: false
+fac |>
+  filter(period == main_period) |>
+  mutate(factor = factor(factor, fac_lv), region = factor(region, reg_lv),
+         cell = paste0(num(mean), " [", num(ci_low), "–", num(ci_high), "]")) |>
+  arrange(region) |>
+  pivot_wider(id_cols = c(region, n), names_from = factor, values_from = cell) |>
+  select(Region = region, n, all_of(fac_lv)) |>
+  kable()
+```
+
+Light is `r extremes("Light")`. Moisture is `r extremes("Moisture")`. pH is `r extremes("pH")`. Nitrogen is `r extremes("Nitrogen")`.
+
+```{r fig-periods}
+#| fig-cap: "Indicator values by region and period, with 95% intervals. The dashed line is the limit for good condition (0.6). Cycle 1 shares most of its surveys with the other two periods."
+#| fig-width: 8
+#| fig-height: 6
+#| echo: false
+fac |>
+  mutate(factor = factor(factor, fac_lv), region = factor(region, rev(reg_lv)),
+         period = factor(period, c("2019to2021", "2022to2024", main_period),
+                         c("2019–2021", "2022–2024", "Cycle 1 (2019–2024)"))) |>
+  ggplot(aes(mean, region, colour = period, shape = period)) +
+  geom_vline(xintercept = 0.6, linetype = "dashed", colour = "grey40") +
+  geom_pointrange(aes(xmin = ci_low, xmax = ci_high),
+                  position = position_dodge(width = 0.6), size = 0.3) +
+  facet_wrap(~factor) +
+  scale_colour_manual(values = c("#0072B2", "#D55E00", "#222222")) +
+  coord_cartesian(xlim = c(0.5, 1)) +
+  labs(x = "Indicator value", y = NULL, colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom")
+```
+
+```{r tbl-direction}
+#| tbl-cap: "Direction of the deviations, Norway, cycle 1: number of plots on each side of the reference median, and the mean value of those plots. Nitrogen is one-sided, so only plots with enrichment are counted."
+#| echo: false
+dash <- function(x, f) ifelse(is.na(x), "–", f(x))
+nat |>
+  mutate(factor = factor(factor, fac_lv)) |>
+  arrange(factor) |>
+  transmute(Indicator = factor,
+            `Plots below` = dash(n_lower, cnt), `Mean below` = dash(mean_lower, num),
+            `Plots above` = dash(n_upper, cnt), `Mean above` = dash(mean_upper, num)) |>
+  kable(align = "lrrrr")
+```
+
+```{r fig-map}
+#| fig-cap: "Indicator values per region, ANO cycle 1 (2019–2024)"
+#| fig-width: 9
+#| fig-height: 4
+#| echo: false
+ids <- c(Light = "VAAT-FULI-01", Moisture = "VAAT-FUMO-01", pH = "VAAT-FUPH-01", Nitrogen = "VAAT-FUNI-01")
+maps <- do.call(rbind, lapply(names(ids), function(f) {
+  m <- readRDS(file.path("..", "outputs", "deliverables",
+                         paste0(ids[[f]], "_cycle1_2019to2024_indicatorMap_region.rds")))
+  m <- st_simplify(m, dTolerance = 1000)
+  m$factor <- f
+  m[, c("area", "i_2024", "factor")]
+}))
+st_agr(maps) <- "constant"
+maps$factor <- factor(maps$factor, fac_lv)
+ggplot(maps) +
+  geom_sf(aes(fill = i_2024), colour = "white", linewidth = 0.3) +
+  geom_sf_label(aes(label = num(i_2024)), fill = "white", size = 2.4, label.padding = unit(0.1, "lines")) +
+  facet_wrap(~factor, nrow = 1) +
+  scale_fill_viridis_c(limits = c(0.6, 1), name = "Indicator\nvalue") +
+  theme_void() + theme(plot.margin = margin(2, 12, 2, 2))
+```
+
+### 10.2 Distribution of plot values
+
+```{r fig-dist}
+#| fig-cap: "Distribution of scaled plot values, all surveys 2019–2024. The dashed line is 0.6."
+#| fig-width: 8
+#| fig-height: 3.5
+#| echo: false
+plots |>
+  select(all_of(paste0("fac_", fac_lv))) |>
+  pivot_longer(everything(), names_to = "factor", names_prefix = "fac_") |>
+  filter(!is.na(value)) |>
+  mutate(factor = factor(factor, fac_lv)) |>
+  ggplot(aes(value)) +
+  geom_histogram(binwidth = 0.05, boundary = 0, fill = "#0072B2", colour = "white") +
+  geom_vline(xintercept = 0.6, linetype = "dashed") +
+  facet_wrap(~factor, nrow = 1) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
+  labs(x = "Scaled plot value", y = "Plots") +
+  theme_bw()
+```
+
+### 10.3 Combined index (not delivered)
+
+The pipeline also calculates the combined index of NINA's NO_FUNC indicators. It is not part of the delivery, and its files are in `outputs/supplementary/`. It takes the lowest of the eight scaled sides per plot, uses the 0.25 and 0.75 quantiles as limits (as in NINA's code for NO_FUNC_001–004; the text of that document states 0.025 and 0.975), and is aggregated as a median. Its values are not comparable with the four indicators above.
+
+```{r tbl-index}
+#| tbl-cap: "Combined index VAAT-FUNC-01: median [95% bootstrap interval], n = plots"
+#| echo: false
+idx |>
+  mutate(region = factor(region, reg_lv),
+         cell = paste0(num(median), " [", num(boot_low), "–", num(boot_high), "], n = ", cnt(n)),
+         period = recode(period, "2019to2021" = "2019–2021", "2022to2024" = "2022–2024",
+                         "cycle1_2019to2024" = "Cycle 1 (2019–2024)")) |>
+  arrange(region) |>
+  pivot_wider(id_cols = region, names_from = period, values_from = cell) |>
+  rename(Region = region) |>
+  kable()
+```
+
+## 11. Export file
+
+The results are written to disk by the code below and converted to the ecosystemCondition platform format by `R/export_deliverables.R`, which writes to `outputs/deliverables/`.
+
+```{r export}
+#| eval: false
+#| code: !expr stage(pipeline, "11")
+```
+
+## 12. Author contributions
+
+**CRediT statement**
+
+* Software (code development): JACB, LK
+* Validation (assessment): JACB, LK
+* Writing of the project report: BS, JACB
+
+BS: Bendik Sivertsen. JACB: Jesus Adrian Chimal-Ballesteros. LK: Lasse Keetz.
+
+AI tools: Claude (Anthropic) was used for code development and review, for running and checking analyses, and for drafting this document. The use is described in the [repository README](../../README.md).
+
+::: {.callout-tip collapse="true"}
+## Session Info
+
+This is the R session that rendered the document, not the one that produced the results. The package versions of the analysis are in `renv.lock`.
+
+```{r sessionInfo}
+#| echo: false
+sessionInfo()
+```
+:::

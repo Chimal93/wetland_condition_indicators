@@ -16,15 +16,15 @@ Rplots.pdf
 # download caches) - see docker/README.md. Change the place with RUNS_DIR.
 runs/
 
-# Canopy heights computed by docker/run_NO_GJEN_002_canopy_height_model.sh,
+# Canopy heights computed by docker/run_VAAT-GJEN-02_canopy_height_model.sh,
 # one folder per CHM_RUN_NAME with its provenance. Not committed by default:
 # they derive from licensed imagery. Commit a finished run deliberately, as
 # upstream did with meta_chm_national_RAW_2026-09-17/.
-NO_GJEN_002/data/OpenS_data/canopy_height_runs/
+VAAT-GJEN-02/data/OpenS_data/canopy_height_runs/
 
 # Download logs and the AR5 source-file list describe the local copies of
 # the data (which are not committed either) - see "Where the data came
 # from" in docker/README.md. Each run's data_sources.csv in runs/ is the
 # copy to keep or share.
 NO_*/data/data_sources_log.csv
-NO_GJEN_001/data/OpenS_data/ar5_national_source_files.csv
+VAAT-GJEN-01/data/OpenS_data/ar5_national_source_files.csv

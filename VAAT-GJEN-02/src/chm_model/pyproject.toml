@@ -1,0 +1,39 @@
+# Python environment for Meta's HighResCanopyHeight model (VAAT-GJEN-02).
+# Only needed to regenerate canopy-height predictions from orthophoto; the
+# published indicator can be reproduced from the committed predictions.
+#
+# Python 3.9 is the version the model's repository documents and the one the
+# published predictions were made with. See ../CHM_MODEL_SETUP.md.
+#
+#   cd VAAT-GJEN-02/chm_model
+#   uv sync
+#   uv run python smoke_test.py
+
+[project]
+name = "no-gjen-002-chm-model"
+version = "0.1.0"
+description = "Runtime for Meta HighResCanopyHeight inference on orthophoto tiles (VAAT-GJEN-02)"
+requires-python = "==3.9.*"
+dependencies = [
+    "torch==2.0.1",
+    "torchvision==0.15.2",
+    "pytorch-lightning==1.7.0",
+    "torchmetrics==0.11.4",
+    "numpy==1.26.4",       # torch 2.0.1 is built against the NumPy 1.x ABI
+    "setuptools==80.10.2", # torchmetrics needs pkg_resources, removed in setuptools 81
+    "pandas==2.3.3",
+    "matplotlib==3.9.4",
+    "pillow==11.3.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

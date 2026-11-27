@@ -1,4 +1,4 @@
-# Canopy-height model image for NO_GJEN_002: the R image plus a separate,
+# Canopy-height model image for VAAT-GJEN-02: the R image plus a separate,
 # pinned Python environment for Meta's HighResCanopyHeight model. R and
 # Python must live in one container because R/run_meta_chm_on_polygons.R
 # calls Python directly for every batch of tiles.
@@ -8,7 +8,7 @@
 #   - uv, by digest (UV_IMAGE in versions.env); uv installs a fixed
 #     standalone build of PYTHON_VERSION, so no system Python is used
 #   - every Python package, by version and hash: upstream's uv.lock in
-#     NO_GJEN_002/src/chm_model/ (passed in as the build context "chm")
+#     VAAT-GJEN-02/src/chm_model/ (passed in as the build context "chm")
 # Not in the image: the model code and weights (~800 MB). They are
 # downloaded and checksummed by download_model_and_weights.sh and mounted
 # at run time.

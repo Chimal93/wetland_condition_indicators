@@ -1,0 +1,284 @@
+---
+title: "Primary production in wetlands (NDVI trend)"
+subtitle: "[VAAT-NDVI-01]"
+indicatorID: VAAT-NDVI-01
+indicatorName: Primary production in wetlands (NDVI trend)
+verbatimName: "Primærproduksjon i våtmark (NDVI-trend)"
+folderName: VAAT-NDVI-01
+country: Norway
+continent: Europe
+ECT: B2 - Structural State characteristics or B3 - Functional State characteristics
+Realm:
+  - Freshwater-Terrestrial (TF)
+Biome:
+  - TF1 Palustrine wetlands biome
+Ecosystem:
+  - TF1.6 Boreal, temperate and montane peat bogs
+  - TF1.7 Boreal and temperate fens
+verbatimEcosystem: Våtmark
+yearAdded: 2026
+yearLastUpdate: 2026
+status: incomplete
+Version: "000.001"
+VersionComment: "Provisional: MODIS only, no uncertainty"
+url: https://github.com/Chimal93/wetland_condition_indicators/tree/main/VAAT-NDVI-01
+Normalised: Yes
+SpatialAggregationPathway: "Scale/Truncate (piecewise linear) - Aggregate (area-weighted arithmetic mean)"
+Precision: "Not estimated"
+format:
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+    toc-title: Contents
+    toc-depth: 3
+    smooth-scroll: true
+execute:
+  cache: false
+author:
+  - name: Bendik Sivertsen
+    email: bendik@sallirnatur.no
+    affiliations:
+      - id: sallir
+        name: Sállir Natur AS
+  - name: Jesus Adrian Chimal-Ballesteros
+    email: adrian@sallirnatur.no
+    affiliations:
+      - ref: sallir
+  - name: Lasse Keetz
+    email: lasse.keetz@fieldgeo.no
+    affiliations:
+      - id: field
+        name: Field Geospatial AS
+AuthorList: "Sivertsen, B., Chimal-Ballesteros, J. A., and Keetz, L."
+date: 2026-11-24
+date-format: long
+data_availability: none
+code_reproducibility: none
+open_science_badge: none
+hide: TRUE
+---
+
+```{r setup}
+#| include: false
+library(knitr)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(sf)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+source(file.path("..", "..", "Tools", "quarto_helpers.R"), encoding = "UTF-8")
+results <- file.path("..", "outputs", "results")
+deliv   <- file.path("..", "outputs", "deliverables")
+reg_lv  <- c("Norge", "Nord-Norge", "Midt-Norge", "Vestlandet", "Østlandet", "Sørlandet")
+p    <- read_csv(file.path(results, "VAAT-NDVI-01_trend_scaling_polygons.csv"), show_col_types = FALSE)
+anch <- read_csv(file.path(results, "VAAT-NDVI-01_trend_scaling_anchors.csv"), show_col_types = FALSE)
+vals <- read_csv(file.path(deliv, "VAAT-NDVI-01_values.csv"), show_col_types = FALSE)
+nor  <- filter(vals, area == "Norge")
+```
+
+::: {.callout-note}
+## Status of this document
+This document follows the structure of NINA's ecRxiv indicator template. It
+has **not** been submitted to or published on ecRxiv, and it is not a NINA
+product. The ecRxiv badges and the ecRxiv citation are therefore left out.
+
+**The indicator is provisional and not finished.**
+:::
+
+::: {.callout-tip collapse="true"}
+## Metadata
+
+```{r tbl-meta}
+#| tbl-cap: "Indicator metadata"
+#| echo: false
+metadata_table("VAAT-NDVI-01.qmd")
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Log
+
+- 24 Nov. 2026 - First version of this document
+:::
+
+<hr />
+
+## 1. Summary
+
+1. **Background and rationale**:
+NDVI is a satellite measure of greenness and a proxy for primary production. Lasting changes in greenness in a wetland may reflect drainage, encroachment, nutrient input or a longer growing season.
+
+2. **Methods**:
+The highest NDVI value of each growing season, 2000–2026, is taken from MODIS for each wetland polygon that is large enough. The indicator is the trend over the years, scaled against no trend.
+
+3. **Interpretation**:
+A value of 1 means no trend in greenness.
+Values decreasing towards 0 mean a stronger trend. Greening and browning both count as deviations.
+
+4. **Results and development needs**:
+The national value is `r num(nor$i_2026, 3)` (n = `r cnt(nor$n)` polygons). **The indicator is not finished**: only MODIS is used, so few polygons can be scored (Sørlandet has `r filter(vals, area == "Sørlandet")$n`), and uncertainty is not estimated. The main needs are Sentinel-2 and Landsat, uncertainty, and an assessment of the scaling.
+
+## 2. About the underlying data
+
+- **NDVI**: MODIS/Terra MOD13Q1 v6.1, 250 m, 16-day composites (Didan, 2021).
+- **Wetland**: polygons in the NiN nature-type dataset.
+- **Regions**: five regions from NINAnor/ecosystemCondition.
+
+### 2.1 Spatial and temporal resolution and extent
+Mainland Norway, 2000–2026, composites starting from late May to mid-September. For 2026, composites up to late July are included, so the year is incomplete but enters the trend as a full year.
+
+### 2.2 Sampling design
+All mapped wetland polygons of at least one MODIS pixel (62,500 m²) and with at least `r anch$min_years` years of data. NiN mapping is not area-representative, so neither is the population.
+
+### 2.3 Original units
+NDVI (dimensionless). The variable is NDVI per year.
+
+### 2.4 Instructions for citing, using and accessing data
+MODIS data have no restrictions on reuse; a citation is requested. The extracted series is in the repository (`data/NDVI_MODIS/`). NiN data are open. Download dates are listed in the [README](../README.md).
+
+### 2.5 Additional comments about the dataset
+The value is read from the pixel at the polygon's centroid, and the MODIS quality layer is not used. NINA's original used zonal means from Google Earth Engine and three satellites.
+
+## 3. Indicator properties
+
+### 3.1 Ecosystem Condition Typology Class (ECT)
+B2 (structural state) or B3 (functional state): the class has not been settled, as the indicator describes greenness as a proxy for primary production.
+
+### 3.2 Ecosystem condition characteristic
+Primary production.
+
+### 3.3 Collinearities with other indicators
+Woody encroachment (VAAT-GJEN-01 and VAAT-GJEN-02) and the functional plant indicators may covary.
+
+### 3.4 Impact factors
+Drainage, encroachment, nitrogen deposition and nutrient input, and climate change.
+
+### 3.5 Spatial aggregation
+The trend is scaled per polygon and aggregated as an area-weighted mean per region and nationally.
+
+## 4. Reference condition and levels
+
+### 4.1 Reference condition
+Stable greenness over time.
+
+### 4.2 Reference levels
+
+- **X~100~**: slope 0.
+- **X~60~**: |slope| = `r num(anch$threshold, 5)` NDVI per year, the 97.5th percentile of a permutation distribution.
+- **X~0~**: |slope| = `r num(anch$extreme, 4)` NDVI per year, the maximum of the same distribution.
+
+The distribution is made by shuffling the years within each polygon once and refitting the slope (n = `r cnt(anch$n_null)`). The approach is adapted from NINA's NDVI indicator for mountains (Framstad et al., 2022), because the wetland original found that absolute NDVI overlaps too much between condition classes to set reference values.
+
+#### 4.2.1 Spatial resolution and validity
+The same levels apply to all polygons and regions.
+
+## 5. Uncertainties
+
+### 5.1 General uncertainties
+
+- **Few and large polygons.** At 250 m, only `r cnt(nrow(p))` polygons qualify. Small wetlands are not represented.
+- **Mixed pixels.** The centroid pixel also covers the surroundings, and in irregular polygons the centroid may fall outside the wetland.
+- **The scaling is statistical.** The limit for good condition is the edge of what can be expected by chance, not an ecological limit. A climate-driven trend lowers the value even where the wetland is intact.
+- **X~0~ is the maximum of one random distribution**, which is unstable.
+- **The incomplete 2026 season** may lower that year's highest value and bias the trends.
+
+### 5.2 Reported uncertainties
+None. `sd` is empty in the delivery files.
+
+## 6. References
+
+Didan, K. (2021). *MODIS/Terra vegetation indices 16-day L3 global 250m SIN grid V061* [Data set]. NASA EOSDIS Land Processes Distributed Active Archive Center. <https://doi.org/10.5067/MODIS/MOD13Q1.061>
+
+Framstad, E., Eide, N. E., Eide, W., Klanderud, K., Kolstad, A., Töpper, J., & Vandvik, V. (2022). *Vurdering av økologisk tilstand for fjell i Norge i 2021* (NINA Rapport 2050). Norsk institutt for naturforskning.
+
+The original is NINA's [NDVI indicator for wetlands](https://ninanor.github.io/ecosystemCondition/NDVI-indicator-wetland.html) in ecosystemCondition. NINA's Earth Engine scripts are not included.
+
+## 7. Import and prepare datasets
+
+The code in chapters 7, 9 and 11 is read from the scripts in `R/` when this document is rendered. It is shown, but not executed. The results in chapter 10 are read from the files those scripts wrote to `outputs/`. To recalculate everything, run the scripts in the order given in the README.
+
+### 7.1 MODIS NDVI
+
+```{r code-modis}
+#| eval: false
+#| code: !expr script("fetch_modis_ndvi.R")
+```
+
+## 8. Spatial units
+
+The basic spatial unit (BSU) is the NiN wetland polygon. The values should be interpreted nationally, and for regions with caution because of the small numbers.
+
+## 9. Analyses
+
+Trends, permutation, scaling and aggregation are done in one script.
+
+```{r code-trend}
+#| eval: false
+#| code: !expr script("VAAT-NDVI-01_trend_scaling.R")
+```
+
+## 10. Results
+
+```{r tbl-final}
+#| tbl-cap: "Indicator values (provisional). Slopes in NDVI per year"
+#| echo: false
+vals |>
+  mutate(area = factor(area, reg_lv)) |>
+  arrange(area) |>
+  transmute(Region = area, n = cnt(n), `Mean slope` = num(v_2026, 5), `Mean |slope|` = num(mean_abs_slope, 5), Indicator = num(i_2026, 3)) |>
+  kable(align = "lrrrr")
+```
+
+```{r fig-map}
+#| fig-cap: "Indicator values per region (provisional)"
+#| fig-width: 6
+#| fig-height: 6
+#| echo: false
+region_map(file.path(deliv, "VAAT-NDVI-01_indicatorMap_region.rds"), "i_2026")
+```
+
+```{r fig-slope}
+#| fig-cap: "Trend per polygon. Dashed lines: the limit for good condition (0.6) in either direction"
+#| fig-width: 7
+#| fig-height: 3.5
+#| echo: false
+p |>
+  ggplot(aes(slope)) +
+  geom_histogram(bins = 50, fill = "#0072B2", colour = "white") +
+  geom_vline(xintercept = c(-1, 1) * anch$threshold, linetype = "dashed") +
+  labs(x = "Slope (NDVI per year)", y = "Polygons") +
+  theme_bw()
+```
+
+`r pct(mean(p$slope > 0))` of the polygons have a positive trend, and `r pct(mean(p$index < 0.6), 1)` score below 0.6.
+
+## 11. Export file
+
+```{r export}
+#| eval: false
+#| code: !expr script("export_deliverables.R")
+```
+
+## 12. Author contributions
+
+**CRediT statement**
+
+* Software (code development): JACB, LK
+* Validation (assessment): JACB, LK
+* Writing of the project report: BS, JACB
+
+BS: Bendik Sivertsen. JACB: Jesus Adrian Chimal-Ballesteros. LK: Lasse Keetz.
+
+AI tools: Claude (Anthropic) was used for code development and review, for running and checking analyses, and for drafting this document. The use is described in the [repository README](../../README.md).
+
+::: {.callout-tip collapse="true"}
+## Session Info
+
+This is the R session that rendered the document, not the one that produced the results. The package versions of the analysis are in `renv.lock`.
+
+```{r sessionInfo}
+#| echo: false
+sessionInfo()
+```
+:::

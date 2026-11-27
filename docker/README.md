@@ -39,13 +39,13 @@ their results stay on your machine; the image only provides the software.
 | `check_setup.sh` | Checks that the inputs you must obtain yourself are in place (see "Before your first run"). The runner calls it automatically. |
 | `run_indicators.sh` | The main runner: runs the selected indicators from start to finish and records everything. |
 | `run_script.sh` | Runs a single R script from the repository inside the image. |
-| `prepare_ar5_input/` | One script, run once by hand: builds the AR5 forest and mire layers for `NO_GJEN_001` from the municipal FKB-AR5 GeoPackages. Needs restricted-access data; not part of the normal run. |
-| `run_NO_CONN_003_ar5_variant.sh` | Runs the AR5 variant of `NO_CONN_003`, the delivered one (about 25 hours). See "The AR5 variant of NO_CONN_003" below. |
-| `build_canopy_height_image.sh`, `canopy_height_model/` | A second image, the R image plus `uv` and Python, for the canopy-height models of `NO_GJEN_002`. Only needed for new canopy heights. The current version builds its own Python environment from `NO_GJEN_002/src/chm_national/uv.lock` on the first run; version 000.003 uses `NO_GJEN_002/src/chm_model/uv.lock`. |
-| `run_NO_GJEN_002_deliverables.sh` | The whole current `NO_GJEN_002` chain in one go: national canopy-height map, 20 m indicator, deliverables and indicator document. See "NO_GJEN_002 from aerial photos" below. |
-| `run_NO_GJEN_002_national_chm.sh`, `run_NO_GJEN_002_cell_indicator.sh` | The two heavy steps of that chain, also runnable on their own. |
-| `run_NO_GJEN_002_chm_comparison.sh` | The model comparison against LiDAR that gives the calibration and the validation cells of `NO_GJEN_002`. Only for new imagery or a new model. |
-| `run_NO_GJEN_002_canopy_height_model.sh` | Version 000.003 (superseded): per-polygon canopy heights for the NiN polygons with CHMv1. See "New canopy heights for NO_GJEN_002 (version 000.003)" below. |
+| `prepare_ar5_input/` | One script, run once by hand: builds the AR5 forest and mire layers for `VAAT-GJEN-01` from the municipal FKB-AR5 GeoPackages. Needs restricted-access data; not part of the normal run. |
+| `run_VAAT-CONN-01_ar5_variant.sh` | Runs the AR5 variant of `VAAT-CONN-01`, the delivered one (about 25 hours). See "The AR5 variant of VAAT-CONN-01" below. |
+| `build_canopy_height_image.sh`, `canopy_height_model/` | A second image, the R image plus `uv` and Python, for the canopy-height models of `VAAT-GJEN-02`. Only needed for new canopy heights. The current version builds its own Python environment from `VAAT-GJEN-02/src/chm_national/uv.lock` on the first run; version 000.003 uses `VAAT-GJEN-02/src/chm_model/uv.lock`. |
+| `run_VAAT-GJEN-02_deliverables.sh` | The whole current `VAAT-GJEN-02` chain in one go: national canopy-height map, 20 m indicator, deliverables and indicator document. See "VAAT-GJEN-02 from aerial photos" below. |
+| `run_VAAT-GJEN-02_national_chm.sh`, `run_VAAT-GJEN-02_cell_indicator.sh` | The two heavy steps of that chain, also runnable on their own. |
+| `run_VAAT-GJEN-02_chm_comparison.sh` | The model comparison against LiDAR that gives the calibration and the validation cells of `VAAT-GJEN-02`. Only for new imagery or a new model. |
+| `run_VAAT-GJEN-02_canopy_height_model.sh` | Version 000.003 (superseded): per-polygon canopy heights for the NiN polygons with CHMv1. See "New canopy heights for VAAT-GJEN-02 (version 000.003)" below. |
 | `data_sources.tsv` | The list of every input the runners use and where it comes from (see "Where the data came from"). |
 | `internal/` | Pieces used by the scripts above; you do not call these yourself. `run_indicators_in_container.sh` is the step list that runs inside the image; `common.sh` loads the settings. |
 
@@ -77,8 +77,8 @@ file, so your paths never end up in the repository. A complete example:
 # Write run output here instead of into the repository's runs/ folder.
 RUNS_DIR=/data/wetland_runs
 
-# I do not have FKB-AR5, so use the public AR50 map for NO_GJEN_001.
-GJEN_SOURCE=AR50
+# I do not have FKB-AR5, so use the public AR50 map for VAAT-GJEN-01.
+VAAT_GJEN_01_SOURCE=AR50
 ```
 
 The easiest start is to copy the shipped example and edit it:
@@ -89,7 +89,7 @@ cp docker/config.local.env.example docker/config.local.env
 
 Every setting, its possible values and what it does is explained in
 `config.env`. To change a setting for one run only, put it in front of
-the command instead, for example `GJEN_SOURCE=AR50 bash docker/run_indicators.sh`.
+the command instead, for example `VAAT_GJEN_01_SOURCE=AR50 bash docker/run_indicators.sh`.
 That wins over both files for that run.
 
 ## Before your first run: inputs you must obtain yourself
@@ -98,15 +98,15 @@ Almost everything the pipelines need is downloaded automatically. Two
 inputs cannot be, and a run stops right at the start until they are in
 place:
 
-- **NO_FUNC_003 needs the Tyler et al. (2021) spreadsheet.** It is the
+- **VAAT-FUNC-01 needs the Tyler et al. (2021) spreadsheet.** It is the
   publisher's supplementary material, so it has to be downloaded by hand
   from the article and saved as
-  `NO_FUNC_003/data/OpenS_data/Tyler_data_raw.xlsx`.
-- **NO_GJEN_001 with `GJEN_SOURCE=AR5` (the default) needs the national
+  `VAAT-FUNC-01/data/OpenS_data/Tyler_data_raw.xlsx`.
+- **VAAT-GJEN-01 with `VAAT_GJEN_01_SOURCE=AR5` (the default) needs the national
   AR5 forest and mire layers.** Access to FKB-AR5 is restricted. If you
   have the municipal FKB-AR5 GeoPackages, build the layers once with
   `docker/prepare_ar5_input/` (see below). If you do not, set
-  `GJEN_SOURCE=AR50`, which needs nothing from you.
+  `VAAT_GJEN_01_SOURCE=AR50`, which needs nothing from you.
 
 Check what you have with:
 
@@ -131,8 +131,8 @@ To run only some indicators, or change other settings for one run, set
 them on the command line:
 
 ```bash
-INDICATORS="GJEN" bash docker/run_indicators.sh
-INDICATORS="FUNC CONN" GJEN_SOURCE=AR50 bash docker/run_indicators.sh
+INDICATORS="VAAT-GJEN-01" bash docker/run_indicators.sh
+INDICATORS="VAAT-FUNC-01 VAAT-CONN-01" VAAT_GJEN_01_SOURCE=AR50 bash docker/run_indicators.sh
 ```
 
 The runner prints the run folder and a `tail -f` command for following
@@ -174,7 +174,7 @@ two records:
   time of the run.
 
 The AR5 preparation also writes
-`NO_GJEN_001/data/OpenS_data/ar5_national_source_files.csv`, the name,
+`VAAT-GJEN-01/data/OpenS_data/ar5_national_source_files.csv`, the name,
 size, date and checksum of every municipal FKB-AR5 file it used.
 
 Which files belong to which source is listed in `docker/data_sources.tsv`.
@@ -187,28 +187,28 @@ that list.
 1. Records the software versions into `versions/`.
 2. Copies each indicator's current `outputs/` folder to
    `results_committed/`.
-3. `NO_FUNC_003`: downloads the ANO field-survey data, runs the pipeline,
+3. `VAAT-FUNC-01`: downloads the ANO field-survey data, runs the pipeline,
    writes the deliverables, then the report maps of its four
    indicators. Requires the Tyler et al. spreadsheet (see "Before your
    first run").
-4. `NO_CONN_003`: downloads the published caches (about 2 GB, only what is
+4. `VAAT-CONN-01`: downloads the published caches (about 2 GB, only what is
    missing), runs the pipeline, then writes the deliverables. With the
    caches this takes minutes; without them it would take more than 20
    hours. The caches belong to the older *mire-model* variant, so this
    reproduces that variant, and its deliverables go to
-   `NO_CONN_003/outputs/deliverables_MireModel/`. The delivered AR5 variant
-   is a separate run (see "The AR5 variant of NO_CONN_003" below).
-5. `NO_GJEN_002` (`GJEN2`): writes the deliverables from the tables of the
+   `VAAT-CONN-01/outputs/deliverables_MireModel/`. The delivered AR5 variant
+   is a separate run (see "The AR5 variant of VAAT-CONN-01" below).
+5. `VAAT-GJEN-02` (`GJEN2`): writes the deliverables from the tables of the
    national 20 m run committed in the repository
-   (`NO_GJEN_002/data/OpenS_data/orthophoto_chmv2_20m_cells/`). Seconds.
+   (`VAAT-GJEN-02/data/OpenS_data/orthophoto_chmv2_20m_cells/`). Seconds.
    The national run itself needs the aerial photos and a GPU and is
-   separate (see "NO_GJEN_002 from aerial photos" below).
-6. `NO_NDVI_001` (`NDVI`, provisional): downloads the NiN nature-type data,
+   separate (see "VAAT-GJEN-02 from aerial photos" below).
+6. `VAAT-NDVI-01` (`NDVI`, provisional): downloads the NiN nature-type data,
    recomputes the NDVI trends from the national MODIS series committed in
    the repository, then writes the deliverables and the report map.
    Minutes. A new MODIS download (`R/fetch_modis_ndvi.R`, hours, needs a
    free NASA Earthdata token) is not part of the run.
-7. `NO_GJEN_001`: downloads the bioclimatic zones, the forest disturbance
+7. `VAAT-GJEN-01`: downloads the bioclimatic zones, the forest disturbance
    map, OpenStreetMap buildings and the NiN nature-type data, checks or
    downloads the forest and mire polygons (see below), builds the
    good-condition reference heights at 30 m (about 40 minutes, the first
@@ -223,9 +223,9 @@ A download step is skipped when its output file already exists. Set
 `RERUN_FETCH=yes` to download everything again. Within one indicator, a
 failed step stops that indicator; the remaining indicators still run.
 
-### Forest and mire polygons for NO_GJEN_001
+### Forest and mire polygons for VAAT-GJEN-01
 
-The pipeline can use two sources, chosen with `GJEN_SOURCE`:
+The pipeline can use two sources, chosen with `VAAT_GJEN_01_SOURCE`:
 
 - `AR5` (default): the detailed national land-resource map, the source
   the published results were built with. Access is restricted. Norway's
@@ -240,7 +240,7 @@ The pipeline can use two sources, chosen with `GJEN_SOURCE`:
   The script subsets the forest and mire polygons from every municipal
   file, merges them into `ar5_skog_national.gpkg` and
   `ar5_myr_national.gpkg`, checks that no municipality is missing, and
-  places both in `NO_GJEN_001/data/OpenS_data/`. It takes about 15
+  places both in `VAAT-GJEN-01/data/OpenS_data/`. It takes about 15
   minutes and runs inside the Docker image, so build the image first. The
   runner only checks that the two files exist.
 
@@ -256,47 +256,47 @@ The pipeline can use two sources, chosen with `GJEN_SOURCE`:
   do not have FKB-AR5: nothing to obtain, nothing to prepare. Results
   differ slightly from the AR5-based ones.
 
-## The AR5 variant of NO_CONN_003
+## The AR5 variant of VAAT-CONN-01
 
-The delivered `NO_CONN_003` result uses AR5 mires as the wetland
+The delivered `VAAT-CONN-01` result uses AR5 mires as the wetland
 population. `run_indicators.sh` reproduces only the older mire-model
 variant from published caches; the AR5 variant is computed from scratch:
 
 ```bash
-bash docker/run_NO_CONN_003_ar5_variant.sh
+bash docker/run_VAAT-CONN-01_ar5_variant.sh
 ```
 
 It needs `ar5_myr_national.gpkg` (built by `prepare_ar5_input/`, see
-above) and the infrastructure layer from a normal `NO_CONN_003` run
-(`INDICATORS="CONN" bash docker/run_indicators.sh`); the script checks
+above) and the infrastructure layer from a normal `VAAT-CONN-01` run
+(`INDICATORS="VAAT-CONN-01" bash docker/run_indicators.sh`); the script checks
 both first. About 25 hours, so start it in `screen` or `tmux`. It can be
 stopped and restarted: regions already done are skipped. The run folder is
-`runs/conn003_ar5_<date>_<time>/`; the results land in
-`NO_CONN_003/outputs/deliverables/`, where `git diff` shows any difference
+`runs/vaat_conn_01_ar5_<date>_<time>/`; the results land in
+`VAAT-CONN-01/outputs/deliverables/`, where `git diff` shows any difference
 from the published ones. Same steps as upstream's
-`NO_CONN_003/src/run_connectivity_ar5.ps1`, plus the two steps its README
+`VAAT-CONN-01/src/run_connectivity_ar5.ps1`, plus the two steps its README
 lists after it: `export_deliverables.R` and `make_report_map.R`.
 
-## NO_GJEN_002 from aerial photos
+## VAAT-GJEN-02 from aerial photos
 
-The current `NO_GJEN_002` (version 000.004) estimates vegetation height
+The current `VAAT-GJEN-02` (version 000.004) estimates vegetation height
 with the CHMv2 model for all AR5 mire, calibrates it to LiDAR and computes
-the indicator for every 20 m cell, like `NO_GJEN_001`. One script runs the
+the indicator for every 20 m cell, like `VAAT-GJEN-01`. One script runs the
 whole chain; start it inside `screen`:
 
 ```bash
-bash docker/run_NO_GJEN_002_deliverables.sh
+bash docker/run_VAAT-GJEN-02_deliverables.sh
 ```
 
-1. **Map** (`run_NO_GJEN_002_national_chm.sh chmv2`): canopy height at
+1. **Map** (`run_VAAT-GJEN-02_national_chm.sh chmv2`): canopy height at
    0.5 m over all AR5 mire plus 30 m, on the GPU. 11–14 hours nationally;
    finished parts are skipped on a rerun.
-2. **20 m indicator** (`run_NO_GJEN_002_cell_indicator.sh`): cell medians,
+2. **20 m indicator** (`run_VAAT-GJEN-02_cell_indicator.sh`): cell medians,
    calibration, indicator, uncertainty and flight years. About 30 minutes.
 3. The result tables are copied into
-   `NO_GJEN_002/data/OpenS_data/orthophoto_chmv2_20m_cells/`.
-4. Deliverables are written to `NO_GJEN_002/outputs/deliverables/`.
-5. The indicator document `NO_GJEN_002/docs/NO_GJEN_002.html` is rendered.
+   `VAAT-GJEN-02/data/OpenS_data/orthophoto_chmv2_20m_cells/`.
+4. Deliverables are written to `VAAT-GJEN-02/outputs/deliverables/`.
+5. The indicator document `VAAT-GJEN-02/docs/VAAT-GJEN-02.html` is rendered.
 
 **Needs:**
 - Linux (or WSL2) with an NVIDIA GPU and Docker's GPU support;
@@ -305,13 +305,13 @@ bash docker/run_NO_GJEN_002_deliverables.sh
   `bash docker/canopy_height_model/download_model_and_weights.sh`;
 - a Hugging Face login with the CHMv2 terms accepted (CHMv2 is gated): the
   token in `~/.cache/huggingface/token` (or `$HF_HOME/token`) or in
-  `HF_TOKEN`; step by step in `NO_GJEN_002/README.md`;
+  `HF_TOKEN`; step by step in `VAAT-GJEN-02/README.md`;
 - in `config.local.env`: `ORTHOPHOTO_SOURCE_PATH` (a local copy of the
   mosaic, with its `metadata/` folder next to it) and `NATIONAL_CHM_OUT_DIR`
   (output folder, may be on the network drive);
-- the AR5 mire layer (see "Forest and mire polygons for NO_GJEN_001");
+- the AR5 mire layer (see "Forest and mire polygons for VAAT-GJEN-01");
 - `NATIONAL_CHM_OUT_DIR/validation_cells_lidar_20m_median.csv`: LiDAR
-  heights at the `NO_GJEN_001` sample cells, for the uncertainty, made by
+  heights at the `VAAT-GJEN-01` sample cells, for the uncertainty, made by
   the comparison below. It is not in the repository because the cells come
   from AR5.
 
@@ -320,20 +320,20 @@ anything still fails, the output is marked `INCOMPLETE` and the script
 stops with an error.
 
 **Calibration and validation cells.** Both come from comparing CHMv1 and
-CHMv2 with LiDAR at the ~25,000 sample cells of `NO_GJEN_001`. Rerun this
+CHMv2 with LiDAR at the ~25,000 sample cells of `VAAT-GJEN-01`. Rerun this
 only for new imagery or a new model (about 3.5 hours, same setup as above
-plus `vaatmark_pop_openS.gpkg` from `NO_GJEN_001`):
+plus `vaatmark_pop_openS.gpkg` from `VAAT-GJEN-01`):
 
 ```bash
-bash docker/run_NO_GJEN_002_chm_comparison.sh
+bash docker/run_VAAT-GJEN-02_chm_comparison.sh
 ```
 
 Results go to `runs/chm_comparison/out_25k/` (`CHM_COMPARISON_DIR`). Copy
-the new coefficients into `NO_GJEN_002/src/chm_national/calibration_chmv2_median.json`
+the new coefficients into `VAAT-GJEN-02/src/chm_national/calibration_chmv2_median.json`
 and `validation_cells_lidar_20m_median.csv` to `NATIONAL_CHM_OUT_DIR`. Details:
-`NO_GJEN_002/src/chm_comparison/README.md`.
+`VAAT-GJEN-02/src/chm_comparison/README.md`.
 
-## New canopy heights for NO_GJEN_002 (version 000.003, superseded)
+## New canopy heights for VAAT-GJEN-02 (version 000.003, superseded)
 
 The earlier version: CHMv1 (Meta HighResCanopyHeight, on CPU) on the NiN
 wetland polygons. Kept for reference; its result is recomputed from the
@@ -342,26 +342,26 @@ canopy heights committed in the repository and needs none of this.
 ```bash
 bash docker/build_canopy_height_image.sh                       # once
 bash docker/canopy_height_model/download_model_and_weights.sh  # once, ~800 MB, checksum-verified
-bash docker/run_script.sh NO_GJEN_002/R/fetch_nin_data.R       # NiN polygons
-CHM_RUN_NAME=test20 CHM_REGIONS=Vestlandet CHM_MAX_POLYGONS=20 bash docker/run_NO_GJEN_002_canopy_height_model.sh
-CHM_RUN_NAME=ortho2025 bash docker/run_NO_GJEN_002_canopy_height_model.sh   # several days
+bash docker/run_script.sh VAAT-GJEN-02/R/fetch_nin_data.R       # NiN polygons
+CHM_RUN_NAME=test20 CHM_REGIONS=Vestlandet CHM_MAX_POLYGONS=20 bash docker/run_VAAT-GJEN-02_canopy_height_model.sh
+CHM_RUN_NAME=ortho2025 bash docker/run_VAAT-GJEN-02_canopy_height_model.sh   # several days
 ```
 
 Settings (`ORTHOPHOTO_*`, `CHM_*`) are explained in `config.env`. Output:
-one CSV per region in `NO_GJEN_002/data/OpenS_data/canopy_height_runs/<CHM_RUN_NAME>/`
+one CSV per region in `VAAT-GJEN-02/data/OpenS_data/canopy_height_runs/<CHM_RUN_NAME>/`
 with a `provenance/` folder (fingerprints of the orthophoto, its metadata
 and the NiN data; repository and model commits; checksums of weights and
 packages). With the two flight-metadata settings, the photo date of every
-polygon is added (`NO_GJEN_002/R/assign_orthophoto_flight_dates.R`). Rerunning
+polygon is added (`VAAT-GJEN-02/R/assign_orthophoto_flight_dates.R`). Rerunning
 with the same `CHM_RUN_NAME` resumes; failed regions are retried and listed
 in `INCOMPLETE.txt`. Pinned: Python, `uv` and model commit in
-`canopy_height_model/versions.env`; packages in `NO_GJEN_002/src/chm_model/uv.lock`;
+`canopy_height_model/versions.env`; packages in `VAAT-GJEN-02/src/chm_model/uv.lock`;
 model files in `canopy_height_model/model_files.sha256`.
 
 ## Running a single script
 
 ```bash
-bash docker/run_script.sh NO_FUNC_003/R/get_tyler_data.R
+bash docker/run_script.sh VAAT-FUNC-01/R/get_tyler_data.R
 ```
 
 The script runs with its own folder as working directory, exactly as the
@@ -371,8 +371,8 @@ indicator READMEs assume. Output appears in your terminal.
 
 - Everything runs as your own user, so files created by a run belong to
   you, not to root.
-- Two runs can go at the same time, for example `FUNC` in one terminal and
-  `GJEN` in another. They write to separate run folders and separate
+- Two runs can go at the same time, for example `VAAT-FUNC-01` in one terminal and
+  `VAAT-GJEN-01` in another. They write to separate run folders and separate
   indicator folders.
 - The log timestamps use the machine's local time zone.
 - If the image build fails while fetching `ecTools` from GitHub, GitHub's

@@ -1,0 +1,349 @@
+---
+title: "Woody encroachment in wetlands from aerial photos"
+subtitle: "[VAAT-GJEN-02]"
+indicatorID: VAAT-GJEN-02
+indicatorName: Woody encroachment in wetlands from aerial photos
+verbatimName: "Gjengroing i våtmark (flyfoto)"
+folderName: VAAT-GJEN-02
+country: Norway
+continent: Europe
+ECT: B2 - Structural State characteristics
+Realm:
+  - Freshwater-Terrestrial (TF)
+Biome:
+  - TF1 Palustrine wetlands biome
+Ecosystem:
+  - TF1.6 Boreal, temperate and montane peat bogs
+  - TF1.7 Boreal and temperate fens
+verbatimEcosystem: Våtmark
+yearAdded: 2026
+yearLastUpdate: 2026
+status: complete
+Version: "000.004"
+VersionComment: "New method: CHMv2 calibrated to LiDAR, every 20 m cell of AR5 mire, same cells, height measure, references and scaling as VAAT-GJEN-01"
+url: https://github.com/Chimal93/wetland_condition_indicators/tree/main/VAAT-GJEN-02
+Normalised: Yes
+SpatialAggregationPathway: "Truncate/Scale/Transform (sigmoid) per 20 m cell - Aggregate (mean weighted by mire area)"
+Precision: "Agreement with the LiDAR-based indicator at about 21,000 validation cells: sqrt(mean difference^2 + bootstrap SE^2)"
+format:
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+    toc-title: Contents
+    toc-depth: 3
+    smooth-scroll: true
+execute:
+  cache: false
+author:
+  - name: Bendik Sivertsen
+    email: bendik@sallirnatur.no
+    affiliations:
+      - id: sallir
+        name: Sállir Natur AS
+  - name: Jesus Adrian Chimal-Ballesteros
+    email: adrian@sallirnatur.no
+    affiliations:
+      - ref: sallir
+  - name: Lasse Keetz
+    email: lasse.keetz@fieldgeo.no
+    affiliations:
+      - id: field
+        name: Field Geospatial AS
+AuthorList: "Sivertsen, B., Chimal-Ballesteros, J. A., and Keetz, L."
+date: 2026-11-26
+date-format: long
+data_availability: none
+code_reproducibility: none
+open_science_badge: none
+hide: TRUE
+---
+
+```{r setup}
+#| include: false
+library(knitr)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(sf)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+source(file.path("..", "..", "Tools", "quarto_helpers.R"), encoding = "UTF-8")
+tables <- file.path("..", "data", "OpenS_data", "orthophoto_chmv2_20m_cells")
+deliv  <- file.path("..", "outputs", "deliverables")
+reg_lv <- c("Norge", "Nord-Norge", "Midt-Norge", "Vestlandet", "Østlandet", "Sørlandet")
+vals   <- read_csv(file.path(deliv, "VAAT-GJEN-02_values.csv"), show_col_types = FALSE)
+yr     <- sub("^i_", "", grep("^i_[0-9]{4}$", names(vals), value = TRUE))
+vals   <- vals |> rename(v = paste0("v_", yr), i = paste0("i_", yr), sd = paste0("sd_", yr))
+nor    <- filter(vals, area == "Norge")
+regs   <- filter(vals, area != "Norge") |> arrange(i)
+lo     <- regs[1, ]; hi <- regs[nrow(regs), ]
+strata <- read_csv(file.path(tables, "strata.csv"), show_col_types = FALSE)
+unc    <- read_csv(file.path(tables, "uncertainty.csv"), show_col_types = FALSE)
+excl   <- read_csv(file.path(tables, "excluded.csv"), col_names = c("what", "value"), skip = 1, show_col_types = FALSE)
+ex     <- setNames(excl$value, excl$what)
+prov   <- jsonlite::fromJSON(file.path(tables, "provenance.json"))
+cal    <- prov$calibration
+g1     <- read_csv(file.path("..", "..", "VAAT-GJEN-01", "outputs", "deliverables", "VAAT-GJEN-01_values.csv"), show_col_types = FALSE)
+```
+
+::: {.callout-note}
+## Status of this document
+This document follows the structure of NINA's ecRxiv indicator template. It
+has **not** been submitted to or published on ecRxiv, and it is not a NINA
+product. The ecRxiv badges and the ecRxiv citation are therefore left out.
+
+:::
+
+::: {.callout-tip collapse="true"}
+## Metadata
+
+```{r tbl-meta}
+#| tbl-cap: "Indicator metadata"
+#| echo: false
+metadata_table("VAAT-GJEN-02.qmd")
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Log
+
+- 24 Nov. 2026 - First version of this document. Population changed (version 000.003).
+- 26 Nov. 2026 - New method (version 000.004): canopy height from CHMv2 calibrated to LiDAR, on every 20 m cell of AR5 mire instead of NiN wetland polygons. Version 000.003 is kept in the git history (tag `pre-docker-vaat-gjen-02-v000.004`).
+:::
+
+<hr />
+
+## 1. Summary
+
+1. **Background and rationale**:
+Open wetlands can become overgrown with trees and shrubs (Norwegian: *gjengroing*). VAAT-GJEN-01 measures this with LiDAR at a sample of points. LiDAR is rarely repeated nationally. This indicator measures the same characteristic from aerial photos, which are renewed far more often.
+
+2. **Methods**:
+The canopy-height model CHMv2 (Meta and the World Resources Institute) estimates vegetation height from the national 50 cm orthophoto mosaic for all AR5 mire in Norway. The heights are corrected to the LiDAR scale with a simple calibration. Every 20 m cell of AR5 mire is then treated exactly as a VAAT-GJEN-01 sample cell: median height, the same references and the same scaling. Cell values are averaged, weighted by mire area.
+
+3. **Interpretation**:
+A value of 1 means that the vegetation is no taller than in wetland in good condition.
+Values decreasing towards 0 mean that the vegetation approaches the height of forest.
+
+4. **Results and development needs**:
+The national value is `r num(nor$i, 3)` (± `r num(nor$sd, 3)`), from `r cnt(nor$n_cells)` cells covering `r cnt(round(nor$mire_km2))` km² of mire. It is lowest in `r lo$area` (`r num(lo$i, 3)`) and highest in `r hi$area` (`r num(hi$i, 3)`). With the same weighting of strata as VAAT-GJEN-01, the regional values are within about 0.01 of the LiDAR-based indicator. The photos are from different years in different parts of the country, and the model underestimates the height of tall stands.
+
+## 2. About the underlying data
+
+- **Imagery**: the national RGB orthophoto mosaic, 50 cm, product year 2025, from Field Geospatial AS. It is commercial and cannot be redistributed. The flights span `r nor$flight_year_min`–`r nor$flight_year_max`.
+- **Model**: CHMv2 (`facebook/dinov3-vitl16-chmv2-dpt-head`, open weights under the DINOv3 licence).
+- **Population**: AR5 mire (land type 60, *myr*) from FKB-AR5 (NIBIO). The polygons themselves are not open and are not distributed.
+- **Calibration and validation**: LiDAR canopy height (Kartverket DOM1 − DTM1, 1 m) at the VAAT-GJEN-01 sample cells.
+- **Reference heights**: from VAAT-GJEN-01.
+- **Other**: bioclimatic zones, OpenStreetMap buildings, the SSB 50 km grid and five regions, all as in VAAT-GJEN-01.
+
+### 2.1 Spatial and temporal resolution and extent
+All AR5 mire in mainland Norway, on a 20 m grid. Each cell is dated by the flight project visible there in the mosaic. The year label of the deliverables (`r yr`) is the median flight year over the mire area of Norway. Median, earliest and latest flight year per unit are in the delivered tables.
+
+### 2.2 Sampling design
+No sampling: every 20 m cell that contains AR5 mire is used. The same cells are the population of VAAT-GJEN-01, which samples up to 1,000 of them per stratum.
+
+### 2.3 Original units
+Metres (calibrated canopy height).
+
+### 2.4 Instructions for citing, using and accessing data
+The tables of the national run are in the repository (`data/OpenS_data/orthophoto_chmv2_20m_cells/`), so the deliverables can be recreated without the imagery. A new run needs imagery of 0.5 m or finer, the AR5 mire layer and a GPU, see the [README](../README.md).
+
+### 2.5 Additional comments about the dataset
+The model choice and the calibration are explained in section 5 and in the [README](../README.md).
+
+## 3. Indicator properties
+
+### 3.1 Ecosystem Condition Typology Class (ECT)
+B2 - structural state, as in NINA's NO_GJEN_002: the indicator describes vegetation structure.
+
+### 3.2 Ecosystem condition characteristic
+Openness: in good condition, the wetland has few trees.
+
+### 3.3 Collinearities with other indicators
+VAAT-GJEN-01 measures the same characteristic in the same population with the same references, and the two should not be used together. The light indicator VAAT-FULI-01 may covary.
+
+### 3.4 Impact factors
+Drainage, nitrogen deposition and nutrient input, climate warming, and the end of traditional mowing and grazing.
+
+### 3.5 Spatial aggregation
+The variable is scaled per 20 m cell. Cell values are averaged per region, 50 km cell and nationally, each cell weighted by its area of AR5 mire. A second mean, `i_sample_design` in the tables, weights every region × bioclimatic-zone stratum equally, as VAAT-GJEN-01's sample does.
+
+## 4. Reference condition and levels
+
+### 4.1 Reference condition
+Wetland with little or no woody encroachment, under largely intact ecosystems (Nybø & Evju, 2017).
+
+### 4.2 Reference levels
+Taken unchanged from VAAT-GJEN-01:
+
+- **X~100~**: the height of good-condition NiN wetland, evaluated at 30 m (median per polygon, then median per stratum).
+- **X~0~**: the 90th percentile of forest height in AR5 forest, read as 20 m cells.
+- **X~60~**: not defined. The limit 0.6 on the indicator scale is the platform default.
+
+Both are measured with LiDAR. The calibration (section 5) puts the photo-based heights on the same scale.
+
+```{r tbl-strata}
+#| tbl-cap: "Reference heights, mire area and indicator value per stratum"
+#| echo: false
+strata |>
+  mutate(region = factor(region, reg_lv)) |>
+  arrange(region, vegClimZoneLab) |>
+  transmute(Region = region, Zone = vegClimZoneLab, `X100 (m)` = num(X100_ref), `X0 (m)` = num(X0_skog),
+            `Mire (km²)` = cnt(round(mire_km2)), `Height (m)` = num(height_m), Indicator = num(index, 3)) |>
+  kable(align = "llrrrrr")
+```
+
+#### 4.2.1 Spatial resolution and validity
+Reference levels vary by region and bioclimatic zone. Cells in strata without reference values are left out, as VAAT-GJEN-01 leaves out its points there (`r cnt(ex[["stratum without X100/X0"]])` cells). So are cells whose centre lies outside the map of regions and zones (`r cnt(ex[["outside regions x zones"]])` cells). In total, `r cnt(round(nor$mire_km2))` of `r cnt(round(ex[["mire km2"]]))` km² of AR5 mire are scored.
+
+## 5. Uncertainties
+
+### 5.1 Model and calibration
+
+The model was chosen after comparing CHMv2 with the model of the earlier version (CHMv1, Meta HighResCanopyHeight) at 25,027 VAAT-GJEN-01 sample cells with LiDAR heights, using the median per 20 m cell:
+
+| Model | r | Mean error | Mean abs. error | < 0.5 m | 0.5–2 m | 2–5 m | > 5 m |
+|:---|---:|---:|---:|---:|---:|---:|---:|
+| CHMv1 | 0.80 | −0.22 m | 0.35 m | 0.05 m | 0.84 m | 1.78 m | 3.74 m |
+| CHMv2, uncorrected | 0.86 | +0.57 m | 0.64 m | 0.14 m | 2.26 m | 3.74 m | 3.86 m |
+| CHMv2, corrected | 0.86 | 0.00 m | 0.30 m | 0.08 m | 0.94 m | 1.14 m | 2.57 m |
+
+The last four columns are the mean absolute error by LiDAR height class. CHMv2 overestimates height by a nearly constant factor, so a linear correction works: LiDAR height = max(0, `r num(cal$a, 4)` + `r num(cal$b, 4)` × CHMv2 height). Tested on one region at a time with the fit made on the other four, it performs as well as on its own data, and the slope varies little between regions (0.49–0.55). CHMv1 is about as accurate on low mire, but cannot be improved by a correction and needs about two weeks nationally on CPU; CHMv2 took about 11 hours on one GPU.
+
+### 5.2 General uncertainties
+
+- **Tall stands.** After correction, heights above 5 m are underestimated by about 1.4 m on average. This is the usual effect of a correction fitted on a noisy predictor; it is unbiased for a given model height, not for a given true height.
+- **Imagery.** Photo year and season vary across the mosaic. Each unit's flight years are reported with the results.
+- **Time between photo and LiDAR.** Calibration and validation use LiDAR that is often several years older or newer than the photo. Clear-cuts or growth in between count as model error.
+- **The index saturates.** Most cells of open mire score 1, because the sigmoid is flat near the reference.
+
+### 5.3 Reported uncertainties
+`sd` is the agreement with the LiDAR-based indicator. At each of `r cnt(unc$n_validation_cells[unc$region == "Norge"])` validation cells, the indicator is computed from the LiDAR height and from the calibrated photo-based height of the national map, with the calibration fitted without the cell's region. Per region and nationally, `sd` = √(mean difference² + SE²), with SE from 1,000 bootstrap resamples of the cells. A 50 km cell gets the value of the region that holds most of its mire. The value does not include errors in the LiDAR heights or in the reference heights.
+
+```{r tbl-unc}
+#| tbl-cap: "Photo-based against LiDAR-based indicator at the validation cells"
+#| echo: false
+unc |>
+  mutate(region = factor(region, reg_lv)) |>
+  arrange(region) |>
+  transmute(Region = region, `Validation cells` = cnt(n_validation_cells), `Indicator, LiDAR` = num(index_lidar, 3),
+            `Indicator, photo` = num(index_photo, 3), Difference = num(difference, 3), sd = num(sd, 3)) |>
+  kable(align = "lrrrrr")
+```
+
+## 6. References
+
+Nybø, S., & Evju, M. (Eds.). (2017). *Fagsystem for fastsetting av god økologisk tilstand: Forslag fra et ekspertråd*. Ekspertrådet for økologisk tilstand.
+
+Tolan, J., Yang, H.-I., Nosarzewski, B., Couairon, G., Vo, H. V., Brandt, J., Spore, J., Majumdar, S., Haziza, D., Vamaraju, J., Moutakanni, T., Bojanowski, P., Johns, T., White, B., Tiecke, T., & Couprie, C. (2024). Very high resolution canopy height maps from RGB imagery using self-supervised vision transformer and convolutional decoder trained on aerial lidar. *Remote Sensing of Environment, 300*, 113888. <https://doi.org/10.1016/j.rse.2023.113888> (CHMv1, used in version 000.003 and in the model comparison)
+
+CHMv2: Meta and the World Resources Institute, canopy-height model built on DINOv3, <https://huggingface.co/facebook/dinov3-vitl16-chmv2-dpt-head>.
+
+The indicator follows NINA's indicator documents [NO_GJEN_002](https://github.com/NINAnor/ecRxiv/tree/main/indicators/NO_GJEN_002) by Gray, Mienna and Venter, and NO_GJEN_001.
+
+## 7. Import and prepare datasets
+
+The code in chapters 7, 9 and 11 is read from the scripts in the repository when this document is rendered. It is shown, but not executed. The results in chapter 10 are read from the files those scripts wrote. `docker/run_VAAT-GJEN-02_deliverables.sh` runs everything in order.
+
+### 7.1 National canopy-height map
+
+Every 256 m block of the mosaic within 30 m of AR5 mire is predicted on the GPU, with 40 m of surrounding image for context. The result is a 0.5 m height map (cm) of all mire plus a 30 m strip, so that edge cells are complete.
+
+```{python code-map}
+#| eval: false
+#| python.reticulate: false
+#| file: ../src/chm_national/national_chm.py
+```
+
+## 8. Spatial units
+
+The basic spatial unit (BSU) is the 20 m cell of AR5 mire. The values should be interpreted for regions and nationally (ecosystem accounting areas, EAA), and with more care for 50 km cells.
+
+## 9. Analyses
+
+Cell heights, calibration, scaling, aggregation, flight years and uncertainty are computed in one script. The scaling is NINA's sigmoid function, as in VAAT-GJEN-01: heights below X~100~ are raised to X~100~, and with $x = (h - X_{100}) / (X_0 - X_{100})$ truncated to 0–1, the indicator is $1 - 1.0068\,(1 - e^{-5x^{2.5}})$.
+
+```{python code-cells}
+#| eval: false
+#| python.reticulate: false
+#| file: ../src/chm_national/cell_indicator.py
+```
+
+## 10. Results
+
+```{r tbl-final}
+#| tbl-cap: "Indicator values. Height is the calibrated mean height of the mire, heights below X100 counted as X100 (the variable of VAAT-GJEN-01). i_sample_design weights every stratum equally, as VAAT-GJEN-01's sample"
+#| echo: false
+vals |>
+  mutate(area = factor(area, reg_lv)) |>
+  arrange(area) |>
+  transmute(Region = area, `Mire (km²)` = cnt(round(mire_km2)), `Height (m)` = num(v, 2), Indicator = num(i, 3), sd = num(sd, 3),
+            `i_sample_design` = num(i_sample_design, 3), `Flight years` = paste0(flight_year_min, "–", flight_year_max, " (median ", flight_year_median, ")")) |>
+  kable(align = "lrrrrrl")
+```
+
+```{r fig-map}
+#| fig-cap: "Indicator values per region"
+#| fig-width: 6
+#| fig-height: 6
+#| echo: false
+region_map(file.path(deliv, "VAAT-GJEN-02_indicatorMap_region.rds"), paste0("i_", yr), limits = c(0.85, 1))
+```
+
+```{r fig-grid}
+#| fig-cap: "Indicator values per 50 km cell"
+#| fig-width: 6
+#| fig-height: 6
+#| echo: false
+readRDS(file.path(deliv, "VAAT-GJEN-02_indicatorMap_grid50km.rds")) |>
+  ggplot() +
+  geom_sf(aes(fill = .data[[paste0("i_", yr)]]), colour = "white", linewidth = 0.2) +
+  scale_fill_viridis_c(limits = c(0.8, 1), oob = scales::squish, name = "Indicator\nvalue") +
+  theme_void()
+```
+
+```{r tbl-compare}
+#| tbl-cap: "Comparison with VAAT-GJEN-01. With the same weighting of strata (i_sample_design), the two measure the same population"
+#| echo: false
+g1 |>
+  select(area, g1 = i_2024) |>
+  inner_join(select(vals, area, g2s = i_sample_design, g2 = i), by = "area") |>
+  mutate(area = factor(area, reg_lv)) |>
+  arrange(area) |>
+  transmute(Region = area, `VAAT-GJEN-01 (LiDAR, sample)` = num(g1, 3), `VAAT-GJEN-02, strata weighted equally` = num(g2s, 3),
+            `VAAT-GJEN-02, weighted by mire area` = num(g2, 3)) |>
+  kable(align = "lrrr")
+```
+
+## 11. Export file
+
+The tables of the national run are converted to the ecosystemCondition platform format by `R/export_deliverables_20m_cells.R`.
+
+```{r export}
+#| eval: false
+#| code: !expr script("export_deliverables_20m_cells.R")
+```
+
+## 12. Author contributions
+
+**CRediT statement**
+
+* Software (code development): JACB, LK
+* Validation (assessment): JACB, LK
+* Writing of the project report: BS, JACB
+
+BS: Bendik Sivertsen. JACB: Jesus Adrian Chimal-Ballesteros. LK: Lasse Keetz.
+
+AI tools: Claude (Anthropic) was used for code development and review, for running and checking analyses, and for drafting this document. The use is described in the [repository README](../../README.md).
+
+::: {.callout-tip collapse="true"}
+## Session Info
+
+This is the R session that rendered the document, not the one that produced the results. The package versions of the analysis are in `renv.lock` and `src/chm_national/uv.lock`.
+
+```{r sessionInfo}
+#| echo: false
+sessionInfo()
+```
+:::

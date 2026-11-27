@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prepare the AR5 forest and mire input for NO_GJEN_001 from the municipal
+# Prepare the AR5 forest and mire input for VAAT-GJEN-01 from the municipal
 # FKB-AR5 GeoPackages. This is how the AR5 layers behind the published
 # results were built.
 #
@@ -7,7 +7,7 @@
 # municipality, named Basisdata_<nr>_<name>_<epsg>_FKB-AR5_SOSI.gpkg
 # (357 files, about 47 GB). Access to FKB-AR5 is restricted, so this
 # script cannot download anything: you must already have the files.
-# If you do not, run NO_GJEN_001 with GJEN_SOURCE=AR50 instead.
+# If you do not, run VAAT-GJEN-01 with VAAT_GJEN_01_SOURCE=AR50 instead.
 #
 # What it does, for every municipality file:
 #   1. copies the file to local disk (with retries, in case the files sit
@@ -35,7 +35,7 @@
 # If any municipality still fails after retries, the two outputs are renamed
 # *.INCOMPLETE and nothing is installed, so a partial layer is never used.
 #
-# Result (installed into NO_GJEN_001/data/OpenS_data/):
+# Result (installed into VAAT-GJEN-01/data/OpenS_data/):
 #   ar5_skog_national.gpkg   forest
 #   ar5_myr_national.gpkg    mire
 #
@@ -64,11 +64,11 @@ fi
 
 # ---- container side ---------------------------------------------------------
 # Mounts: /fkb (the FKB-AR5 folder, read-only), /runs/current (work folder),
-# /work (the repository; the final files are copied into NO_GJEN_001).
+# /work (the repository; the final files are copied into VAAT-GJEN-01).
 set -u
 SRC=/fkb
 OUT=/runs/current/ar5
-DEST=/work/NO_GJEN_001/data/OpenS_data
+DEST=/work/VAAT-GJEN-01/data/OpenS_data
 STAGE=$OUT/_staging
 mkdir -p "$OUT" "$STAGE" "$DEST"
 SKOG=$OUT/ar5_skog_national.gpkg
@@ -128,12 +128,12 @@ if [ "${#FAILED[@]}" -gt 0 ]; then
 fi
 
 cp "$SKOG" "$DEST/ar5_skog_national.gpkg" && cp "$MYR" "$DEST/ar5_myr_national.gpkg" \
-  && log "Installed ar5_skog_national.gpkg and ar5_myr_national.gpkg into NO_GJEN_001/data/OpenS_data/" \
+  && log "Installed ar5_skog_national.gpkg and ar5_myr_national.gpkg into VAAT-GJEN-01/data/OpenS_data/" \
   || { log "Copy into the repository failed"; exit 1; }
 
 # Record where the two layers came from (see docker/data_sources.tsv).
 cp "$SOURCE_LIST" "$DEST/ar5_national_source_files.csv"
 . /work/docker/internal/record_data_sources.sh
-log_fetch NO_GJEN_001 docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh "$RUN_NAME (from $FKB_SOURCE_DIR)"
-log "Recorded in NO_GJEN_001/data/data_sources_log.csv; the municipal files used are listed in"
-log "NO_GJEN_001/data/OpenS_data/ar5_national_source_files.csv"
+log_fetch VAAT-GJEN-01 docker/prepare_ar5_input/subset_and_merge_municipal_ar5.sh "$RUN_NAME (from $FKB_SOURCE_DIR)"
+log "Recorded in VAAT-GJEN-01/data/data_sources_log.csv; the municipal files used are listed in"
+log "VAAT-GJEN-01/data/OpenS_data/ar5_national_source_files.csv"

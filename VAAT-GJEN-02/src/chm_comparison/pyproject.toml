@@ -1,0 +1,19 @@
+# Environment for comparing canopy-height models against LiDAR (CHMv1 aerial
+# on GPU, CHMv2): see README.md. Built by docker/run_VAAT-GJEN-02_chm_comparison.sh.
+[project]
+name = "chm-model-comparison"
+version = "0"
+requires-python = "==3.12.*"
+dependencies = [
+    "torch", "torchvision", "transformers>=5.3", "huggingface_hub", "safetensors",
+    "numpy", "pandas", "geopandas", "pyogrio", "rasterio", "matplotlib",
+]
+[tool.uv]
+package = false
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
